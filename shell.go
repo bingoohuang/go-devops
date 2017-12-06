@@ -26,17 +26,19 @@ func ExecuteCommands(cmds string, timeoutSeconds time.Duration) (string, string)
 		log.Fatal(err)
 	}
 
-	log.Println("pid:", cmd.Process.Pid)
-	//
 	chStdout := readOut(stdout)
 	chStderr := readOut(stderr)
 
+	return waitCommandsOutput(chStdout, chStderr, cmd, timeoutSeconds)
+}
+
+func waitCommandsOutput(chStdout <-chan string, chStderr <-chan string, cmd *exec.Cmd,
+	timeoutSeconds time.Duration, ) (string, string) {
+	var bufferStderr bytes.Buffer
 	quit := make(chan bool)
 	time.AfterFunc(timeoutSeconds, func() { quit <- true })
 
 	var bufferStdout bytes.Buffer
-	var bufferStderr bytes.Buffer
-
 LOOP:
 	for {
 		select {
@@ -54,13 +56,11 @@ LOOP:
 			cmd.Process.Kill()
 		}
 	}
-
 	cmd.Wait()
-
 	return bufferStdout.String(), bufferStderr.String()
 }
 
-func readOut(closer io.ReadCloser) chan string {
+func readOut(closer io.ReadCloser) <-chan string {
 	ch := make(chan string)
 	go func() {
 		buf := make([]byte, 1024)
@@ -80,7 +80,7 @@ func readOut(closer io.ReadCloser) chan string {
 }
 
 func main() {
-	out, err := ExecuteCommands("ls\n" + "ps -ef|grep shell|grep -v grep\n" + "echo 'abc'", 3*time.Second)
+	out, err := ExecuteCommands("ls\n"+"ps -ef|grep shell|grep -v grep\n"+"echo 'abc'", 3*time.Second)
 	fmt.Print(out)
 	fmt.Print(err)
 }
