@@ -80,7 +80,7 @@ func readOut(closer io.ReadCloser) chan string {
 }
 
 func main() {
-	out, err := ExecuteCommands("ps -ef|grep shell|grep -v grep", 3*time.Second)
+	out, err := ExecuteCommands("ls\n" + "ps -ef|grep shell|grep -v grep\n" + "echo 'abc'", 3*time.Second)
 	fmt.Print(out)
 	fmt.Print(err)
 }
