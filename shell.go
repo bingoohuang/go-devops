@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func ExecuteCommands(cmds string, timeoutSeconds time.Duration) (string, string) {
+func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	cmd := exec.Command("bash", "-c", cmds)
 
 	stderr, err := cmd.StderrPipe()
@@ -26,19 +26,18 @@ func ExecuteCommands(cmds string, timeoutSeconds time.Duration) (string, string)
 		log.Fatal(err)
 	}
 
-	chStdout := readOut(stdout)
-	chStderr := readOut(stderr)
+	chStdout := goReadOut(stdout)
+	chStderr := goReadOut(stderr)
 
-	return waitCommandsOutput(chStdout, chStderr, cmd, timeoutSeconds)
+	return waitCommandsOutput(chStdout, chStderr, cmd, timeout)
 }
 
-func waitCommandsOutput(chStdout <-chan string, chStderr <-chan string, cmd *exec.Cmd,
-	timeoutSeconds time.Duration, ) (string, string) {
-	var bufferStderr bytes.Buffer
+func waitCommandsOutput(chStdout, chStderr <-chan string, cmd *exec.Cmd, timeout time.Duration) (string, string) {
 	quit := make(chan bool)
-	time.AfterFunc(timeoutSeconds, func() { quit <- true })
+	time.AfterFunc(timeout, func() { quit <- true })
 
-	var bufferStdout bytes.Buffer
+	var bufStdout bytes.Buffer
+	var bufStderr bytes.Buffer
 LOOP:
 	for {
 		select {
@@ -46,21 +45,21 @@ LOOP:
 			if !ok {
 				break LOOP
 			}
-			bufferStdout.WriteString(s)
+			bufStdout.WriteString(s)
 		case s, ok := <-chStderr:
 			if !ok {
 				break LOOP
 			}
-			bufferStderr.WriteString(s)
+			bufStderr.WriteString(s)
 		case <-quit:
 			cmd.Process.Kill()
 		}
 	}
 	cmd.Wait()
-	return bufferStdout.String(), bufferStderr.String()
+	return bufStdout.String(), bufStderr.String()
 }
 
-func readOut(closer io.ReadCloser) <-chan string {
+func goReadOut(closer io.ReadCloser) <-chan string {
 	ch := make(chan string)
 	go func() {
 		buf := make([]byte, 1024)
