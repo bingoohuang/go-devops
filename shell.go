@@ -7,7 +7,48 @@ import (
 	"bytes"
 	"log"
 	"time"
+	"net/rpc"
 )
+
+type CommandsArg struct {
+	Command string
+	Timeout time.Duration
+}
+
+type CommandsResult struct {
+	Stdout, Stderr string
+	CostMillis     int64
+}
+
+type ShellCommand int
+
+func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error {
+	start := time.Now()
+
+	stdout, stderr := ExecuteCommands(args.Command, args.Timeout)
+	elapsed := time.Since(start)
+	result.Stdout = stdout
+	result.Stderr = stderr
+	result.CostMillis = elapsed.Nanoseconds() / 1e6
+	return nil
+}
+
+func CallShellCommandService(commands string) {
+	serverAddress := "127.0.0.1"
+	client, err := rpc.DialHTTP("tcp", serverAddress+":1234")
+	if err != nil {
+		log.Fatal("dialing:", err)
+	}
+
+	// Synchronous call
+	args := &CommandsArg{commands, 100 * time.Millisecond}
+	var reply CommandsResult
+	err = client.Call("ShellCommand.Execute", args, &reply)
+	if err != nil {
+		log.Fatal("arith error:", err)
+	}
+	fmt.Println(reply)
+}
 
 func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	cmd := exec.Command("bash", "-c", cmds)
@@ -78,7 +119,7 @@ func goReadOut(closer io.ReadCloser) <-chan string {
 	return ch
 }
 
-func main() {
+func TestShell() {
 	out, err := ExecuteCommands("ls\n"+"ps -ef|grep shell|grep -v grep\n"+"echo 'abc'", 3*time.Second)
 	fmt.Print(out)
 	fmt.Print(err)

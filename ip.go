@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"net"
-	"fmt"
 )
 
 func GetIps() []string {
@@ -23,8 +22,4 @@ func GetIps() []string {
 	}
 
 	return ips
-}
-
-func main() {
-	fmt.Println(GetIps())
 }

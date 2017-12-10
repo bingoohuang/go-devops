@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
-	"github.com/shirou/gopsutil/net"
-	"net/http"
 	"runtime"
 	"strconv"
 )
@@ -52,6 +49,7 @@ func GetHardwareInfo() HardwareInfo {
 	}
 }
 
+/*
 func GetHardwareData(w http.ResponseWriter, r *http.Request) {
 	// memory
 	vmStat, err := mem.VirtualMemory()
@@ -148,8 +146,10 @@ func GetHardwareData(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func run() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", GetHardwareData)
-	http.ListenAndServe(":8080", mux)
-}
+//func run() {
+//	mux := http.NewServeMux()
+//	mux.HandleFunc("/", GetHardwareData)
+//	http.ListenAndServe(":8080", mux)
+//}
+
+*/
