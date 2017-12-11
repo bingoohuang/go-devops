@@ -33,17 +33,11 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 	return nil
 }
 
-func CallShellCommandService(commands string) {
-	serverAddress := "127.0.0.1"
-	client, err := rpc.DialHTTP("tcp", serverAddress+":1234")
-	if err != nil {
-		log.Fatal("dialing:", err)
-	}
-
+func CallShellCommandService(client *rpc.Client, commands string) {
 	// Synchronous call
 	args := &CommandsArg{commands, 100 * time.Millisecond}
 	var reply CommandsResult
-	err = client.Call("ShellCommand.Execute", args, &reply)
+	err := client.Call("ShellCommand.Execute", args, &reply)
 	if err != nil {
 		log.Fatal("arith error:", err)
 	}

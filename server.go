@@ -4,10 +4,9 @@ import (
 	"net/rpc"
 	"net"
 	"net/http"
-	"log"
 )
 
-func StartServer() {
+func GoServer() error {
 	arith := new(Arith)
 	rpc.Register(arith)
 	shellCommand := new(ShellCommand)
@@ -15,7 +14,9 @@ func StartServer() {
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", ":1234")
 	if e != nil {
-		log.Fatal("listen error:", e)
+		return e
 	}
-	http.Serve(l, nil)
+	go http.Serve(l, nil)
+
+	return nil
 }
