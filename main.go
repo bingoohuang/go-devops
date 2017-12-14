@@ -5,10 +5,14 @@ import (
 	"net/rpc"
 	"log"
 	"time"
+	"fmt"
 )
 
 func main() {
-	err :=GoServer()
+	config := ReadConfig()
+	fmt.Println(config)
+
+	err := GoServer()
 	if err == nil {
 		GoHttpSever()
 	}

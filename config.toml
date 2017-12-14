@@ -1,0 +1,26 @@
+[machines]
+    # You can indent as you please. Tabs or spaces. TOML don't care.
+    [machines.APP01]
+    ip = "192.168.0.1"
+
+    [machines.APP02]
+    ip = "192.168.0.2"
+
+    [machines.CP01]
+    ip = "192.168.0.3"
+
+    [machines.CP02]
+    ip = "192.168.0.4"
+
+[logs]
+    [logs.YOGA]
+    machines = ["APP01", "APP02"]
+    path = "/etc/logs/yoga.log"
+
+    [logs.ET]
+    machines = ["APP01", "APP02"]
+    path = "/etc/logs/et.log"
+
+    [logs.CP_BAS]
+    machines = ["CP01", "CP02"]
+    path = "/etc/logs/cp.log"
