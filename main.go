@@ -8,8 +8,10 @@ import (
 	"fmt"
 )
 
+var config Config
+
 func main() {
-	config := ReadConfig()
+	config = ReadConfig()
 	fmt.Println(config)
 
 	err := GoServer()

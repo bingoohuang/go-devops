@@ -7,6 +7,7 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 type HardwareInfo struct {
@@ -21,6 +22,26 @@ func dealwithErr(err error) {
 		fmt.Println(err)
 		//os.Exit(-1)
 	}
+}
+
+type MachineCommandArg struct {
+}
+
+type MachineCommandResult struct {
+	MachineInfo HardwareInfo
+	CostMillis  int64
+}
+
+type MachineCommand int
+
+func (t *MachineCommand) MachineInfo(args *MachineCommandArg, result *MachineCommandResult) error {
+	start := time.Now()
+
+	hardwareInfo := GetHardwareInfo()
+	elapsed := time.Since(start)
+	result.MachineInfo = hardwareInfo
+	result.CostMillis = elapsed.Nanoseconds() / 1e6
+	return nil
 }
 
 func GetHardwareInfo() HardwareInfo {

@@ -9,6 +9,7 @@ import (
 func GoHttpSever() {
 	r := mux.NewRouter()
 	r.HandleFunc("/log/{logger}/{timestamp}", HandleLog)
+	r.HandleFunc("/machines", HandleMachines)
 	http.Handle("/", r)
 
 	go http.ListenAndServe(":6879", nil)
