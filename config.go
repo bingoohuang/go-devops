@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/BurntSushi/toml"
 	"os"
+	"flag"
 )
 
 type Config struct {
@@ -17,18 +18,18 @@ type Machine struct {
 type Log struct {
 	Machines []string
 	Path     string
+	Process  string
 }
 
 var config Config
 
 func init() {
-	configPath := "config.toml"
+	configFileArg := flag.String("config", "config.toml", "config file path")
+	flag.Parse()
+
+	configPath := *configFileArg
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return
-	}
-
-	if len(os.Args) > 1 {
-		configPath = os.Args[1]
 	}
 
 	_, err := toml.DecodeFile(configPath, &config)

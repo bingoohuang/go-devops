@@ -29,10 +29,12 @@
 
 
 [logs]
-    [logs.YOGA]
+    [logs.YOGA-SYSTEM]
     machines = ["APP01", "APP02"]
     path = "/home/app/tomcat/yoga-system/logs/catalina.out"
+    process = "ps -aux|grep org.apache.catalina.startup.Bootstrap|grep yoga-system||grep -v grep"
 
-    [logs.CP_BAS]
+    [logs.CP-BAS]
     machines = ["CP01", "CP02"]
     path = "/home/app/apis-run/easyhi-cp-bas/easyhi-cp-bas-1.0-SNAPSHOT.log"
+    process = "ps -aux|grep easyhi-cp-bas|grep java|grep -v grep"
