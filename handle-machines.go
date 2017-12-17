@@ -11,17 +11,17 @@ import (
 func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	machineInfos := make([]MachineCommandResult, 0)
+	results := make([]MachineCommandResult, 0)
 	for machineName, machine := range config.Machines {
-		machineInfo := timeoutCall(machine)
-		machineInfo.Name = machineName
-		machineInfos = append(machineInfos, machineInfo)
+		result := timeoutCallMachineInfo(machine)
+		result.Name = machineName
+		results = append(results, result)
 	}
 
-	json.NewEncoder(w).Encode(machineInfos)
+	json.NewEncoder(w).Encode(results)
 }
 
-func timeoutCall(machine Machine) MachineCommandResult {
+func timeoutCallMachineInfo(machine Machine) MachineCommandResult {
 	c := make(chan MachineCommandResult, 1)
 	go func() { c <- DialAndCallMachineInfo(machine) }()
 	select {

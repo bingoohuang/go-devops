@@ -16,6 +16,7 @@ type CommandsArg struct {
 }
 
 type CommandsResult struct {
+	Error          string
 	Stdout, Stderr string
 	CostMillis     int64
 }
