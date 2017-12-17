@@ -1,20 +1,13 @@
 package main
 
 import (
-	"net/rpc"
 	"net"
+	"net/rpc"
 )
 
 func GoDevOpServer() error {
 	rpc.Register(new(ShellCommand))
 	rpc.Register(new(MachineCommand))
-	//rpc.HandleHTTP()
-	//l, e := net.Listen("tcp", ":6979")
-	//if e != nil {
-	//	return e
-	//}
-	//go http.Serve(l, nil)
-
 	tcpAddr, err := net.ResolveTCPAddr("tcp", ":6979")
 	FatalIfErr(err)
 

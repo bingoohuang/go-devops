@@ -1,13 +1,13 @@
 package main
 
 import (
-	"os/exec"
+	"bytes"
 	"fmt"
 	"io"
-	"bytes"
 	"log"
-	"time"
 	"net/rpc"
+	"os/exec"
+	"time"
 )
 
 type CommandsArg struct {

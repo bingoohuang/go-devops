@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
 	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func StartHttpSever() {

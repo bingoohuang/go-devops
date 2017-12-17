@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"github.com/BurntSushi/toml"
+	"os"
 )
 
 type Config struct {
@@ -19,15 +19,18 @@ type Log struct {
 	Path     string
 }
 
-func ReadConfig() Config {
+var config Config
+
+func init() {
 	configPath := "config.toml"
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		return
+	}
+
 	if len(os.Args) > 1 {
 		configPath = os.Args[1]
 	}
 
-	config := Config{}
 	_, err := toml.DecodeFile(configPath, &config)
 	FatalIfErr(err)
-
-	return config
 }
