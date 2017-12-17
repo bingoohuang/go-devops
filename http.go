@@ -6,13 +6,13 @@ import (
 	"fmt"
 )
 
-func GoHttpSever() {
+func StartHttpSever() {
 	r := mux.NewRouter()
 	r.HandleFunc("/log/{logger}/{timestamp}", HandleLog)
 	r.HandleFunc("/machines", HandleMachines)
 	http.Handle("/", r)
 
-	go http.ListenAndServe(":6879", nil)
+	http.ListenAndServe(":6879", nil)
 }
 
 // http://127.0.0.1:6879/log/yoga-system/2015-07-07%2011:23:33

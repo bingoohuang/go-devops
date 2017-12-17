@@ -1,0 +1,38 @@
+[machines]
+    # You can indent as you please. Tabs or spaces. TOML don't care.
+    [machines.GW01]
+    ip = "192.168.0.1"
+
+    [machines.INO01]
+    ip = "192.168.1.1"
+
+    [machines.INO02]
+    ip = "192.168.1.2"
+
+    [machines.APP01]
+    ip = "192.168.2.1"
+
+    [machines.APP02]
+    ip = "192.168.2.2"
+
+    [machines.CP01]
+    ip = "192.168.3.1"
+
+    [machines.CP02]
+    ip = "192.168.3.2"
+
+    [machines.BAP01]
+    ip = "192.168.8.1"
+
+    [machines.SMC01]
+    ip = "192.168.8.10"
+
+
+[logs]
+    [logs.YOGA]
+    machines = ["APP01", "APP02"]
+    path = "/home/app/tomcat/yoga-system/logs/catalina.out"
+
+    [logs.CP_BAS]
+    machines = ["CP01", "CP02"]
+    path = "/home/app/apis-run/easyhi-cp-bas/easyhi-cp-bas-1.0-SNAPSHOT.log"

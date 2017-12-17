@@ -28,6 +28,8 @@ type MachineCommandArg struct {
 }
 
 type MachineCommandResult struct {
+	Status string
+	Error string
 	MachineInfo HardwareInfo
 	CostMillis  int64
 }
@@ -39,6 +41,8 @@ func (t *MachineCommand) MachineInfo(args *MachineCommandArg, result *MachineCom
 
 	hardwareInfo := GetHardwareInfo()
 	elapsed := time.Since(start)
+	result.Status = "OK"
+	result.Error = ""
 	result.MachineInfo = hardwareInfo
 	result.CostMillis = elapsed.Nanoseconds() / 1e6
 	return nil
