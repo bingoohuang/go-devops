@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"github.com/BurntSushi/toml"
 	"os"
-	"flag"
 )
 
 type Config struct {

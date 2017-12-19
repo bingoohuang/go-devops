@@ -1,15 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 func StartHttpSever() {
 	r := mux.NewRouter()
-	r.HandleFunc("/log/{logger}/{timestampFrom}/{timestampTo}", HandleLogs)
-	r.HandleFunc("/machines", HandleMachines)
-	http.Handle("/", r)
+	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", HandleLogs)
+	r.HandleFunc(contextPath+"/machines", HandleMachines)
+	r.HandleFunc(contextPath+"/", HandleHome)
+	http.Handle(contextPath+"/", r)
 
-	http.ListenAndServe(":6879", nil)
+	sport := strconv.Itoa(port)
+	fmt.Println("start to listen at ", sport)
+	http.ListenAndServe(":"+sport, nil)
 }

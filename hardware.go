@@ -12,19 +12,19 @@ import (
 )
 
 type HardwareInfo struct {
-	OS                string // like darwin
-	MemoryTotal       uint64 // like 8G
-	FriendMemoryTotal string
-	FreeMemory        uint64
-	FriendFreeMemory  string
-	MemoryUsedPercent float64
-	Cores             int32 // number of cores
-	Hostname          string
-	TotalDisk         uint64
-	FriendTotalDisk   string
-	FreeDisk          uint64
-	FriendFreeDisk    string
-	DiskUsedPercent   float64
+	OS                   string // like darwin
+	TotalMemory          uint64 // like 8G
+	HumanizedTotalMemory string
+	FreeMemory           uint64
+	HumanizedFreeMemory  string
+	MemoryUsedPercent    float64
+	Cores                int32 // number of cores
+	Hostname             string
+	TotalDisk            uint64
+	HumanizedTotalDisk   string
+	FreeDisk             uint64
+	HumanizedFreeDisk    string
+	DiskUsedPercent      float64
 }
 
 func dealwithErr(err error) {
@@ -79,18 +79,18 @@ func GetHardwareInfo() HardwareInfo {
 	dealwithErr(err)
 
 	return HardwareInfo{
-		OS:                runtime.GOOS,
-		MemoryTotal:       vmStat.Total,
-		FriendMemoryTotal: humanize.IBytes(vmStat.Total),
-		FreeMemory:        vmStat.Free,
-		FriendFreeMemory:  humanize.IBytes(vmStat.Free),
-		MemoryUsedPercent: vmStat.UsedPercent,
-		Cores:             cores,
-		Hostname:          hostStat.Hostname,
-		TotalDisk:         diskStat.Total,
-		FriendTotalDisk:   humanize.IBytes(diskStat.Total),
-		FreeDisk:          diskStat.Free,
-		FriendFreeDisk:    humanize.IBytes(diskStat.Free),
-		DiskUsedPercent:   diskStat.UsedPercent,
+		OS:                   runtime.GOOS,
+		TotalMemory:          vmStat.Total,
+		HumanizedTotalMemory: humanize.IBytes(vmStat.Total),
+		FreeMemory:           vmStat.Free,
+		HumanizedFreeMemory:  humanize.IBytes(vmStat.Free),
+		MemoryUsedPercent:    vmStat.UsedPercent,
+		Cores:                cores,
+		Hostname:             hostStat.Hostname,
+		TotalDisk:            diskStat.Total,
+		HumanizedTotalDisk:   humanize.IBytes(diskStat.Total),
+		FreeDisk:             diskStat.Free,
+		HumanizedFreeDisk:    humanize.IBytes(diskStat.Free),
+		DiskUsedPercent:      diskStat.UsedPercent,
 	}
 }
