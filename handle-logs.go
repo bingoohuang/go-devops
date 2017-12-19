@@ -11,7 +11,7 @@ import (
 )
 
 // http://127.0.0.1:6879/log/yoga-system/2015-07-07%2011:23:33
-func HandleLogs(w http.ResponseWriter, r *http.Request) {
+func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
 	logger := vars["logger"]

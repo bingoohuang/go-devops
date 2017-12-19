@@ -9,7 +9,7 @@ import (
 
 func StartHttpSever() {
 	r := mux.NewRouter()
-	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", HandleLogs)
+	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", FindHandleLogsBetweenTimestamps)
 	r.HandleFunc(contextPath+"/machines", HandleMachines)
 	r.HandleFunc(contextPath+"/", HandleHome)
 	http.Handle(contextPath+"/", r)
