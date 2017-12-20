@@ -12,23 +12,30 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	results := make([]MachineCommandResult, 0)
+	size := len(config.Machines)
+	resultChan := make(chan MachineCommandResult, size)
 	for machineName, machine := range config.Machines {
-		result := timeoutCallMachineInfo(machine)
-		result.Name = machineName
+		go timeoutCallMachineInfo(machine, machineName, resultChan)
+	}
+
+	for i := 0; i < size; i++ {
+		result := <-resultChan
 		results = append(results, result)
 	}
 
 	json.NewEncoder(w).Encode(results)
 }
 
-func timeoutCallMachineInfo(machine Machine) MachineCommandResult {
+func timeoutCallMachineInfo(machine Machine, machineName string, resultChan chan MachineCommandResult) {
 	c := make(chan MachineCommandResult, 1)
 	go func() { c <- DialAndCallMachineInfo(machine) }()
 	select {
 	case result := <-c:
-		return result
+		result.Name = machineName
+		resultChan <- result
 	case <-time.After(1 * time.Second):
-		return MachineCommandResult{
+		resultChan <- MachineCommandResult{
+			Name:  machineName,
 			Error: "timeout",
 		}
 	}

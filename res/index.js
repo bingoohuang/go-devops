@@ -7,7 +7,7 @@
             var machinesHtml = '<table>' +
                 '<tr><td>Name</td><td>State</td><td>Hostname</td><td>IP</td>' +
                 '</td><td>OS</td><td>Cores</td><td>Total Memory</td><td>Available Memory</td>' +
-                '<td>Memory Used</td><td>Total Disk</td><td>Free Disk</td><td>Disk Used</td></tr>'
+                '<td>Memory Used</td><td>Total Disk</td><td>Free Disk</td><td>Disk Used</td><td>Cost</td></tr>'
             if (content && content.length) {
                 for (var j = 0; j < content.length; j++) {
                     var machineResult = content[j]
@@ -25,6 +25,7 @@
                         + '<td>' + hardwareInfo.HumanizedTotalDisk + '</td>'
                         + '<td>' + hardwareInfo.HumanizedFreeDisk + '</td>'
                         + '<td>' + new Number(hardwareInfo.DiskUsedPercent).toFixed(2) + '%</td>'
+                        + '<td>' + machineResult.CostMillis + '</td>'
                         + '</tr>'
                 }
             }
