@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"net"
 	"net/http"
 	"net/rpc"
 	"time"
@@ -12,10 +11,11 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	results := make([]MachineCommandResult, 0)
+
 	size := len(config.Machines)
 	resultChan := make(chan MachineCommandResult, size)
 	for machineName, machine := range config.Machines {
-		go timeoutCallMachineInfo(machine, machineName, resultChan)
+		go TimeoutCallMachineInfo(machine, machineName, resultChan)
 	}
 
 	for i := 0; i < size; i++ {
@@ -26,9 +26,9 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
-func timeoutCallMachineInfo(machine Machine, machineName string, resultChan chan MachineCommandResult) {
+func TimeoutCallMachineInfo(machine Machine, machineName string, resultChan chan MachineCommandResult) {
 	c := make(chan MachineCommandResult, 1)
-	go func() { c <- DialAndCallMachineInfo(machine) }()
+	go func() { c <- DialAndCall(machine, CallMachineInfo, &MachineCommandArg{}).(MachineCommandResult) }()
 	select {
 	case result := <-c:
 		result.Name = machineName
@@ -41,22 +41,7 @@ func timeoutCallMachineInfo(machine Machine, machineName string, resultChan chan
 	}
 }
 
-func DialAndCallMachineInfo(machine Machine) MachineCommandResult {
-	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 1*time.Second)
-	if err != nil {
-		return MachineCommandResult{
-			Error: err.Error(),
-		}
-	}
-
-	client := rpc.NewClient(conn)
-	defer client.Close()
-
-	return CallMachineInfo(client)
-}
-
-func CallMachineInfo(client *rpc.Client) MachineCommandResult {
-	args := &MachineCommandArg{}
+func CallMachineInfo(client *rpc.Client, args interface{}) interface{} {
 	var reply MachineCommandResult
 	err := client.Call("MachineCommand.MachineInfo", args, &reply)
 	if err != nil {

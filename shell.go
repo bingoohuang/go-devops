@@ -15,9 +15,10 @@ type CommandsArg struct {
 }
 
 type CommandsResult struct {
+	MachineName    string
 	Error          string
 	Stdout, Stderr string
-	CostMillis     int64
+	CostMillis     string
 }
 
 type ShellCommand int
@@ -29,7 +30,7 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 	elapsed := time.Since(start)
 	result.Stdout = stdout
 	result.Stderr = stderr
-	result.CostMillis = elapsed.Nanoseconds() / 1e6
+	result.CostMillis = elapsed.String()
 	return nil
 }
 
@@ -101,6 +102,29 @@ func goReadOut(closer io.ReadCloser) <-chan string {
 
 	return ch
 }
+
+/*
+https://superuser.com/questions/171858/how-do-i-interpret-the-results-of-the-ls-l-command
+
+      +-permissions that apply to the owner
+      |
+      |     +-permissions that apply to all other users
+      |     |
+      |     |  +-number of hard links
+      |     |  |
+      |     |  |             +-size      +-last modification date and time
+     _|_   _|_ |            _|__ ________|_______
+    drwxr-xr-x 2 ataka root 4096 2008-11-04 16:58 ataka
+        ___      _____ ____                       _____
+         |         |    |                           |
+         |         |    |                           +-name of file or directory
+         |         |    |
+         |         |    +-the group that the group permissions applies to
+         |         |
+         |         +-owner
+         |
+         +-permissions that apply to users who are members of the group
+*/
 
 func TestShell() {
 	out, err := ExecuteCommands("ls\n"+"ps -ef|grep shell|grep -v grep\n"+"echo 'abc'", 3*time.Second)

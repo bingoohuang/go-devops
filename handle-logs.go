@@ -10,7 +10,54 @@ import (
 	"time"
 )
 
-// http://127.0.0.1:6879/log/yoga-system/2015-07-07%2011:23:33
+type LogShowResult struct {
+	Logger  string
+	LogPath string
+	Logs    []LogFileInfoResult
+}
+
+func HandleLogs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	logsNum := len(config.Logs)
+	resultChan := make(chan LogShowResult, logsNum)
+
+	for logger, log := range config.Logs {
+		go showLog(logger, log, resultChan)
+	}
+
+	results := make([]LogShowResult, 0)
+	for i := 0; i < logsNum; i++ {
+		result := <-resultChan
+		results = append(results, result)
+	}
+
+	json.NewEncoder(w).Encode(results)
+}
+
+func showLog(logger string, log Log, results chan LogShowResult) {
+	logs := make([]LogFileInfoResult, 0)
+
+	machinesNum := len(log.Machines)
+
+	resultChan := make(chan LogFileInfoResult, machinesNum)
+	for _, machine := range log.Machines {
+		go TimeoutCallLogFileInfo(machine, log.Path, resultChan)
+	}
+
+	for i := 0; i < machinesNum; i++ {
+		commandResult := <-resultChan
+
+		logs = append(logs, commandResult)
+	}
+
+	results <- LogShowResult{
+		Logger:  logger,
+		LogPath: log.Path,
+		Logs:    logs,
+	}
+}
+
 func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
@@ -30,23 +77,33 @@ func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 	command := fmt.Sprintf(awkTmpl, size, timestampFrom, size, timestampTo, log.Path)
 
 	results := make([]CommandsResult, 0)
+	logMachinesNum := len(log.Machines)
+	resultChan := make(chan CommandsResult, logMachinesNum)
+
 	for _, machine := range log.Machines {
-		result := timeoutCallShellCommand(config.Machines[machine], command)
+		go TimeoutCallShellCommand(machine, command, resultChan)
+	}
+
+	for i := 0; i < logMachinesNum; i++ {
+		result := <-resultChan
 		results = append(results, result)
 	}
 
 	json.NewEncoder(w).Encode(results)
 }
 
-func timeoutCallShellCommand(machine Machine, commands string) CommandsResult {
+func TimeoutCallShellCommand(machineName, commands string, resultChan chan CommandsResult) {
+	machine := config.Machines[machineName]
 	c := make(chan CommandsResult, 1)
 	go func() { c <- DialAndCallShellCommand(machine, commands) }()
 	select {
 	case result := <-c:
-		return result
+		result.MachineName = machineName
+		resultChan <- result
 	case <-time.After(1 * time.Second):
-		return CommandsResult{
-			Error: "timeout",
+		resultChan <- CommandsResult{
+			Error:       "timeout",
+			MachineName: machineName,
 		}
 	}
 }

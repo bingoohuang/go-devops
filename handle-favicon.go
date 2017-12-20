@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
 	"bytes"
 	"io"
 	"mime"
+	"net/http"
 	"path/filepath"
 )
 
