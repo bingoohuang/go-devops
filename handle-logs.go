@@ -52,7 +52,7 @@ func timeoutCallShellCommand(machine Machine, commands string) CommandsResult {
 }
 
 func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
-	conn, err := net.DialTimeout("tcp", machine.IP+":6979", 1*time.Second)
+	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 1*time.Second)
 	if err != nil {
 		return CommandsResult{
 			Error: err.Error(),

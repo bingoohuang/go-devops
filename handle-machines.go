@@ -42,7 +42,7 @@ func timeoutCallMachineInfo(machine Machine, machineName string, resultChan chan
 }
 
 func DialAndCallMachineInfo(machine Machine) MachineCommandResult {
-	conn, err := net.DialTimeout("tcp", machine.IP+":6979", 1*time.Second)
+	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 1*time.Second)
 	if err != nil {
 		return MachineCommandResult{
 			Error: err.Error(),

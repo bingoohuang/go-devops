@@ -25,7 +25,7 @@
                         + '<td>' + hardwareInfo.HumanizedTotalDisk + '</td>'
                         + '<td>' + hardwareInfo.HumanizedFreeDisk + '</td>'
                         + '<td>' + new Number(hardwareInfo.DiskUsedPercent).toFixed(2) + '%</td>'
-                        + '<td>' + machineResult.CostMillis + '</td>'
+                        + '<td>' + machineResult.CostTime + '</td>'
                         + '</tr>'
                 }
             }

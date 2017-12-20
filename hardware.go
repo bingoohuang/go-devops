@@ -42,7 +42,7 @@ type MachineCommandResult struct {
 	Error       string
 	Name        string
 	MachineInfo HardwareInfo
-	CostMillis  string
+	CostTime    string
 }
 
 type MachineCommand int
@@ -54,7 +54,7 @@ func (t *MachineCommand) MachineInfo(args *MachineCommandArg, result *MachineCom
 	elapsed := time.Since(start)
 	result.Error = ""
 	result.MachineInfo = hardwareInfo
-	result.CostMillis = elapsed.String()
+	result.CostTime = elapsed.String()
 	return nil
 }
 

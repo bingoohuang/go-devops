@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 func StartHttpSever() {
@@ -14,7 +13,6 @@ func StartHttpSever() {
 	r.HandleFunc(contextPath+"/", HandleHome)
 	http.Handle(contextPath+"/", r)
 
-	sport := strconv.Itoa(port)
-	fmt.Println("start to listen at ", sport)
-	http.ListenAndServe(":"+sport, nil)
+	fmt.Println("start to listen at ", httpPort)
+	http.ListenAndServe(":"+httpPort, nil)
 }
