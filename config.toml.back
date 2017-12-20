@@ -24,9 +24,11 @@
     [machines.BAP01]
     ip = "192.168.8.1"
 
-    [machines.SMC01]
-    ip = "192.168.8.10"
+    [machines.BAM01]
+    ip = "192.168.8.2"
 
+    [machines.SMC01]
+    ip = "192.168.8.3"
 
 [logs]
     [logs.YOGA-SYSTEM]

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/rpc"
 	"os/exec"
 	"time"
 )
@@ -32,17 +31,6 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 	result.Stderr = stderr
 	result.CostMillis = elapsed.Nanoseconds() / 1e6
 	return nil
-}
-
-func CallShellCommandService(client *rpc.Client, commands string) {
-	// Synchronous call
-	args := &CommandsArg{commands, 100 * time.Millisecond}
-	var reply CommandsResult
-	err := client.Call("ShellCommand.Execute", args, &reply)
-	if err != nil {
-		log.Fatal("arith error:", err)
-	}
-	fmt.Println(reply)
 }
 
 func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
