@@ -28,27 +28,24 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 
 func TimeoutCallMachineInfo(machine Machine, machineName string, resultChan chan MachineCommandResult) {
 	c := make(chan MachineCommandResult, 1)
-	go func() { c <- DialAndCall(machine, CallMachineInfo, &MachineCommandArg{}).(MachineCommandResult) }()
+	reply := MachineCommandResult{
+		Name: machineName,
+	}
+
+	go func() {
+		err := DialAndCall(machine, func(client *rpc.Client) error {
+			return client.Call("MachineCommand.MachineInfo", &MachineCommandArg{}, &reply)
+		})
+		if err != nil {
+			reply.Error = err.Error()
+		}
+		c <- reply
+	}()
 	select {
 	case result := <-c:
-		result.Name = machineName
 		resultChan <- result
 	case <-time.After(1 * time.Second):
-		resultChan <- MachineCommandResult{
-			Name:  machineName,
-			Error: "timeout",
-		}
+		reply.Error = "timeout"
+		resultChan <- reply
 	}
-}
-
-func CallMachineInfo(client *rpc.Client, args interface{}) interface{} {
-	var reply MachineCommandResult
-	err := client.Call("MachineCommand.MachineInfo", args, &reply)
-	if err != nil {
-		return MachineCommandResult{
-			Error: err.Error(),
-		}
-	}
-
-	return reply
 }

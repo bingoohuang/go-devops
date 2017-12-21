@@ -44,8 +44,9 @@
         success: function (content, textStatus, request) {
             var logs = $('#logs')
             var logsHtml = '<table>' +
-                '<tr><td>Logger Name</td><td>State</td><td>Log Path</td><td>Machine</td><td>Size</td>' +
-                '</td><td>LastModified</td><td>Cost</td></tr>'
+                '<tr><td>Logger Name</td><td>Log Path</td><td>State</td><td>Machine</td><td>Size</td>' +
+                '</td><td>Last Modified</td><td>Cost</td></tr>'
+
             if (content && content.length) {
                 for (var j = 0; j < content.length; j++) {
                     var log = content[j]
@@ -54,9 +55,13 @@
                     for (var i = 0; i < logMachines.length; ++i) {
                         var logMachine = log.Logs[i]
 
-                        logsHtml += '<tr><td>' + log.Logger + '</td>'
-                            + '<td>' + (logMachine.Error || 'OK') + '</td>'
-                            + '<td>' + log.LogPath + '</td>'
+                        logsHtml += '<tr>'
+                        if (i == 0) {
+                            logsHtml += '<td rowspan="' + logMachines.length + '">' + log.Logger + '</td>'
+                                + '<td rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
+                        }
+
+                        logsHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
                             + '<td>' + logMachine.MachineName + '</td>'
                             + '<td>' + logMachine.FileSize + '</td>'
                             + '<td>' + logMachine.LastModified + '</td>'

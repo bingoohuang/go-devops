@@ -13,18 +13,14 @@ func FatalIfErr(err error) {
 	}
 }
 
-func DialAndCall(machine Machine,
-	callFun func(client *rpc.Client, args interface{}) interface{},
-	args interface{}) interface{} {
+func DialAndCall(machine Machine, callFun func(client *rpc.Client) error) error {
 	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 1*time.Second)
 	if err != nil {
-		return MachineCommandResult{
-			Error: err.Error(),
-		}
+		return err
 	}
 
 	client := rpc.NewClient(conn)
 	defer client.Close()
 
-	return callFun(client, args)
+	return callFun(client)
 }
