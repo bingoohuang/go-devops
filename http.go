@@ -12,7 +12,7 @@ func StartHttpSever() {
 	r.HandleFunc(contextPath+"/machines", HandleMachines)
 	r.HandleFunc(contextPath+"/logs", HandleLogs)
 	r.HandleFunc(contextPath+"/favicon.ico", HandleFavicon)
-	r.HandleFunc(contextPath+"/", HandleHome)
+	r.HandleFunc(contextPath+"/", gzipWrapper(HandleHome))
 
 	http.Handle(contextPath+"/", r)
 
