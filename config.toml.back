@@ -34,7 +34,7 @@
     [logs.YOGA-SYSTEM]
     machines = ["APP01", "APP02"]
     path = "/home/app/tomcat/yoga-system/logs/catalina.out"
-    process = "ps aux|grep org.apache.catalina.startup.Bootstrap|grep yoga-system||grep -v grep"
+    process = "ps aux|grep org.apache.catalina.startup.Bootstrap|grep yoga-system|grep -v grep"
 
     [logs.CP-BAS]
     machines = ["CP01", "CP02"]

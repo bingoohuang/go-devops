@@ -9,6 +9,7 @@ import (
 
 type LogFileInfoArg struct {
 	LogPath string
+	Process string
 }
 
 type LogFileInfoResult struct {
@@ -17,6 +18,7 @@ type LogFileInfoResult struct {
 	LastModified string
 	FileSize     string
 	CostTime     string
+	ProcessInfo  string
 }
 
 type LogFileInfoCommand int
@@ -29,13 +31,16 @@ func (t *LogFileInfoCommand) LogFileInfo(args *LogFileInfoArg, result *LogFileIn
 		return err
 	}
 
+	if args.Process != "" {
+		result.ProcessInfo, _ = ExecuteCommands(args.Process, 100*time.Millisecond)
+	}
 	result.FileSize = humanize.IBytes(uint64(info.Size()))
 	result.LastModified = humanize.Time(info.ModTime())
 	result.CostTime = time.Since(start).String()
 	return nil
 }
 
-func TimeoutCallLogFileInfo(machineName, logPath string, resultChan chan LogFileInfoResult) {
+func TimeoutCallLogFileInfo(machineName string, log Log, resultChan chan LogFileInfoResult) {
 	c := make(chan LogFileInfoResult, 1)
 	machine := config.Machines[machineName]
 	reply := LogFileInfoResult{
@@ -44,7 +49,11 @@ func TimeoutCallLogFileInfo(machineName, logPath string, resultChan chan LogFile
 
 	go func() {
 		err := DialAndCall(machine, func(client *rpc.Client) error {
-			return client.Call("LogFileInfoCommand.LogFileInfo", &LogFileInfoArg{LogPath: logPath}, &reply)
+			return client.Call("LogFileInfoCommand.LogFileInfo",
+				&LogFileInfoArg{
+					LogPath: log.Path,
+					Process: log.Process,
+				}, &reply)
 		})
 		if err != nil {
 			reply.Error = err.Error()

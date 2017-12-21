@@ -42,7 +42,7 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 
 	resultChan := make(chan LogFileInfoResult, machinesNum)
 	for _, machine := range log.Machines {
-		go TimeoutCallLogFileInfo(machine, log.Path, resultChan)
+		go TimeoutCallLogFileInfo(machine, log, resultChan)
 	}
 
 	for i := 0; i < machinesNum; i++ {

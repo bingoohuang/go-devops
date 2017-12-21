@@ -5,9 +5,21 @@
         success: function (content, textStatus, request) {
             var machines = $('#machines')
             var machinesHtml = '<table>' +
-                '<tr><td>Name</td><td>State</td><td>Hostname</td><td>IP</td>' +
-                '</td><td>OS</td><td>Cores</td><td>Total Memory</td><td>Available Memory</td>' +
-                '<td>Memory Used</td><td>Total Disk</td><td>Free Disk</td><td>Disk Used</td><td>Cost</td></tr>'
+                '<tr>' +
+                '<td>Name</td>' +
+                '<td>State</td>' +
+                '<td>Hostname</td>' +
+                '<td>IP</td>' +
+                '<td>OS</td>' +
+                '<td>Cores</td>' +
+                '<td>Total Memory</td>' +
+                '<td>Available Memory</td>' +
+                '<td>Memory Used</td>' +
+                '<td>Total Disk</td>' +
+                '<td>Free Disk</td>' +
+                '<td>Disk Used</td>' +
+                '<td>Cost</td>' +
+                '</tr>'
             if (content && content.length) {
                 for (var j = 0; j < content.length; j++) {
                     var machineResult = content[j]
@@ -44,8 +56,16 @@
         success: function (content, textStatus, request) {
             var logs = $('#logs')
             var logsHtml = '<table>' +
-                '<tr><td>Logger Name</td><td>Log Path</td><td>State</td><td>Machine</td><td>Size</td>' +
-                '</td><td>Last Modified</td><td>Cost</td></tr>'
+                '<tr>' +
+                '<td>Logger Name</td>' +
+                '<td>Log Path</td>' +
+                '<td>State</td>' +
+                '<td>Machine</td>' +
+                '<td>Size</td>' +
+                '<td>Last Modified</td>' +
+                '<td>ProcessInfo</td>' +
+                '<td>Cost</td>' +
+                '</tr>'
 
             if (content && content.length) {
                 for (var j = 0; j < content.length; j++) {
@@ -58,13 +78,14 @@
                         logsHtml += '<tr>'
                         if (i == 0) {
                             logsHtml += '<td rowspan="' + logMachines.length + '">' + log.Logger + '</td>'
-                                + '<td rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
+                                + '<td class="LogPath" rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
                         }
 
                         logsHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
                             + '<td>' + logMachine.MachineName + '</td>'
                             + '<td>' + logMachine.FileSize + '</td>'
                             + '<td>' + logMachine.LastModified + '</td>'
+                            + '<td class="ProcessInfo">' + logMachine.ProcessInfo + '</td>'
                             + '<td>' + logMachine.CostTime + '</td>'
                             + '</tr>'
                     }

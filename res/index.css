@@ -11,3 +11,15 @@ table td {
 table tr:first-child {
     background-color: aliceblue;
 }
+
+table td.LogPath {
+    max-width: 100px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+table td.ProcessInfo {
+    max-width: 400px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
