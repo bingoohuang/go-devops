@@ -1,0 +1,5 @@
+(function () {
+    $('#CopyTruncateLogFiles').click(function () {
+
+    })
+})()

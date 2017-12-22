@@ -134,6 +134,9 @@
                     if (i == 0) {
                         logsHtml += '<td rowspan="' + logMachines.length + '">' + log.Logger + '</td>'
                             + '<td class="LogPath" rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
+                    } else {
+                        logsHtml += '<td class="hidden">' + log.Logger + '</td>'
+                            + '<td class="hidden">' + log.LogPath + '</td>'
                     }
 
                     logsHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
@@ -152,5 +155,4 @@
     }
 
 
-})
-()
+})()

@@ -64,7 +64,7 @@ func mergeCss() string {
 }
 
 func mergeScripts() string {
-	return mergeStatic("jquery-3.2.1.min.js", "util.js", "index.js")
+	return mergeStatic("jquery-3.2.1.min.js", "util.js", "index.js", "copytruncate.js")
 }
 
 func mergeStatic(statics ...string) string {

@@ -27,3 +27,11 @@ table td.ProcessInfo {
 .highlight {
     background-color: lightyellow;
 }
+
+.changed {
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
