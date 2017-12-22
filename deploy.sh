@@ -30,6 +30,6 @@ chmod +x ./deploy-agent.sh
 ./deploy-agent.sh $deployName bam01 app/$deployName
 rm -f $deployName.linux.bin
 bzip2 -d $deployName.linux.bin.bz2
-nohup ./$deployName.linux.bin &
+nohup ./$deployName.linux.bin 2>&1 >> nohup.out &
 exit
 eeooff
