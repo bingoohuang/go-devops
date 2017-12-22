@@ -26,16 +26,22 @@ type LogFileInfoCommand int
 func (t *LogFileInfoCommand) LogFileInfo(args *LogFileInfoArg, result *LogFileInfoResult) error {
 	start := time.Now()
 
-	info, err := os.Stat(args.LogPath)
-	if err != nil {
-		return err
-	}
-
 	if args.Process != "" {
 		result.ProcessInfo, _ = ExecuteCommands(args.Process, 100*time.Millisecond)
 	}
-	result.FileSize = humanize.IBytes(uint64(info.Size()))
-	result.LastModified = humanize.Time(info.ModTime())
+
+	info, err := os.Stat(args.LogPath)
+	if err == nil {
+		result.FileSize = humanize.IBytes(uint64(info.Size()))
+		result.LastModified = humanize.Time(info.ModTime())
+	} else {
+		if os.IsNotExist(err) {
+			result.Error = "Log file does not exist"
+		} else {
+			result.Error = err.Error()
+		}
+	}
+
 	result.CostTime = time.Since(start).String()
 	return nil
 }

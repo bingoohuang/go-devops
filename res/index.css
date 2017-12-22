@@ -23,3 +23,7 @@ table td.ProcessInfo {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
+
+.highlight {
+    background-color: lightyellow;
+}
