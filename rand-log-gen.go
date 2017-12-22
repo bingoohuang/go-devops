@@ -12,7 +12,7 @@ func check(e error) {
 	}
 }
 
-func main() {
+func createLog() {
 	f, err := os.OpenFile("aa.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	check(err)
 

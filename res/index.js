@@ -136,12 +136,12 @@
                             + '<td class="LogPath" rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
                     } else {
                         logsHtml += '<td class="hidden">' + log.Logger + '</td>'
-                            + '<td class="hidden">' + log.LogPath + '</td>'
+                            + '<td class="LogPath hidden">' + log.LogPath + '</td>'
                     }
 
                     logsHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
                         + '<td class="LogMachine">' + logMachine.MachineName + '</td>'
-                        + '<td>' + logMachine.FileSize + '</td>'
+                        + '<td class="LogFileSize">' + logMachine.FileSize + '</td>'
                         + '<td>' + logMachine.LastModified + '</td>'
                         + '<td class="ProcessInfo">' + logMachine.ProcessInfo + '</td>'
                         + '<td>' + logMachine.CostTime + '</td>'
@@ -154,5 +154,15 @@
         return logsHtml;
     }
 
-
+    $.contextMenu({
+        selector: '.LogFileSize',
+        callback: function (key, options) {
+            if (key === "TruncateLogFile") {
+                alert($(this).parent().find('td.LogPath').text())
+            }
+        },
+        items: {
+            "TruncateLogFile": {name: "TruncateLogFile", icon: "cut"}
+        }
+    })
 })()

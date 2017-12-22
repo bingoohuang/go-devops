@@ -6,12 +6,22 @@ import (
 	"mime"
 	"net/http"
 	"path/filepath"
+	"github.com/gorilla/mux"
 )
 
-func HandleFavicon(w http.ResponseWriter, r *http.Request) {
-	path := "res/favicon.ico"
-	data := MustAsset(path)
+func HandleFont(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fontName := vars["fontName"]
 
+	HandleStaticResource("res/font/"+fontName, w)
+}
+
+func HandleFavicon(w http.ResponseWriter, r *http.Request) {
+	HandleStaticResource("res/favicon.ico", w)
+}
+
+func HandleStaticResource(path string, w http.ResponseWriter) {
+	data := MustAsset(path)
 	fi, _ := AssetInfo(path)
 	buffer := bytes.NewReader(data)
 	w.Header().Set("Content-Type", detectContentType(fi.Name()))

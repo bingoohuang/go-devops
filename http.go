@@ -8,10 +8,13 @@ import (
 
 func StartHttpSever() {
 	r := mux.NewRouter()
+
+	r.HandleFunc(contextPath+"/font/{fontName}", HandleFont)
+	r.HandleFunc(contextPath+"/favicon.ico", HandleFavicon)
+
 	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", FindHandleLogsBetweenTimestamps)
 	r.HandleFunc(contextPath+"/machines", HandleMachines)
 	r.HandleFunc(contextPath+"/logs", HandleLogs)
-	r.HandleFunc(contextPath+"/favicon.ico", HandleFavicon)
 	r.HandleFunc(contextPath+"/", gzipWrapper(HandleHome))
 
 	http.Handle(contextPath+"/", r)
