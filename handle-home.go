@@ -65,7 +65,7 @@ func mergeCss() string {
 
 func mergeScripts() string {
 	return mergeStatic("jquery-3.2.1.min.js", "jquery.contextMenu.js", "jquery.ui.position.js",
-		"util.js", "index.js",
+		"util.js", "index.js", "machines.js", "logs.js", "highlight.machine.js",
 	)
 }
 
@@ -73,7 +73,7 @@ func mergeStatic(statics ...string) string {
 	var scripts bytes.Buffer
 	for _, static := range statics {
 		scripts.Write(MustAsset("res/" + static))
-		scripts.Write([]byte("\n"))
+		scripts.Write([]byte(";"))
 	}
 
 	return scripts.String()

@@ -17,4 +17,5 @@ TempShellFile*
 go-devops
 *.bz2
 demo.log
+aaa.log
 bindata.go

@@ -8,7 +8,7 @@ import (
 func GoDevOpServer() error {
 	rpc.Register(new(ShellCommand))
 	rpc.Register(new(ShellCommand))
-	rpc.Register(new(LogFileInfoCommand))
+	rpc.Register(new(LogFileCommand))
 	rpc.Register(new(MachineCommand))
 	tcpAddr, err := net.ResolveTCPAddr("tcp", ":"+rpcPort)
 	FatalIfErr(err)

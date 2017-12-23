@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type LogFileInfoArg struct {
+type LogFileArg struct {
 	LogPath string
 	Process string
 }
@@ -21,9 +21,31 @@ type LogFileInfoResult struct {
 	ProcessInfo  string
 }
 
-type LogFileInfoCommand int
+type LogFileCommand int
 
-func (t *LogFileInfoCommand) LogFileInfo(args *LogFileInfoArg, result *LogFileInfoResult) error {
+func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoResult) error {
+	start := time.Now()
+
+	_, err := os.Stat(args.LogPath)
+	if err == nil {
+		ExecuteCommands("> "+args.LogPath, 100*time.Millisecond)
+		info, _ := os.Stat(args.LogPath)
+
+		result.FileSize = humanize.IBytes(uint64(info.Size()))
+		result.LastModified = humanize.Time(info.ModTime())
+	} else {
+		if os.IsNotExist(err) {
+			result.Error = "Log file does not exist"
+		} else {
+			result.Error = err.Error()
+		}
+	}
+
+	result.CostTime = time.Since(start).String()
+	return nil
+}
+
+func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
 
 	if args.Process != "" {
@@ -46,7 +68,7 @@ func (t *LogFileInfoCommand) LogFileInfo(args *LogFileInfoArg, result *LogFileIn
 	return nil
 }
 
-func TimeoutCallLogFileInfo(machineName string, log Log, resultChan chan LogFileInfoResult) {
+func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult, funcName string) {
 	c := make(chan LogFileInfoResult, 1)
 	machine := config.Machines[machineName]
 	reply := LogFileInfoResult{
@@ -55,8 +77,8 @@ func TimeoutCallLogFileInfo(machineName string, log Log, resultChan chan LogFile
 
 	go func() {
 		err := DialAndCall(machine, func(client *rpc.Client) error {
-			return client.Call("LogFileInfoCommand.LogFileInfo",
-				&LogFileInfoArg{
+			return client.Call("LogFileCommand."+funcName,
+				&LogFileArg{
 					LogPath: log.Path,
 					Process: log.Process,
 				}, &reply)

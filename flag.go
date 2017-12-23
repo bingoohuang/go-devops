@@ -8,11 +8,12 @@ import (
 )
 
 var (
-	contextPath string
-	httpPort    string
-	rpcPort     string
-	devMode     bool
-	configFile  string
+	contextPath  string
+	httpPort     string
+	rpcPort      string
+	devMode      bool
+	configFile   string
+	randomLogGen bool
 )
 
 type Config struct {
@@ -38,6 +39,7 @@ func init() {
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
 	devModeArg := flag.Bool("devMode", false, "devMode(disable js/css minify)")
 	configFileArg := flag.String("config", "config.toml", "config file path")
+	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
 
 	flag.Parse()
 
@@ -46,6 +48,7 @@ func init() {
 	rpcPort = strconv.Itoa(*rpcPortArg)
 	devMode = *devModeArg
 	configFile = *configFileArg
+	randomLogGen = *randomLogGenArg
 
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		return

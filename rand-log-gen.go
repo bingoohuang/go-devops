@@ -1,9 +1,9 @@
 package main
 
 import (
-	"time"
-	"os"
 	"math/rand"
+	"os"
+	"time"
 )
 
 func check(e error) {
@@ -12,8 +12,8 @@ func check(e error) {
 	}
 }
 
-func createLog() {
-	f, err := os.OpenFile("aa.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+func createRandomLog() {
+	f, err := os.OpenFile("aaa.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	check(err)
 
 	for {

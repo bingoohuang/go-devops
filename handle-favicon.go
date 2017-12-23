@@ -2,11 +2,11 @@ package main
 
 import (
 	"bytes"
+	"github.com/gorilla/mux"
 	"io"
 	"mime"
 	"net/http"
 	"path/filepath"
-	"github.com/gorilla/mux"
 )
 
 func HandleFont(w http.ResponseWriter, r *http.Request) {
