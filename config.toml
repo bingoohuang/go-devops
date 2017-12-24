@@ -3,9 +3,6 @@
     [machines.LOCAL]
     ip = "127.0.0.1"
 
-    [machines.LOCAL2]
-    ip = "192.168.1.1"
-
 [logs]
     [logs.DEMO]
     machines = ["LOCAL"]

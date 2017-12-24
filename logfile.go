@@ -17,11 +17,34 @@ type LogFileInfoResult struct {
 	Error        string
 	LastModified string
 	FileSize     string
+	TailContent  string
 	CostTime     string
 	ProcessInfo  string
 }
 
 type LogFileCommand int
+
+func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult) error {
+	start := time.Now()
+
+	_, err := os.Stat(args.LogPath)
+	if err == nil {
+		stdout, stderr := ExecuteCommands("tail "+args.LogPath, 500*time.Millisecond)
+		result.TailContent = stdout
+		if stderr != "" {
+			result.Error = stderr
+		}
+	} else {
+		if os.IsNotExist(err) {
+			result.Error = "Log file does not exist"
+		} else {
+			result.Error = err.Error()
+		}
+	}
+
+	result.CostTime = time.Since(start).String()
+	return nil
+}
 
 func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()

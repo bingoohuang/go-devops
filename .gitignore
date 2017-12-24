@@ -19,3 +19,4 @@ go-devops
 demo.log
 aaa.log
 bindata.go
+.DS_Store

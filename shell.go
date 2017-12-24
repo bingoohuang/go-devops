@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"os/exec"
 	"time"
 )
@@ -48,7 +47,7 @@ func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	}
 
 	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+		return "", err.Error()
 	}
 
 	chStdout := goReadOut(stdout)

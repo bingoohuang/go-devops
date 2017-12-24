@@ -35,3 +35,12 @@ table td.ProcessInfo {
 .hidden {
     display: none;
 }
+
+.preWrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#fileContent {
+    display: none;
+}

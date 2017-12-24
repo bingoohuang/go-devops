@@ -14,6 +14,7 @@ func StartHttpSever() {
 
 	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", FindHandleLogsBetweenTimestamps)
 	r.HandleFunc(contextPath+"/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile)
+	r.HandleFunc(contextPath+"/tailLogFile/{loggerName}", HandleTailLogFile)
 	r.HandleFunc(contextPath+"/machines", HandleMachines)
 	r.HandleFunc(contextPath+"/logs", HandleLogs)
 	r.HandleFunc(contextPath+"/", gzipWrapper(HandleHome))

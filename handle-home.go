@@ -65,7 +65,7 @@ func mergeCss() string {
 
 func mergeScripts() string {
 	return mergeStatic("jquery-3.2.1.min.js", "jquery.contextMenu.js", "jquery.ui.position.js",
-		"util.js", "index.js", "machines.js", "logs.js", "highlight.machine.js",
+		"util.js", "index.js", "machines.js", "contextMenu.js", "logs.js", "highlight.machine.js",
 	)
 }
 
