@@ -126,15 +126,11 @@ func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogF
 	process, ok := devopsConf.Processes[log.Process]
 	if !ok {
 		process = Process{Ps: log.Process}
-
-		if processConfigRequired {
-			reply.Error = log.Process + " is not configured"
-			return
-		}
 	}
 
-	if process.Home == "" || process.Kill == "" || process.Start == "" {
-		reply.Error = log.Process + " is not well configured"
+	if processConfigRequired && (process.Home == "" || process.Kill == "" || process.Start == "") {
+		reply.Error = log.Path + " is not well configured"
+		resultChan <- reply
 		return
 	}
 
