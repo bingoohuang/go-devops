@@ -19,10 +19,10 @@ type LogShowResult struct {
 func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	logsNum := len(config.Logs)
+	logsNum := len(devopsConf.Logs)
 	resultChan := make(chan LogShowResult, logsNum)
 
-	for logger, log := range config.Logs {
+	for logger, log := range devopsConf.Logs {
 		go showLog(logger, log, resultChan)
 	}
 
@@ -42,7 +42,7 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 
 	resultChan := make(chan LogFileInfoResult, machinesNum)
 	for _, machine := range log.Machines {
-		go TimeoutCallLogFileCommand(machine, log, resultChan, "LogFileInfo")
+		go TimeoutCallLogFileCommand(machine, log, resultChan, "LogFileInfo", false)
 	}
 
 	for i := 0; i < machinesNum; i++ {
@@ -63,7 +63,7 @@ func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	logger := vars["logger"]
 
-	log, ok := config.Logs[logger]
+	log, ok := devopsConf.Logs[logger]
 	if !ok {
 		return
 	}
@@ -93,7 +93,7 @@ func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 }
 
 func TimeoutCallShellCommand(machineName, commands string, resultChan chan CommandsResult) {
-	machine := config.Machines[machineName]
+	machine := devopsConf.Machines[machineName]
 	c := make(chan CommandsResult, 1)
 	go func() { c <- DialAndCallShellCommand(machine, commands) }()
 	select {

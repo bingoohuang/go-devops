@@ -16,9 +16,10 @@ var (
 	randomLogGen bool
 )
 
-type Config struct {
-	Machines map[string]Machine
-	Logs     map[string]Log
+type DevopsConf struct {
+	Machines  map[string]Machine
+	Logs      map[string]Log
+	Processes map[string]Process
 }
 
 type Machine struct {
@@ -31,7 +32,15 @@ type Log struct {
 	Process  string
 }
 
-var config Config
+type Process struct {
+	Home  string
+	Ps    string
+	Kill  string
+	Start string
+	Conf  string
+}
+
+var devopsConf DevopsConf
 
 func init() {
 	contextPathArg := flag.String("contextPath", "", "context path")
@@ -54,6 +63,6 @@ func init() {
 		return
 	}
 
-	_, err := toml.DecodeFile(configFile, &config)
+	_, err := toml.DecodeFile(configFile, &devopsConf)
 	FatalIfErr(err)
 }

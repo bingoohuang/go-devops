@@ -7,4 +7,14 @@
     [logs.DEMO]
     machines = ["LOCAL"]
     path = "aaa.log"
-    process = "ps aux|grep logtest|grep -v grep"
+    process = "randomLogGen"
+
+[processes]
+
+    [processes.randomLogGen]
+    home = "~/GitHub/go-devops/"
+    ps = "ps aux|grep go-devops|grep randomLogGen|grep -v grep"
+    kill = "${ps}|awk '{print $2}'|xargs kill -9"
+    start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
+    conf = "config.toml"
+

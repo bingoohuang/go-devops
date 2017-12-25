@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/dustin/go-humanize"
+	"github.com/valyala/fasttemplate"
 	"net/rpc"
 	"os"
 	"time"
@@ -9,7 +10,10 @@ import (
 
 type LogFileArg struct {
 	LogPath string
-	Process string
+	Ps      string
+	Home    string
+	Kill    string
+	Start   string
 }
 
 type LogFileInfoResult struct {
@@ -23,6 +27,25 @@ type LogFileInfoResult struct {
 }
 
 type LogFileCommand int
+
+func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoResult) error {
+	start := time.Now()
+
+	killTemplate := fasttemplate.New(args.Kill, "${", "}")
+	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
+
+	ExecuteCommands(killCommand, 100*time.Millisecond)
+	ExecuteCommands("cd "+args.Home+"\n"+args.Start, 100*time.Millisecond)
+
+	err := ""
+	result.ProcessInfo, err = ExecuteCommands(args.Ps, 100*time.Millisecond)
+	if err != "" {
+		result.Error = err
+	}
+
+	result.CostTime = time.Since(start).String()
+	return nil
+}
 
 func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
@@ -71,8 +94,8 @@ func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoRe
 func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
 
-	if args.Process != "" {
-		result.ProcessInfo, _ = ExecuteCommands(args.Process, 100*time.Millisecond)
+	if args.Ps != "" {
+		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 100*time.Millisecond)
 	}
 
 	info, err := os.Stat(args.LogPath)
@@ -91,11 +114,26 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	return nil
 }
 
-func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult, funcName string) {
+func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult, funcName string, processConfigRequired bool) {
 	c := make(chan LogFileInfoResult, 1)
-	machine := config.Machines[machineName]
+	machine := devopsConf.Machines[machineName]
 	reply := LogFileInfoResult{
 		MachineName: machineName,
+	}
+
+	process, ok := devopsConf.Processes[log.Process]
+	if !ok {
+		process = Process{Ps: log.Process}
+
+		if processConfigRequired {
+			reply.Error = log.Process + " is not configured"
+			return
+		}
+	}
+
+	if process.Home == "" || process.Kill == "" || process.Start == "" {
+		reply.Error = log.Process + " is not well configured"
+		return
 	}
 
 	go func() {
@@ -103,7 +141,10 @@ func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogF
 			return client.Call("LogFileCommand."+funcName,
 				&LogFileArg{
 					LogPath: log.Path,
-					Process: log.Process,
+					Ps:      process.Ps,
+					Home:    process.Home,
+					Kill:    process.Kill,
+					Start:   process.Start,
 				}, &reply)
 		})
 		if err != nil {

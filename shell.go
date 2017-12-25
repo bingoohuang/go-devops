@@ -53,7 +53,11 @@ func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	chStdout := goReadOut(stdout)
 	chStderr := goReadOut(stderr)
 
-	return waitCommandsOutput(chStdout, chStderr, cmd, timeout)
+	stdoutMsg, stderrMsg := waitCommandsOutput(chStdout, chStderr, cmd, timeout)
+
+	fmt.Println("cmds:", cmds, "stdout:", stderrMsg, "stderr:", stderrMsg)
+
+	return stdoutMsg, stderrMsg
 }
 
 func waitCommandsOutput(chStdout, chStderr <-chan string, cmd *exec.Cmd, timeout time.Duration) (string, string) {

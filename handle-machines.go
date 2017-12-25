@@ -12,9 +12,9 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 
 	results := make([]MachineCommandResult, 0)
 
-	size := len(config.Machines)
+	size := len(devopsConf.Machines)
 	resultChan := make(chan MachineCommandResult, size)
-	for machineName, machine := range config.Machines {
+	for machineName, machine := range devopsConf.Machines {
 		go TimeoutCallMachineInfo(machine, machineName, resultChan)
 	}
 

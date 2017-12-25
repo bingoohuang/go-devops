@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
+func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
@@ -15,7 +15,7 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 
 	resultChan := make(chan LogFileInfoResult, 1)
-	TimeoutCallLogFileCommand(logMachine, log, resultChan, "TruncateLogFile", false)
+	TimeoutCallLogFileCommand(logMachine, log, resultChan, "RestartProcess", true)
 
 	result := <-resultChan
 	json.NewEncoder(w).Encode(result)

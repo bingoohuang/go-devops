@@ -7,6 +7,7 @@
             $('#logs').html(logsHtml)
             $.createLogFileSizeContextMenu()
             $.createLogFileTailContextMenu()
+            $.createProcessInfoContextMenu()
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
