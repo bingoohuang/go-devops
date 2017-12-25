@@ -14,6 +14,27 @@
         }
     })
 
+    function createLogLines(i, logMachines, log) {
+        var logMachine = logMachines[i]
+        var logsLineHtml = '<tr>'
+        if (i == 0) {
+            logsLineHtml += '<td rowspan="' + logMachines.length + '" class="LoggerName">' + log.Logger + '</td>'
+                + '<td class="LogPath" rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
+        } else {
+            logsLineHtml += '<td class="hidden LoggerName">' + log.Logger + '</td>'
+                + '<td class="LogPath hidden">' + log.LogPath + '</td>'
+        }
+
+        logsLineHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
+            + '<td class="LogMachine">' + logMachine.MachineName + '</td>'
+            + '<td class="LogFileSize">' + logMachine.FileSize + '</td>'
+            + '<td>' + logMachine.LastModified + '</td>'
+            + '<td class="ProcessInfo">' + logMachine.ProcessInfo + '</td>'
+            + '<td>' + logMachine.CostTime + '</td>'
+            + '</tr>'
+        return logsLineHtml
+    }
+
     function createLogsTable(content) {
         var logsHtml = '<table>' +
             '<tr>' +
@@ -33,24 +54,7 @@
                 var logMachines = log.Logs
 
                 for (var i = 0; i < logMachines.length; ++i) {
-                    var logMachine = log.Logs[i]
-
-                    logsHtml += '<tr>'
-                    if (i == 0) {
-                        logsHtml += '<td rowspan="' + logMachines.length + '" class="LoggerName">' + log.Logger + '</td>'
-                            + '<td class="LogPath" rowspan="' + logMachines.length + '">' + log.LogPath + '</td>'
-                    } else {
-                        logsHtml += '<td class="hidden LoggerName">' + log.Logger + '</td>'
-                            + '<td class="LogPath hidden">' + log.LogPath + '</td>'
-                    }
-
-                    logsHtml += '<td>' + (logMachine.Error || 'OK') + '</td>'
-                        + '<td class="LogMachine">' + logMachine.MachineName + '</td>'
-                        + '<td class="LogFileSize">' + logMachine.FileSize + '</td>'
-                        + '<td>' + logMachine.LastModified + '</td>'
-                        + '<td class="ProcessInfo">' + logMachine.ProcessInfo + '</td>'
-                        + '<td>' + logMachine.CostTime + '</td>'
-                        + '</tr>'
+                    logsHtml += createLogLines(i, logMachines, log);
                 }
             }
         }
