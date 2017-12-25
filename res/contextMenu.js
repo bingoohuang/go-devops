@@ -4,11 +4,11 @@
         $('#tableArea').show()
     })
 
-    function TailLogFile(loggerName, logPath) {
+    function TailLogFile(loggerName, logPath, lines) {
         $('#refresh').unbind('click')
         $.ajax({
             type: 'POST',
-            url: contextPath + "/tailLogFile/" + loggerName,
+            url: contextPath + "/tailLogFile/" + loggerName + "/" + lines,
             success: function (content, textStatus, request) {
                 var tailContent = '<pre class="preWrap">'
 
@@ -23,7 +23,7 @@
                 $('#tableArea').hide()
                 $('#fileContent').show()
                 $('#refresh').click(function () {
-                    TailLogFile(loggerName, logPath)
+                    TailLogFile(loggerName, logPath, lines)
                 })
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -64,18 +64,30 @@
     }
 
     $.createLogFileTailContextMenu = function () {
+        var lines = 10
         $.contextMenu({
             selector: '.LogPath',
-            callback: function (key, options) {
+            callback: function (key, options, rootMenu, originalEvent) {
                 if (key === "TailLogFile") {
                     var $row = $(this).parent();
                     var loggerName = $row.find('td.LoggerName').text();
                     var logPath = $row.find('td.LogPath').text();
-                    TailLogFile(loggerName, logPath)
+                    TailLogFile(loggerName, logPath, lines)
                 }
             },
             items: {
-                "TailLogFile": {name: "Tail Log File", icon: "tail"}
+                // <input type="text">
+                Lines: {
+                    name: "How Many Lines to Tail",
+                    type: 'text',
+                    value: "10",
+                    events: {
+                        keyup: function (e) {
+                            lines = $(this).val()
+                        }
+                    }
+                },
+                TailLogFile: {name: "Tail Log File", icon: "tail"}
             }
         })
     }
@@ -93,7 +105,7 @@
                 }
             },
             items: {
-                "TruncateLogFile": {name: "Truncate Log File", icon: "truncate"}
+                TruncateLogFile: {name: "Truncate Log File", icon: "truncate"}
             }
         })
     }
@@ -111,7 +123,7 @@
                 }
             },
             items: {
-                "RestartProcess": {name: "Restart process", icon: "restart"}
+                RestartProcess: {name: "Restart process", icon: "restart"}
             }
         })
     }

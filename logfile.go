@@ -9,6 +9,7 @@ import (
 )
 
 type LogFileArg struct {
+	Options string
 	LogPath string
 	Ps      string
 	Home    string
@@ -52,7 +53,7 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 
 	_, err := os.Stat(args.LogPath)
 	if err == nil {
-		stdout, stderr := ExecuteCommands("tail "+args.LogPath, 500*time.Millisecond)
+		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+args.LogPath, 500*time.Millisecond)
 		result.TailContent = stdout
 		if stderr != "" {
 			result.Error = stderr
@@ -114,7 +115,8 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	return nil
 }
 
-func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult, funcName string, processConfigRequired bool) {
+func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
+	funcName string, processConfigRequired bool, options string) {
 	c := make(chan LogFileInfoResult, 1)
 	machine := devopsConf.Machines[machineName]
 	reply := LogFileInfoResult{
@@ -145,6 +147,7 @@ func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogF
 					Home:    process.Home,
 					Kill:    process.Kill,
 					Start:   process.Start,
+					Options: options,
 				}, &reply)
 		})
 		if err != nil {
