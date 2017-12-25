@@ -3,6 +3,7 @@ devops based on go
 
 ## Utils
 1. [online png to ico](https://cloudconvert.com/png-to-ico)
+2. [online png to svg](https://image.online-convert.com/convert-to-svg)
 
 ## ps aux output meaning
 ```

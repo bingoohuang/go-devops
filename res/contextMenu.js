@@ -57,8 +57,7 @@
                 }
             },
             items: {
-                // icon todo:https://www.iconfinder.com/icons/1149075/animal_fish_ocean_sea_tail_icon#size=512
-                "TailLogFile": {name: "TailLogFile", icon: "tail"}
+                "TailLogFile": {name: "Tail Log File", icon: "tail"}
             }
         })
     }
@@ -76,7 +75,7 @@
                 }
             },
             items: {
-                "TruncateLogFile": {name: "TruncateLogFile", icon: "cut"}
+                "TruncateLogFile": {name: "Truncate Log File", icon: "truncate"}
             }
         })
     }

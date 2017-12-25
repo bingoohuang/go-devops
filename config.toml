@@ -6,5 +6,5 @@
 [logs]
     [logs.DEMO]
     machines = ["LOCAL"]
-    path = "/Users/bingoohuang/GitHub/go-devops/aaa.log"
+    path = "aaa.log"
     process = "ps aux|grep logtest|grep -v grep"
