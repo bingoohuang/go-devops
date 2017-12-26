@@ -31,6 +31,11 @@
     ip = "192.168.8.3"
 
 [logs]
+    [logs.DEVOPS]
+    machines = ["GW01", "APP01", "APP02", "CP01", "CP02", "BAP01", "BAM01", "SMC01", "INO01", "INO02"]
+    path = "~/app/go-devops/nohup.out"
+    process = "DEVOPS"
+
     [logs.YOGA-SYSTEM]
     machines = ["APP01", "APP02"]
     path = "/home/app/tomcat/yoga-system/logs/catalina.out"
@@ -44,7 +49,7 @@
     [logs.CP-BOSS]
     machines = ["CP01", "CP02"]
     path = "/home/app/apis-run/easyhi-cp-boss/easyhi-cp-boss-1.0-SNAPSHOT.log"
-    process = "ps aux|grep easyhi-cp-boss|grep java|grep -v grep"
+    process = "CP-BOSS"
 
     [logs.ET-SERVER]
     machines = ["APP01", "APP02"]
@@ -55,3 +60,19 @@
     machines = ["INO01", "INO02"]
     path = "/home/webapp/app/openresty/nginx/logs/error.log"
     process = "ps aux|grep ino-nginx.conf|grep -v grep"
+
+[processes]
+
+    [processes.CP-BOSS]
+    home = "/home/app/apis-run/easyhi-cp-boss"
+    ps = "ps aux|grep easyhi-cp-boss|grep java|grep -v grep"
+    kill = "${ps}|awk '{print $2}'|xargs kill -9"
+    start = "nohup java -jar easyhi-cp-boss-1.0-SNAPSHOT.jar 2>&1 >> easyhi-cp-boss-1.0-SNAPSHOT.log &"
+    conf = ""
+
+    [processes.DEVOPS]
+    home = "~/app/go-devops"
+    ps = "ps aux|grep go-devops|grep -v grep"
+    kill = "${ps}|awk '{print $2}'|xargs kill -9"
+    start = "nohup ./go-devops.linux.bin 2>&1 >> nohup.out &"
+    conf = ""

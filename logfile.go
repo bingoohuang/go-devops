@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/dustin/go-humanize"
+	"github.com/mitchellh/go-homedir"
 	"github.com/valyala/fasttemplate"
 	"net/rpc"
 	"os"
@@ -35,11 +36,11 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 	killTemplate := fasttemplate.New(args.Kill, "${", "}")
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
 
-	ExecuteCommands(killCommand, 100*time.Millisecond)
-	ExecuteCommands("cd "+args.Home+"\n"+args.Start, 100*time.Millisecond)
+	ExecuteCommands(killCommand, 500*time.Millisecond)
+	ExecuteCommands("cd "+args.Home+"\n"+args.Start, 500*time.Millisecond)
 
 	err := ""
-	result.ProcessInfo, err = ExecuteCommands(args.Ps, 100*time.Millisecond)
+	result.ProcessInfo, err = ExecuteCommands(args.Ps, 500*time.Millisecond)
 	if err != "" {
 		result.Error = err
 	}
@@ -51,9 +52,10 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
 
-	_, err := os.Stat(args.LogPath)
+	logPath, _ := homedir.Expand(args.LogPath)
+	_, err := os.Stat(logPath)
 	if err == nil {
-		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+args.LogPath, 500*time.Millisecond)
+		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+logPath, 500*time.Millisecond)
 		result.TailContent = stdout
 		if stderr != "" {
 			result.Error = stderr
@@ -73,10 +75,11 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
 
-	_, err := os.Stat(args.LogPath)
+	logPath, _ := homedir.Expand(args.LogPath)
+	_, err := os.Stat(logPath)
 	if err == nil {
-		ExecuteCommands("> "+args.LogPath, 100*time.Millisecond)
-		info, _ := os.Stat(args.LogPath)
+		ExecuteCommands("> "+logPath, 500*time.Millisecond)
+		info, _ := os.Stat(logPath)
 
 		result.FileSize = humanize.IBytes(uint64(info.Size()))
 		result.LastModified = humanize.Time(info.ModTime())
@@ -96,10 +99,11 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	start := time.Now()
 
 	if args.Ps != "" {
-		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 100*time.Millisecond)
+		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond)
 	}
 
-	info, err := os.Stat(args.LogPath)
+	logPath, _ := homedir.Expand(args.LogPath)
+	info, err := os.Stat(logPath)
 	if err == nil {
 		result.FileSize = humanize.IBytes(uint64(info.Size()))
 		result.LastModified = humanize.Time(info.ModTime())
@@ -118,9 +122,16 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
 	funcName string, processConfigRequired bool, options string) {
 	c := make(chan LogFileInfoResult, 1)
-	machine := devopsConf.Machines[machineName]
+
 	reply := LogFileInfoResult{
 		MachineName: machineName,
+	}
+
+	machine, ok := devopsConf.Machines[machineName]
+	if !ok {
+		reply.Error = machineName + " is unknown"
+		resultChan <- reply
+		return
 	}
 
 	process, ok := devopsConf.Processes[log.Process]

@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/shirou/gopsutil/host"
 	"os"
 	"strconv"
 )
@@ -14,6 +16,7 @@ var (
 	devMode      bool
 	configFile   string
 	randomLogGen bool
+	hostname     string
 )
 
 type DevopsConf struct {
@@ -49,8 +52,14 @@ func init() {
 	devModeArg := flag.Bool("devMode", false, "devMode(disable js/css minify)")
 	configFileArg := flag.String("config", "config.toml", "config file path")
 	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
+	versionArg := flag.Bool("v", false, "print version")
 
 	flag.Parse()
+
+	if *versionArg {
+		fmt.Println("Version 0.0.2")
+		os.Exit(0)
+	}
 
 	contextPath = *contextPathArg
 	httpPort = strconv.Itoa(*httpPortArg)
@@ -65,4 +74,7 @@ func init() {
 
 	_, err := toml.DecodeFile(configFile, &devopsConf)
 	FatalIfErr(err)
+
+	ostStat, _ := host.Info()
+	hostname = ostStat.Hostname
 }

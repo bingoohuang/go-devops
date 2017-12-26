@@ -55,7 +55,7 @@ func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 
 	stdoutMsg, stderrMsg := waitCommandsOutput(chStdout, chStderr, cmd, timeout)
 
-	fmt.Println("cmds:", cmds, "stdout:", stderrMsg, "stderr:", stderrMsg)
+	fmt.Println(hostname, time.Now(), "cmds:", cmds, "stdout:", stderrMsg, "stderr:", stderrMsg)
 
 	return stdoutMsg, stderrMsg
 }

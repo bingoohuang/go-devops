@@ -123,7 +123,7 @@ func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
 }
 
 func CallShellCommand(client *rpc.Client, commands string) CommandsResult {
-	args := &CommandsArg{commands, 100 * time.Millisecond}
+	args := &CommandsArg{commands, 500 * time.Millisecond}
 	var reply CommandsResult
 
 	err := client.Call("ShellCommand.Execute", args, &reply)
