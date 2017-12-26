@@ -17,7 +17,7 @@
 [processes]
 
     [processes.ET]
-    home = "~/GitHub/go-devops/target"
+    home = "~/gitlab/et-server/target"
     ps = "ps aux|grep et-server-0.0.1|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup java -jar et-server-0.0.1.jar 2>&1 >> et-server-0.0.1.log &"

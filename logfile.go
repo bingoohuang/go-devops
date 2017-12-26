@@ -37,7 +37,8 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
 
 	ExecuteCommands(killCommand, 500*time.Millisecond)
-	ExecuteCommands("cd "+args.Home+"\n"+args.Start, 500*time.Millisecond)
+	//ExecuteCommands("cd "+args.Home+"\n"+args.Start, 500*time.Millisecond)
+	ExecuteCommands("cd " + args.Home + "\necho \""+ args.Start+ "\">xstart.sh\nchmod +x xstart.sh\n./xstart.sh\nrm xstart.sh", 500*time.Millisecond)
 
 	err := ""
 	result.ProcessInfo, err = ExecuteCommands(args.Ps, 500*time.Millisecond)
