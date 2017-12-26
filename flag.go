@@ -7,6 +7,7 @@ import (
 	"github.com/shirou/gopsutil/host"
 	"os"
 	"strconv"
+	"time"
 )
 
 var (
@@ -51,13 +52,19 @@ func init() {
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
 	devModeArg := flag.Bool("devMode", false, "devMode(disable js/css minify)")
 	configFileArg := flag.String("config", "config.toml", "config file path")
+	directCmdsArg := flag.String("directCmds", "", "direct Cmds")
 	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
 	versionArg := flag.Bool("v", false, "print version")
 
 	flag.Parse()
 
 	if *versionArg {
-		fmt.Println("Version 0.0.2")
+		fmt.Println("Version 0.0.3")
+		os.Exit(0)
+	}
+
+	if *directCmdsArg != "" {
+		ExecuteCommands(*directCmdsArg, 3*time.Second)
 		os.Exit(0)
 	}
 
@@ -68,13 +75,13 @@ func init() {
 	configFile = *configFileArg
 	randomLogGen = *randomLogGenArg
 
+	ostStat, _ := host.Info()
+	hostname = ostStat.Hostname
+
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		return
 	}
 
 	_, err := toml.DecodeFile(configFile, &devopsConf)
 	FatalIfErr(err)
-
-	ostStat, _ := host.Info()
-	hostname = ostStat.Hostname
 }
