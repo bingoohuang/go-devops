@@ -25,7 +25,7 @@ type ShellCommand int
 func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error {
 	start := time.Now()
 
-	stdout, stderr := ExecuteCommands(args.Command, args.Timeout)
+	stdout, stderr := ExecuteCommands(args.Command, args.Timeout, true)
 	elapsed := time.Since(start)
 	result.Stdout = stdout
 	result.Stderr = stderr
@@ -33,7 +33,8 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 	return nil
 }
 
-func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
+func ExecuteCommands(cmds string, timeout time.Duration, wait bool) (string, string) {
+	start := time.Now()
 	cmd := exec.Command("bash", "-c", cmds)
 
 	stderr, err := cmd.StderrPipe()
@@ -53,14 +54,15 @@ func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	chStdout := goReadOut(stdout)
 	chStderr := goReadOut(stderr)
 
-	stdoutMsg, stderrMsg := waitCommandsOutput(chStdout, chStderr, cmd, timeout)
+	stdoutMsg, stderrMsg := waitCommandsOutput(chStdout, chStderr, cmd, timeout, wait)
 
-	fmt.Println(hostname, time.Now(), "cmds:", cmds, "stdout:", stderrMsg, "stderr:", stderrMsg)
+	elapsed := time.Since(start)
+	fmt.Println(hostname, time.Now(), "cost:", elapsed, "cmds:", cmds, "stdout:", stderrMsg, "stderr:", stderrMsg)
 
 	return stdoutMsg, stderrMsg
 }
 
-func waitCommandsOutput(chStdout, chStderr <-chan string, cmd *exec.Cmd, timeout time.Duration) (string, string) {
+func waitCommandsOutput(chStdout, chStderr <-chan string, cmd *exec.Cmd, timeout time.Duration, wait bool) (string, string) {
 	quit := make(chan bool)
 	time.AfterFunc(timeout, func() { quit <- true })
 
@@ -83,7 +85,10 @@ LOOP:
 			cmd.Process.Kill()
 		}
 	}
-	cmd.Wait()
+
+	if wait {
+		cmd.Wait()
+	}
 	return bufStdout.String(), bufStderr.String()
 }
 
@@ -128,9 +133,3 @@ https://superuser.com/questions/171858/how-do-i-interpret-the-results-of-the-ls-
          |
          +-permissions that apply to users who are members of the group
 */
-
-func TestShell() {
-	out, err := ExecuteCommands("ls\n"+"ps -ef|grep shell|grep -v grep\n"+"echo 'abc'", 3*time.Second)
-	fmt.Print(out)
-	fmt.Print(err)
-}

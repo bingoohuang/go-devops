@@ -59,12 +59,12 @@ func init() {
 	flag.Parse()
 
 	if *versionArg {
-		fmt.Println("Version 0.0.3")
+		fmt.Println("Version 0.0.4")
 		os.Exit(0)
 	}
 
 	if *directCmdsArg != "" {
-		ExecuteCommands(*directCmdsArg, 3*time.Second)
+		ExecuteCommands(*directCmdsArg, 3*time.Second, true)
 		os.Exit(0)
 	}
 
