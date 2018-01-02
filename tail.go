@@ -15,16 +15,7 @@ type TailInfo struct {
 }
 
 func tail(logFile string, seq int) string {
-	tailInfo, ok := tailMap.Load(logFile)
-	if !ok {
-		newTailInfo := TailInfo{
-
-		}
-		tailInfo, loaded := tailMap.LoadOrStore(logFile, &newTailInfo)
-		if !loaded {
-			startTail(logFile, tailInfo)
-		}
-	}
+	return ""
 }
 
 func startTail(logFile string, tailInfo *TailInfo) {

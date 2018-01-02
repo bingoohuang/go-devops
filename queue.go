@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 )
 
 // https://gist.github.com/moraes/2141121
@@ -23,6 +24,7 @@ func NewQueue(size int) *Queue {
 
 // Queue is a basic FIFO queue based on a circular list that resizes as needed.
 type Queue struct {
+	mux sync.Mutex
 	nodes []*Node
 	size  int
 	head  int
@@ -32,6 +34,9 @@ type Queue struct {
 
 // Push adds a node to the queue.
 func (q *Queue) Push(n *Node) {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
 	if q.head == q.tail && q.count > 0 {
 		nodes := make([]*Node, len(q.nodes)+q.size)
 		copy(nodes, q.nodes[q.head:])
@@ -47,6 +52,9 @@ func (q *Queue) Push(n *Node) {
 
 // Pop removes and returns a node from the queue in first to last order.
 func (q *Queue) Pop() *Node {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+	
 	if q.count == 0 {
 		return nil
 	}

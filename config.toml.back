@@ -61,6 +61,11 @@
     path = "/home/webapp/app/openresty/nginx/logs/error.log"
     process = "ps aux|grep ino-nginx.conf|grep -v grep"
 
+    [logs.YOGA-BOSS]
+    machines = ["CP01"]
+    path = "/home/app/tomcat/yoga-glass/logs/catalina.out"
+    process = "YOGA-BOSS"
+
 [processes]
 
     [processes.CP-BOSS]
@@ -75,4 +80,12 @@
     ps = "ps aux|grep go-devops|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup ./go-devops.linux.bin 2>&1 >> nohup.out &"
+    conf = ""
+
+
+    [processes.YOGA-BOSS]
+    home = "/home/app/tomcat/yoga-glass"
+    ps = "ps aux|grep yoga-boss|grep -v grep"
+    kill = "${ps}|awk '{print $2}'|xargs kill -9"
+    start = "bin/catalina.sh start"
     conf = ""

@@ -4,21 +4,41 @@
         $('#tableArea').show()
     })
 
+    function createTailTabs(content) {
+        var tailTabsHtml = ''
+        for (var i = 0; i < content.length; ++i) {
+            tailTabsHtml += '<button class="tablinks">' + content[i].MachineName + '</button>'
+        }
+        $('#preContent .tabs').html(tailTabsHtml)
+    }
+
+    function createTailContents(content) {
+        var datasHtml = ''
+        for (var i = 0; i < content.length; ++i) {
+            datasHtml += '<div id="machine-' + content[i].MachineName
+                + '" class="tabcontent"><pre class="preWrap">' + content[i].TailContent + '</pre></div>'
+        }
+        $('#preContent .datas').html(datasHtml)
+    }
+
+    function bindTabClicks() {
+        $('button.tablinks').click(function () {
+            $('button.tablinks').removeClass('active')
+            $(this).addClass('active')
+            $('div.tabcontent').removeClass('active').hide()
+            $('#machine-' + $(this).text()).addClass('active').show()
+        }).first().click()
+    }
+
     function TailLogFile(loggerName, logPath, lines) {
         $('#refresh').unbind('click')
         $.ajax({
             type: 'POST',
             url: contextPath + "/tailLogFile/" + loggerName + "/" + lines,
             success: function (content, textStatus, request) {
-                var tailContent = '<pre class="preWrap">'
-
-                for (var i = 0; i < content.length; ++i) {
-                    if (i > 0) tailContent += '\n\n'
-                    tailContent += content[i].MachineName + ' ' + logPath + ':\n'
-                        + content[i].TailContent
-                }
-                tailContent += '</pre>'
-                $('#preContent').html(tailContent)
+                createTailTabs(content)
+                createTailContents(content)
+                bindTabClicks()
 
                 $('#tableArea').hide()
                 $('#fileContent').show()

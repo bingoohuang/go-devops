@@ -44,3 +44,36 @@ table td.ProcessInfo {
 #fileContent {
     display: none;
 }
+
+div.tabs {
+    overflow: hidden;
+    position: fixed;
+    bottom: 0;
+    font-size: 12px;
+    background-color: #f1f1f1;
+    left: 0;
+    right: 0;
+}
+
+div.tabs button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 16px;
+    transition: 0.3s;
+}
+
+div.tabs button:hover {
+    background-color: #ddd;
+}
+
+div.tabs button.active {
+    background-color: #ccc;
+    font-weight: bold;
+}
+
+.tabcontent {
+    display: none;
+}
