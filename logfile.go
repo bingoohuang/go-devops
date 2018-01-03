@@ -16,6 +16,7 @@ type LogFileArg struct {
 	Home    string
 	Kill    string
 	Start   string
+	LogSeq  int
 }
 
 type LogFileInfoResult struct {
@@ -24,11 +25,24 @@ type LogFileInfoResult struct {
 	LastModified string
 	FileSize     string
 	TailContent  string
+	ReachedTail  bool
+	TailNextSeq  int
 	CostTime     string
 	ProcessInfo  string
 }
 
 type LogFileCommand int
+
+func (t *LogFileCommand) TailFLogFile(args *LogFileArg, result *LogFileInfoResult) error {
+	start := time.Now()
+	tailContent, reachedTail, nextSeq := tail(args.LogPath, args.LogSeq)
+	result.TailContent = string(tailContent)
+	result.ReachedTail = reachedTail
+	result.TailNextSeq = nextSeq
+
+	result.CostTime = time.Since(start).String()
+	return nil
+}
 
 func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
@@ -128,7 +142,7 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 }
 
 func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
-	funcName string, processConfigRequired bool, options string) {
+	funcName string, processConfigRequired bool, options string, logSeq int) {
 	c := make(chan LogFileInfoResult, 1)
 
 	reply := LogFileInfoResult{
@@ -163,6 +177,7 @@ func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogF
 					Kill:    process.Kill,
 					Start:   process.Start,
 					Options: options,
+					LogSeq:  logSeq,
 				}, &reply)
 		})
 		if err != nil {

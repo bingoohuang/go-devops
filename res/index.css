@@ -45,6 +45,11 @@ table td.ProcessInfo {
     display: none;
 }
 
+#preContent .datas {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
 div.tabs {
     overflow: hidden;
     position: fixed;
