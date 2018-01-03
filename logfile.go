@@ -6,6 +6,8 @@ import (
 	"github.com/valyala/fasttemplate"
 	"net/rpc"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -120,6 +122,18 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 
 	if args.Ps != "" {
 		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond, true)
+		fields := strings.Fields(result.ProcessInfo)
+		if len(fields) >= 6 {
+			vszKib, _ := strconv.ParseUint(fields[4], 10, 64)
+			vsz := humanize.IBytes(1024 * vszKib) // virtual memory usage of entire process (in KiB)
+			vsz = strings.Replace(vsz, " ", "", 1)
+			rssKib, _ := strconv.ParseUint(fields[5], 10, 64)
+			rss := humanize.IBytes(1024 * rssKib) // resident set size, the non-swapped physical memory that a task has used (in KiB)
+			rss = strings.Replace(rss, " ", "", 1)
+
+			result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[4], vsz, 1)
+			result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
+		}
 	}
 
 	logPath, _ := homedir.Expand(args.LogPath)
