@@ -25,7 +25,6 @@ type LogFileInfoResult struct {
 	LastModified string
 	FileSize     string
 	TailContent  string
-	ReachedTail  bool
 	TailNextSeq  int
 	CostTime     string
 	ProcessInfo  string
@@ -35,9 +34,8 @@ type LogFileCommand int
 
 func (t *LogFileCommand) TailFLogFile(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
-	tailContent, reachedTail, nextSeq := tail(args.LogPath, args.LogSeq)
+	tailContent, nextSeq := tail(args.LogPath, args.LogSeq)
 	result.TailContent = string(tailContent)
-	result.ReachedTail = reachedTail
 	result.TailNextSeq = nextSeq
 
 	result.CostTime = time.Since(start).String()

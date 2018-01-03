@@ -28,27 +28,28 @@ func init() {
 	tailCache.OnEvicted(OnEvicted)
 }
 
-func tail(logFile string, seq int) ([]byte, bool, int) {
+func tail(logFile string, seq int) ([]byte, int) {
 	logQueue, found := tailCache.Get(logFile)
+	newCreate := false
 	if !found {
-		logQueue = createCache(logFile)
+		logQueue, newCreate = createCache(logFile)
 	}
 
 	q := logQueue.(*CycleQueue)
-	node, reachedTail, nextSeq := q.Get(seq)
-	if reachedTail {
-		return nil, true, seq
+
+	if newCreate {
+		return nil, 0
 	}
 
-	return node.Value, reachedTail, nextSeq
+	return q.Get(seq)
 }
-func createCache(logFile string) interface{} {
+func createCache(logFile string) (interface{}, bool) {
 	cacheMux.Lock()
 	defer cacheMux.Unlock()
 
 	logQueue, found := tailCache.Get(logFile)
 	if found {
-		return logQueue
+		return logQueue, false
 	}
 
 	logQueue = NewQueue(100)
@@ -56,7 +57,7 @@ func createCache(logFile string) interface{} {
 
 	go startTail(logFile, logQueue.(*CycleQueue))
 
-	return logQueue
+	return logQueue, true
 }
 
 func startTail(logFile string, logQueue *CycleQueue) {
@@ -80,7 +81,9 @@ func startTail(logFile string, logQueue *CycleQueue) {
 		}
 
 		if length > 0 {
-			logQueue.Add(&Node{tmp[0:length]})
+			b := make([]byte, length)
+			copy(b, tmp[0:length])
+			logQueue.Add(&Node{b})
 		}
 	}
 

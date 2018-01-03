@@ -21,10 +21,10 @@
 
     function appendTailContents(content) {
         for (var i = 0; i < content.length; ++i) {
-            if (!content[i].ReachedTail) {
-                $('#machine-' + content[i].MachineName + " .preWrap").append(content[i].TailContent)
-                scrollToBottom()
-            }
+            if (content[i].TailContent == "") continue
+
+            $('#machine-' + content[i].MachineName + " .preWrap").append(content[i].TailContent)
+            scrollToBottom()
         }
     }
 

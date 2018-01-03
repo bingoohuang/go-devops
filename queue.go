@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"os/exec"
 	"sync"
 )
@@ -32,11 +34,12 @@ func (q *CycleQueue) Add(n *Node) {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 
-	q.nodes[q.tail] = n
-	q.tail = (q.tail + 1) % q.size
+	q.nodes[q.tail%q.size] = n
+	fmt.Println("Add:", q.tail, "\nContent:", string(n.Value))
+	q.tail++
 }
 
-func (q *CycleQueue) Get(index int) (*Node, bool, int) {
+func (q *CycleQueue) Get(index int) ([]byte, int) {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 
@@ -47,5 +50,16 @@ func (q *CycleQueue) Get(index int) (*Node, bool, int) {
 		index = 0
 	}
 
-	return q.nodes[index%q.size], q.tail == index, index + 1
+	var tailBytes bytes.Buffer
+
+	total := 0
+	for index < q.tail && total < q.size {
+		node := q.nodes[index%q.size]
+		fmt.Println("Get:", index, "Content:", string(node.Value))
+		tailBytes.Write(node.Value)
+		index++
+		total++
+	}
+
+	return tailBytes.Bytes(), index
 }
