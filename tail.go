@@ -18,46 +18,36 @@ var cacheMux sync.Mutex
 func OnEvicted(key string, val interface{}) {
 	logQueue := val.(*CycleQueue)
 
+	logQueue.stop <- true
 	logQueue.cmd.Process.Kill()
+	logQueue.cmd.Process.Wait()
 }
 
 func init() {
 	// Create a cache with a default expiration time of 1 minutes, and which
 	// purges expired items every 1 minutes
-	tailCache = cache.New(1*time.Minute, 1*time.Minute)
+	tailCache = cache.New(1*time.Minute, 30*time.Second)
 	tailCache.OnEvicted(OnEvicted)
 }
 
 func tail(logFile string, seq int) ([]byte, int) {
-	logQueue, found := tailCache.Get(logFile)
-	newCreate := false
-	if !found {
-		logQueue, newCreate = createCache(logFile)
-	}
-
-	q := logQueue.(*CycleQueue)
-
-	if newCreate {
-		return nil, 0
-	}
-
-	return q.Get(seq)
-}
-func createCache(logFile string) (interface{}, bool) {
 	cacheMux.Lock()
 	defer cacheMux.Unlock()
 
 	logQueue, found := tailCache.Get(logFile)
-	if found {
-		return logQueue, false
+	if !found {
+		logQueue = NewQueue(100)
+		go startTail(logFile, logQueue.(*CycleQueue))
 	}
 
-	logQueue = NewQueue(100)
+	// reset expiration
 	tailCache.Set(logFile, logQueue, cache.DefaultExpiration)
+	if !found {
+		return nil, 0
+	}
 
-	go startTail(logFile, logQueue.(*CycleQueue))
-
-	return logQueue, true
+	q := logQueue.(*CycleQueue)
+	return q.Get(seq)
 }
 
 func startTail(logFile string, logQueue *CycleQueue) {
@@ -73,19 +63,30 @@ func startTail(logFile string, logQueue *CycleQueue) {
 	}
 
 	tmp := make([]byte, 10240)
+Loop:
 	for {
+		select {
+		case <-logQueue.stop:
+			break Loop
+		default:
+		}
+
 		length, err := reader.Read(tmp)
 		if err != nil && err != io.EOF {
 			logQueue.Add(&Node{[]byte(err.Error())})
 			break
 		}
 
-		if length > 0 {
-			b := make([]byte, length)
-			copy(b, tmp[0:length])
-			logQueue.Add(&Node{b})
+		if length == 0 {
+			time.Sleep(100 * time.Millisecond)
+			continue
 		}
+
+		b := make([]byte, length)
+		copy(b, tmp[0:length])
+		logQueue.Add(&Node{b})
 	}
+	log.Println("Exit tail -F " + logFile)
 
 	stdout.Close()
 }

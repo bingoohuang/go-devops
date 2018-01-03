@@ -17,6 +17,7 @@ func NewQueue(size int) *CycleQueue {
 	return &CycleQueue{
 		nodes: make([]*Node, size),
 		size:  size,
+		stop:  make(chan bool),
 	}
 }
 
@@ -27,6 +28,7 @@ type CycleQueue struct {
 	nodes []*Node
 	size  int
 	tail  int
+	stop  chan bool
 }
 
 // Push adds a node to the queue.
@@ -35,7 +37,7 @@ func (q *CycleQueue) Add(n *Node) {
 	defer q.mux.Unlock()
 
 	q.nodes[q.tail%q.size] = n
-	fmt.Println("Add:", q.tail, "\nContent:", string(n.Value))
+	fmt.Print(",Add:", q.tail)
 	q.tail++
 }
 
@@ -55,7 +57,7 @@ func (q *CycleQueue) Get(index int) ([]byte, int) {
 	total := 0
 	for index < q.tail && total < q.size {
 		node := q.nodes[index%q.size]
-		fmt.Println("Get:", index, "Content:", string(node.Value))
+		fmt.Print(",Get:", index)
 		tailBytes.Write(node.Value)
 		index++
 		total++
