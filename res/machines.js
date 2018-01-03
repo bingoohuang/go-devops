@@ -34,7 +34,7 @@
                 var machineResult = content[j]
                 var hardwareInfo = machineResult.MachineInfo
 
-                machinesHtml += '<tr><td class="MachineName">' + machineResult.Name + '</td>'
+                machinesHtml += '<tr><td class="MachineName">' + machineResult.MachineName + '</td>'
                     + '<td>' + (machineResult.Error || 'OK') + '</td>'
                     + '<td>' + hardwareInfo.Hostname + '</td>'
                     + '<td>' + (hardwareInfo.Ips && hardwareInfo.Ips.length > 0 ? hardwareInfo.Ips.join(', ') : '') + '</td>'

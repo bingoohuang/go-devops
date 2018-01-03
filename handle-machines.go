@@ -10,17 +10,21 @@ import (
 func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	results := make([]MachineCommandResult, 0)
-
 	size := len(devopsConf.Machines)
 	resultChan := make(chan MachineCommandResult, size)
 	for machineName, machine := range devopsConf.Machines {
 		go TimeoutCallMachineInfo(machine, machineName, resultChan)
 	}
 
+	resultsMap := make(map[string]*MachineCommandResult)
 	for i := 0; i < size; i++ {
 		result := <-resultChan
-		results = append(results, result)
+		resultsMap[result.MachineName] = &result
+	}
+
+	results := make([]*MachineCommandResult, 0)
+	for _, machineName := range machineNames {
+		results = append(results, resultsMap[machineName])
 	}
 
 	json.NewEncoder(w).Encode(results)
@@ -29,7 +33,7 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 func TimeoutCallMachineInfo(machine Machine, machineName string, resultChan chan MachineCommandResult) {
 	c := make(chan MachineCommandResult, 1)
 	reply := MachineCommandResult{
-		Name: machineName,
+		MachineName: machineName,
 	}
 
 	go func() {

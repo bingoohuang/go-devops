@@ -13,7 +13,7 @@ import (
 type LogShowResult struct {
 	Logger  string
 	LogPath string
-	Logs    []LogFileInfoResult
+	Logs    []*LogFileInfoResult
 }
 
 func HandleLogs(w http.ResponseWriter, r *http.Request) {
@@ -26,29 +26,36 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 		go showLog(logger, log, resultChan)
 	}
 
-	results := make([]LogShowResult, 0)
+	resultsMap := make(map[string]*LogShowResult)
 	for i := 0; i < logsNum; i++ {
 		result := <-resultChan
-		results = append(results, result)
+		resultsMap[result.Logger] = &result
+	}
+
+	results := make([]*LogShowResult, 0)
+	for _, logger := range loggers {
+		results = append(results, resultsMap[logger])
 	}
 
 	json.NewEncoder(w).Encode(results)
 }
 
 func showLog(logger string, log Log, results chan LogShowResult) {
-	logs := make([]LogFileInfoResult, 0)
-
 	machinesNum := len(log.Machines)
-
 	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machine := range log.Machines {
-		go TimeoutCallLogFileCommand(machine, log, resultChan, "LogFileInfo", false, "", 0)
+	for _, machineName := range log.Machines {
+		go TimeoutCallLogFileCommand(machineName, log, resultChan, "LogFileInfo", false, "", 0)
 	}
 
+	resultsMap := make(map[string]*LogFileInfoResult)
 	for i := 0; i < machinesNum; i++ {
 		commandResult := <-resultChan
+		resultsMap[commandResult.MachineName] = &commandResult
+	}
 
-		logs = append(logs, commandResult)
+	logs := make([]*LogFileInfoResult, 0)
+	for _, machineName := range log.Machines {
+		logs = append(logs, resultsMap[machineName])
 	}
 
 	results <- LogShowResult{

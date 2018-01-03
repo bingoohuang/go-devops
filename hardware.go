@@ -40,9 +40,13 @@ type MachineCommandArg struct {
 
 type MachineCommandResult struct {
 	Error       string
-	Name        string
+	MachineName string
 	MachineInfo HardwareInfo
 	CostTime    string
+}
+
+func (p *MachineCommandResult) SortValue() string {
+	return p.MachineName
 }
 
 type MachineCommand int

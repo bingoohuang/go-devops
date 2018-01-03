@@ -15,17 +15,22 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	lines := vars["lines"]
 	log := devopsConf.Logs[loggerName]
 
-	logs := make([]LogFileInfoResult, 0)
 	machinesNum := len(log.Machines)
 
 	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machine := range log.Machines {
-		go TimeoutCallLogFileCommand(machine, log, resultChan, "TailLogFile", false, "-"+lines, 0)
+	for _, machineName := range log.Machines {
+		go TimeoutCallLogFileCommand(machineName, log, resultChan, "TailLogFile", false, "-"+lines, 0)
 	}
 
+	resultsMap := make(map[string]*LogFileInfoResult)
 	for i := 0; i < machinesNum; i++ {
 		commandResult := <-resultChan
-		logs = append(logs, commandResult)
+		resultsMap[commandResult.MachineName] = &commandResult
+	}
+
+	logs := make([]*LogFileInfoResult, 0)
+	for _, machineName := range log.Machines {
+		logs = append(logs, resultsMap[machineName])
 	}
 
 	json.NewEncoder(w).Encode(logs)
@@ -48,24 +53,29 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 
 	log := devopsConf.Logs[loggerName]
 
-	logs := make([]LogFileInfoResult, 0)
 	machinesNum := len(log.Machines)
 
 	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machine := range log.Machines {
-		machineLogSeq, ok := machineLogSeqMap[machine]
+	for _, machineName := range log.Machines {
+		machineLogSeq, ok := machineLogSeqMap[machineName]
 		seq := -1
 		if ok {
 			seq = machineLogSeq
 		}
-		go TimeoutCallLogFileCommand(machine, log, resultChan, "TailFLogFile", false, "", seq)
+		go TimeoutCallLogFileCommand(machineName, log, resultChan, "TailFLogFile", false, "", seq)
 	}
-
 	newSeqMap := make(map[string]int)
+
+	resultsMap := make(map[string]*LogFileInfoResult)
 	for i := 0; i < machinesNum; i++ {
 		commandResult := <-resultChan
-		logs = append(logs, commandResult)
+		resultsMap[commandResult.MachineName] = &commandResult
 		newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
+	}
+
+	logs := make([]*LogFileInfoResult, 0)
+	for _, machineName := range machineNames {
+		logs = append(logs, resultsMap[machineName])
 	}
 
 	newLogSeq := ""
@@ -78,7 +88,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(
 		struct {
-			Results   []LogFileInfoResult
+			Results   []*LogFileInfoResult
 			NewLogSeq string
 		}{
 			Results:   logs,

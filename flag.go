@@ -18,6 +18,9 @@ var (
 	configFile   string
 	randomLogGen bool
 	hostname     string
+
+	machineNames []string
+	loggers      []string
 )
 
 type DevopsConf struct {
@@ -82,6 +85,18 @@ func init() {
 		return
 	}
 
-	_, err := toml.DecodeFile(configFile, &devopsConf)
+	meta, err := toml.DecodeFile(configFile, &devopsConf)
 	FatalIfErr(err)
+
+	machineNames = make([]string, 0)
+	loggers = make([]string, 0)
+	for _, key := range meta.Keys() {
+		if len(key) == 2 {
+			if key[0] == "machines" {
+				machineNames = append(machineNames, key[1])
+			} else if key[0] == "logs" {
+				loggers = append(loggers, key[1])
+			}
+		}
+	}
 }
