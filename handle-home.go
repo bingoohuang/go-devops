@@ -64,10 +64,10 @@ func mergeCss() string {
 }
 
 func mergeScripts() string {
-	return mergeStatic("jquery-3.2.1.min.js", "jquery.contextMenu.js", "jquery.ui.position.js",
-		"util.js", "index.js", "machines.js", "contextMenu.js", "logs.js", "highlight.machine.js",
-		"codemirror-5.33.0.min.js", "toml-5.33.0.min.js", "conf.js",
-	)
+	return mergeStatic("jquery-3.2.1.min.js", "jquery.loading.js",
+		"index.js", "jquery.contextMenu.js", "jquery.ui.position.js",
+		"util.js", "machines.js", "contextMenu.js", "logs.js", "highlight.machine.js",
+		"codemirror-5.33.0.min.js", "toml-5.33.0.min.js", "conf.js")
 }
 
 func mergeStatic(statics ...string) string {

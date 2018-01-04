@@ -118,7 +118,7 @@ func TimeoutCallShellCommand(machineName, commands string, resultChan chan Comma
 	case result := <-c:
 		result.MachineName = machineName
 		resultChan <- result
-	case <-time.After(10 * time.Second):
+	case <-time.After(3 * time.Minute):
 		resultChan <- CommandsResult{
 			Error:       "timeout",
 			MachineName: machineName,
@@ -139,7 +139,7 @@ func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
 }
 
 func CallShellCommand(client *rpc.Client, commands string) CommandsResult {
-	args := &CommandsArg{commands, 10 * time.Second}
+	args := &CommandsArg{commands, 3 * time.Minute}
 	var reply CommandsResult
 
 	err := client.Call("ShellCommand.Execute", args, &reply)

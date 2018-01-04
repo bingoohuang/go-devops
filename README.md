@@ -44,3 +44,16 @@ Some extra modifiers:
     s is a session leader
     l is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
     + is in the foreground process group
+
+## Some scripts
+```bash
+#!/bin/bash
+START=$(date +%s)
+
+awk 'substr($0,1,19)>="2018-01-04 16:07:18" && substr($0,1,19)<="2018-01-04 16:07:19"' < src.log > cut.log
+
+END=$(date +%s)
+DIFF=$(( $END - $START ))
+echo "It took $DIFF seconds"
+
+```

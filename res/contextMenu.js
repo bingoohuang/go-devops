@@ -83,8 +83,10 @@
         }
     }
 
-    function locateLogClick(loggerName, fromTimestamp, toTimestamp) {
+    function locateLogClick(loggerName) {
         $('#locateLog').unbind('click').click(function () {
+            var fromTimestamp = $('#fromTimestamp').val()
+            var toTimestamp = $('#toTimestamp').val()
             $.ajax({
                 type: 'POST',
                 url: contextPath + "/locateLog/" + loggerName + "/" + fromTimestamp + "/" + toTimestamp,
@@ -116,7 +118,7 @@
                     TailLogFile(loggerName, logPath, lines)
                 })
 
-                locateLogClick(loggerName, $('#fromTimestamp').val(), $('#toTimestamp').val());
+                locateLogClick(loggerName);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
