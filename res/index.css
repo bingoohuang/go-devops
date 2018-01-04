@@ -41,7 +41,7 @@ table td.ProcessInfo {
     word-wrap: break-word;
 }
 
-#fileContent {
+#fileContent, #configDiv {
     display: none;
 }
 

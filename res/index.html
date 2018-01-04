@@ -9,14 +9,17 @@
     </style>
 </head>
 <body>
-<div id="tableArea">
+<div class="hiddable" id="tableArea">
     <div>Machines:</div>
     <div id="machines"></div>
     <p/>
     <div>Logs:</div>
     <div id="logs"></div>
+    <div>
+        <button id="ConfigBtn">Config</button>
+    </div>
 </div>
-<div id="fileContent">
+<div class="hiddable" id="fileContent">
     <div style="position:fixed;top:5px;">
         <button id="closeFileContent"><span class="context-menu-icons context-menu-icon-close">Close</span></button>
         &nbsp;
@@ -29,6 +32,13 @@
         <div class="datas">
 
         </div>
+    </div>
+</div>
+<div class="hiddable" id="configDiv">
+    <textarea id="tomlEditor"></textarea>
+    <div>
+        <button id="SaveConfig">Save Config</button>
+        <button id="CloseConfig">Close</button>
     </div>
 </div>
 <script>

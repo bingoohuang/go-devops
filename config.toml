@@ -9,10 +9,10 @@
     path = "aaa.log"
     process = "randomLogGen"
 
-    [logs.ET]
-    machines = ["LOCAL"]
-    path = "~/gitlab/et-server/target/et-server-0.0.1.log"
-    process = "ET"
+    #[logs.ET]
+    #machines = ["LOCAL"]
+    #path = "~/gitlab/et-server/target/et-server-0.0.1.log"
+    #process = "ET"
 
 [processes]
 
