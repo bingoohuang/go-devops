@@ -13,15 +13,13 @@ table tr:first-child {
 }
 
 table td.LogPath {
-    max-width: 100px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    max-width: 300px;
+    overflow-x: auto;
 }
 
 table td.ProcessInfo {
-    max-width: 400px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+    max-width: 500px;
+    overflow-x: auto;
 }
 
 .highlight {
@@ -81,4 +79,10 @@ div.tabs button.active {
 
 .tabcontent {
     display: none;
+}
+
+#fromTimestamp, #toTimestamp {
+    width: 150px;
+    height: 20px;
+    line-height: 20px;
 }

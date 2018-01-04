@@ -50,6 +50,7 @@
     var NewLogSeq = null
 
     function TailFLog(loggerName, logPath, tailSeq) {
+        $('#locateLogSpan').hide()
         $.ajax({
             type: 'POST',
             url: contextPath + "/tailFLog/" + loggerName + "/" + tailSeq,

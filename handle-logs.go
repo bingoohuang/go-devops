@@ -66,7 +66,10 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogFileInfoResult {
 	logs := make([]*LogFileInfoResult, 0)
 	for _, machineName := range log.Machines {
-		logs = append(logs, resultsMap[machineName])
+		result, ok := resultsMap[machineName]
+		if ok {
+			logs = append(logs, result)
+		}
 	}
 	return logs
 }

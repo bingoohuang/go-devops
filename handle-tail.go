@@ -59,11 +59,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 		newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
 	}
 
-	logs := make([]*LogFileInfoResult, 0)
-	for _, machineName := range machineNames {
-		logs = append(logs, resultsMap[machineName])
-	}
-
+	logs := createLogsResult(log, resultsMap)
 	json.NewEncoder(w).Encode(
 		struct {
 			Results   []*LogFileInfoResult
