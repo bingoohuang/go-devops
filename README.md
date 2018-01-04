@@ -1,6 +1,14 @@
 # go-devops
 devops based on go
 
+## Snapshots
+Home page:
+![image](https://user-images.githubusercontent.com/1940588/34563611-30ef73d0-f18e-11e7-8318-27f259577246.png)
+Tail page:
+![image](https://user-images.githubusercontent.com/1940588/34563629-42f2ab74-f18e-11e7-8b39-b48c707db69a.png)
+Config page:
+![image](https://user-images.githubusercontent.com/1940588/34563633-49f3958c-f18e-11e7-8b64-871c4d1b40f8.png)
+
 ## Utils
 1. [online png to ico](https://cloudconvert.com/png-to-ico)
 2. [online png to svg](https://image.online-convert.com/convert-to-svg)
