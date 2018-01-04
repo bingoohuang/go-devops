@@ -12,9 +12,9 @@ func StartHttpSever() {
 	r.HandleFunc(contextPath+"/font/{fontName}", HandleFont)
 	r.HandleFunc(contextPath+"/favicon.ico", HandleFavicon)
 
-	r.HandleFunc(contextPath+"/log/{logger}/{timestampFrom}/{timestampTo}", FindHandleLogsBetweenTimestamps)
 	r.HandleFunc(contextPath+"/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile)
 	r.HandleFunc(contextPath+"/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess)
+	r.HandleFunc(contextPath+"/locateLog/{loggerName}/{timestampFrom}/{timestampTo}", gzipWrapper(HandleLocateLog))
 	r.HandleFunc(contextPath+"/tailLogFile/{loggerName}/{lines}", gzipWrapper(HandleTailLogFile))
 	r.HandleFunc(contextPath+"/tailFLog/{loggerName}/{logSeq}", gzipWrapper(HandleTailFLog))
 	r.HandleFunc(contextPath+"/machines", HandleMachines)

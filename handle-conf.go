@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net/http"
-	"io/ioutil"
-	"github.com/BurntSushi/toml"
-	"os"
 	"encoding/json"
+	"github.com/BurntSushi/toml"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 func HandleLoadConf(w http.ResponseWriter, r *http.Request) {

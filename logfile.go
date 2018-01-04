@@ -34,7 +34,7 @@ type LogFileInfoResult struct {
 
 type LogFileCommand int
 
-func (t *LogFileCommand) TailFLogFile(args *LogFileArg, result *LogFileInfoResult) error {
+func (t *LogFileCommand) TailFLog(args *LogFileArg, result *LogFileInfoResult) error {
 	start := time.Now()
 	tailContent, nextSeq := tail(args.LogPath, args.LogSeq)
 	result.TailContent = string(tailContent)
@@ -49,7 +49,6 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 
 	killTemplate := fasttemplate.New(args.Kill, "${", "}")
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
-
 	ExecuteCommands(killCommand, 500*time.Millisecond, true)
 
 	argsHome, _ := homedir.Expand(args.Home)
@@ -122,18 +121,7 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 
 	if args.Ps != "" {
 		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond, true)
-		fields := strings.Fields(result.ProcessInfo)
-		if len(fields) >= 6 {
-			vszKib, _ := strconv.ParseUint(fields[4], 10, 64)
-			vsz := humanize.IBytes(1024 * vszKib) // virtual memory usage of entire process (in KiB)
-			vsz = strings.Replace(vsz, " ", "", 1)
-			rssKib, _ := strconv.ParseUint(fields[5], 10, 64)
-			rss := humanize.IBytes(1024 * rssKib) // resident set size, the non-swapped physical memory that a task has used (in KiB)
-			rss = strings.Replace(rss, " ", "", 1)
-
-			result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[4], vsz, 1)
-			result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
-		}
+		humanizedPsOutput(result)
 	}
 
 	logPath, _ := homedir.Expand(args.LogPath)
@@ -153,7 +141,24 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	return nil
 }
 
-func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
+func humanizedPsOutput(result *LogFileInfoResult) {
+	fields := strings.Fields(result.ProcessInfo)
+	if len(fields) < 6 {
+		return
+	}
+
+	vszKib, _ := strconv.ParseUint(fields[4], 10, 64)
+	vsz := humanize.IBytes(1024 * vszKib) // virtual memory usage of entire process (in KiB)
+	vsz = strings.Replace(vsz, " ", "", 1)
+	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[4], vsz, 1)
+
+	rssKib, _ := strconv.ParseUint(fields[5], 10, 64)
+	rss := humanize.IBytes(1024 * rssKib) // resident set size, the non-swapped physical memory that a task has used (in KiB)
+	rss = strings.Replace(rss, " ", "", 1)
+	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
+}
+
+func CallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
 	c := make(chan LogFileInfoResult, 1)
 
@@ -198,6 +203,7 @@ func TimeoutCallLogFileCommand(machineName string, log Log, resultChan chan LogF
 
 		c <- reply
 	}()
+
 	select {
 	case result := <-c:
 		resultChan <- result

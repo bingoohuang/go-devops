@@ -44,7 +44,8 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 	machinesNum := len(log.Machines)
 	resultChan := make(chan LogFileInfoResult, machinesNum)
 	for _, machineName := range log.Machines {
-		go TimeoutCallLogFileCommand(machineName, log, resultChan, "LogFileInfo", false, "", 0)
+		go CallLogFileCommand(machineName, log, resultChan,
+			"LogFileInfo", false, "", 0)
 	}
 
 	resultsMap := make(map[string]*LogFileInfoResult)
@@ -53,10 +54,7 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 		resultsMap[commandResult.MachineName] = &commandResult
 	}
 
-	logs := make([]*LogFileInfoResult, 0)
-	for _, machineName := range log.Machines {
-		logs = append(logs, resultsMap[machineName])
-	}
+	logs := createLogsResult(log, resultsMap)
 
 	results <- LogShowResult{
 		Logger:  logger,
@@ -65,12 +63,20 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 	}
 }
 
-func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
+func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogFileInfoResult {
+	logs := make([]*LogFileInfoResult, 0)
+	for _, machineName := range log.Machines {
+		logs = append(logs, resultsMap[machineName])
+	}
+	return logs
+}
+
+func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
-	logger := vars["logger"]
+	loggerName := vars["loggerName"]
 
-	log, ok := devopsConf.Logs[logger]
+	log, ok := devopsConf.Logs[loggerName]
 	if !ok {
 		return
 	}
@@ -83,7 +89,6 @@ func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 	const awkTmpl = `awk 'substr($0,1,%d)>="%s" && substr($0,1,%d)<="%s"' < %s`
 	command := fmt.Sprintf(awkTmpl, size, timestampFrom, size, timestampTo, log.Path)
 
-	results := make([]CommandsResult, 0)
 	logMachinesNum := len(log.Machines)
 	resultChan := make(chan CommandsResult, logMachinesNum)
 
@@ -91,9 +96,15 @@ func FindHandleLogsBetweenTimestamps(w http.ResponseWriter, r *http.Request) {
 		go TimeoutCallShellCommand(machine, command, resultChan)
 	}
 
+	resultsMap := make(map[string]*CommandsResult)
 	for i := 0; i < logMachinesNum; i++ {
 		result := <-resultChan
-		results = append(results, result)
+		resultsMap[result.MachineName] = &result
+	}
+
+	results := make([]*CommandsResult, 0)
+	for _, machineName := range log.Machines {
+		results = append(results, resultsMap[machineName])
 	}
 
 	json.NewEncoder(w).Encode(results)
@@ -107,7 +118,7 @@ func TimeoutCallShellCommand(machineName, commands string, resultChan chan Comma
 	case result := <-c:
 		result.MachineName = machineName
 		resultChan <- result
-	case <-time.After(1 * time.Second):
+	case <-time.After(10 * time.Second):
 		resultChan <- CommandsResult{
 			Error:       "timeout",
 			MachineName: machineName,
@@ -116,11 +127,9 @@ func TimeoutCallShellCommand(machineName, commands string, resultChan chan Comma
 }
 
 func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
-	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 1*time.Second)
+	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 3*time.Second)
 	if err != nil {
-		return CommandsResult{
-			Error: err.Error(),
-		}
+		return CommandsResult{Error: err.Error()}
 	}
 
 	client := rpc.NewClient(conn)
@@ -130,14 +139,12 @@ func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
 }
 
 func CallShellCommand(client *rpc.Client, commands string) CommandsResult {
-	args := &CommandsArg{commands, 500 * time.Millisecond}
+	args := &CommandsArg{commands, 10 * time.Second}
 	var reply CommandsResult
 
 	err := client.Call("ShellCommand.Execute", args, &reply)
 	if err != nil {
-		return CommandsResult{
-			Error: err.Error(),
-		}
+		return CommandsResult{Error: err.Error()}
 	}
 
 	return reply

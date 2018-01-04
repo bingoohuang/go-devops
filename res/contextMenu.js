@@ -76,8 +76,32 @@
         })
     }
 
+    function replaceLocateContents(content) {
+        for (var i = 0; i < content.length; ++i) {
+            $('#machine-' + content[i].MachineName + " .preWrap").html(content[i].Stdout)
+            scrollToBottom()
+        }
+    }
+
+    function locateLogClick(loggerName, fromTimestamp, toTimestamp) {
+        $('#locateLog').unbind('click').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: contextPath + "/locateLog/" + loggerName + "/" + fromTimestamp + "/" + toTimestamp,
+                success: function (content, textStatus, request) {
+                    replaceLocateContents(content)
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
+                }
+            })
+        })
+    }
+
     function TailLogFile(loggerName, logPath, lines) {
         $('#refresh').unbind('click')
+        $('#locateLogSpan').show()
+
         $.ajax({
             type: 'POST',
             url: contextPath + "/tailLogFile/" + loggerName + "/" + lines,
@@ -91,6 +115,8 @@
                 $('#refresh').click(function () {
                     TailLogFile(loggerName, logPath, lines)
                 })
+
+                locateLogClick(loggerName, $('#fromTimestamp').val(), $('#toTimestamp').val());
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
