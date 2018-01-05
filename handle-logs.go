@@ -25,9 +25,9 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	for logger, log := range devopsConf.Logs {
 		wg.Add(1)
-		go showLog(wg, logger, log, resultChan)
+		go showLog(&wg, logger, log, resultChan)
 	}
-	wg.Done()
+	wg.Wait()
 	close(resultChan)
 
 	resultsMap := make(map[string]*LogShowResult)
@@ -43,7 +43,7 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
-func showLog(logsWg sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
+func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
 	defer logsWg.Done()
 
 	resultChan := make(chan *LogFileInfoResult, len(log.Machines))
