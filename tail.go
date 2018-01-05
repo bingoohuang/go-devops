@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"github.com/patrickmn/go-cache"
 	"io"
 	"log"
@@ -51,7 +53,8 @@ func tail(logFile string, seq int) ([]byte, int) {
 }
 
 func startTail(logFile string, logQueue *CycleQueue) {
-	logQueue.cmd = exec.Command("tail", "-F", logFile)
+	fullPathLogFile, _ := homedir.Expand(logFile)
+	logQueue.cmd = exec.Command("tail", "-F", fullPathLogFile)
 	stdout, err := logQueue.cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +64,8 @@ func startTail(logFile string, logQueue *CycleQueue) {
 	if err := logQueue.cmd.Start(); err != nil {
 		log.Fatal("Buffer Error:", err)
 	}
+
+	fmt.Println("start to tail -F", fullPathLogFile)
 
 	tmp := make([]byte, 10240)
 Loop:
@@ -78,7 +83,7 @@ Loop:
 		}
 
 		if length == 0 {
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(300 * time.Millisecond)
 			continue
 		}
 

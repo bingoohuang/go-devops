@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"os/exec"
 	"sync"
 )
@@ -37,7 +36,6 @@ func (q *CycleQueue) Add(n *Node) {
 	defer q.mux.Unlock()
 
 	q.nodes[q.tail%q.size] = n
-	fmt.Print(",Add:", q.tail)
 	q.tail++
 }
 
@@ -57,7 +55,6 @@ func (q *CycleQueue) Get(index int) ([]byte, int) {
 	total := 0
 	for index < q.tail && total < q.size {
 		node := q.nodes[index%q.size]
-		fmt.Print(",Get:", index)
 		tailBytes.Write(node.Value)
 		index++
 		total++

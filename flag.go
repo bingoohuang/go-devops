@@ -90,7 +90,11 @@ func init() {
 
 func loadConfig() {
 	meta, err := toml.DecodeFile(configFile, &devopsConf)
-	FatalIfErr(err)
+	if err != nil {
+		fmt.Println("DecodeFile error:", err)
+		return
+	}
+
 	parseMetas(&meta)
 }
 
