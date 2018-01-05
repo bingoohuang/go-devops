@@ -90,3 +90,13 @@ div.tabs button.active {
     height: 20px;
     line-height: 20px;
 }
+
+#buttonsDiv {
+    position: absolute;
+    right: 8px;
+    top: 3px;
+}
+
+#ConfigBtn span {
+    font-size: 12px;
+}
