@@ -35,6 +35,19 @@
         return logsLineHtml
     }
 
+    function createLogBlankLine(log) {
+        return '<tr>'
+            + '<td class="LoggerName">' + log.Logger + '</td>'
+            + '<td class="LogPath">' + log.LogPath + '</td>'
+            + '<td></td>'
+            + '<td class="LogMachine"></td>'
+            + '<td class="LogFileSize"></td>'
+            + '<td></td>'
+            + '<td class="ProcessInfo"></td>'
+            + '<td></td>'
+            + '</tr>'
+    }
+
     function createLogsTable(content) {
         var logsHtml = '<table>' +
             '<tr>' +
@@ -53,8 +66,12 @@
                 var log = content[j]
                 var logMachines = log.Logs
 
-                for (var i = 0; i < logMachines.length; ++i) {
-                    logsHtml += createLogLines(i, logMachines, log);
+                if (logMachines.length && logMachines.length > 0) {
+                    for (var i = 0; i < logMachines.length; ++i) {
+                        logsHtml += createLogLines(i, logMachines, log);
+                    }
+                } else {
+                    logsHtml += createLogBlankLine(log)
                 }
             }
         }

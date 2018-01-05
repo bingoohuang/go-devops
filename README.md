@@ -54,6 +54,8 @@ Some extra modifiers:
     + is in the foreground process group
 
 ## Some scripts
+
+# Count cost time of command
 ```bash
 #!/bin/bash
 START=$(date +%s)
@@ -64,4 +66,11 @@ END=$(date +%s)
 DIFF=$(( $END - $START ))
 echo "It took $DIFF seconds"
 
+```
+
+## SSH from host1 to host2 without a password on linux
+```bash
+#  
+[yogaapp@host1 ~]$ ssh-keygen -t rsa 
+[yogaapp@host1 ~]$ ssh-copy-id -i .ssh/id_rsa.pub cpapp@host2
 ```

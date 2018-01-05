@@ -37,7 +37,7 @@ func TimeoutCallMachineInfo(machine Machine, machineName string, resultChan chan
 	}
 
 	go func() {
-		err := DialAndCall(machine, func(client *rpc.Client) error {
+		err := DialAndCall(machine.IP+":"+rpcPort, func(client *rpc.Client) error {
 			return client.Call("MachineCommand.MachineInfo", &MachineCommandArg{}, &reply)
 		})
 		if err != nil {

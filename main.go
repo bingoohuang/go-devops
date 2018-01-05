@@ -6,8 +6,12 @@ func main() {
 		return
 	}
 
-	err := GoDevOpServer()
+	err := StartDevOpServer()
 	FatalIfErr(err)
 
-	StartHttpSever()
+	if startHttp {
+		go StartHttpSever()
+	}
+
+	select {} // block forever
 }

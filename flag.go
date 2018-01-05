@@ -13,6 +13,7 @@ import (
 var (
 	contextPath  string
 	httpPort     string
+	startHttp    bool
 	rpcPort      string
 	devMode      bool
 	configFile   string
@@ -52,6 +53,7 @@ var devopsConf DevopsConf
 func init() {
 	contextPathArg := flag.String("contextPath", "", "context path")
 	httpPortArg := flag.Int("httpPort", 6879, "Port to serve.")
+	startHttpArg := flag.Bool("startHttp", true, "Port to serve.")
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
 	devModeArg := flag.Bool("devMode", false, "devMode(disable js/css minify)")
 	configFileArg := flag.String("config", "config.toml", "config file path")
@@ -73,6 +75,7 @@ func init() {
 
 	contextPath = *contextPathArg
 	httpPort = strconv.Itoa(*httpPortArg)
+	startHttp = *startHttpArg
 	rpcPort = strconv.Itoa(*rpcPortArg)
 	devMode = *devModeArg
 	configFile = *configFileArg

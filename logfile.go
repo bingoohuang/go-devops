@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dustin/go-humanize"
 	"github.com/mitchellh/go-homedir"
 	"github.com/valyala/fasttemplate"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -158,17 +160,31 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
 }
 
-func CallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfoResult,
+func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan LogFileInfoResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
-	c := make(chan LogFileInfoResult, 1)
+	defer wg.Done()
+
+	found := fullFindLogMachineName(log, logMachineName)
+
+	if !found {
+		logMachineName, found = prefixFindLogMachineName(log, logMachineName)
+	}
+
+	if !found {
+		fmt.Println(logMachineName, "is unknown")
+		return
+
+	}
+
+	machineName, machineAddress, errorMsg := parseLogMachineNameAndAddress(logMachineName)
+	fmt.Println("funcName:", funcName, "machineName:", machineName, ",machineAddress:", machineAddress, ",errorMsg:", errorMsg)
 
 	reply := LogFileInfoResult{
 		MachineName: machineName,
+		Error:       errorMsg,
 	}
 
-	machine, ok := devopsConf.Machines[machineName]
-	if !ok {
-		reply.Error = machineName + " is unknown"
+	if errorMsg != "" {
 		resultChan <- reply
 		return
 	}
@@ -184,23 +200,27 @@ func CallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfo
 		return
 	}
 
+	c := make(chan LogFileInfoResult, 1)
+
 	go func() {
-		err := DialAndCall(machine, func(client *rpc.Client) error {
-			return client.Call("LogFileCommand."+funcName,
-				&LogFileArg{
-					LogPath: log.Path,
-					Ps:      process.Ps,
-					Home:    process.Home,
-					Kill:    process.Kill,
-					Start:   process.Start,
-					Options: options,
-					LogSeq:  logSeq,
-				}, &reply)
+		err := DialAndCall(machineAddress, func(client *rpc.Client) error {
+			arg := &LogFileArg{
+				LogPath: log.Path,
+				Ps:      process.Ps,
+				Home:    process.Home,
+				Kill:    process.Kill,
+				Start:   process.Start,
+				Options: options,
+				LogSeq:  logSeq,
+			}
+			fmt.Println("machineAddress:", machineAddress, "call func: LogFileCommand.", funcName, ",arg:", arg)
+			return client.Call("LogFileCommand."+funcName, arg, &reply)
 		})
 		if err != nil {
 			reply.Error = err.Error()
 		}
 
+		fmt.Println("reply:", reply)
 		c <- reply
 	}()
 
@@ -211,4 +231,22 @@ func CallLogFileCommand(machineName string, log Log, resultChan chan LogFileInfo
 		reply.Error = "timeout"
 		resultChan <- reply
 	}
+}
+func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {
+	for _, configLogMachineName := range log.Machines {
+		if strings.Index(configLogMachineName, logMachineName+":") == 0 {
+			return configLogMachineName, true
+		}
+	}
+
+	return "", false
+}
+
+func fullFindLogMachineName(log Log, logMachineName string) bool {
+	for _, configLogMachineName := range log.Machines {
+		if configLogMachineName == logMachineName {
+			return true
+		}
+	}
+	return false
 }

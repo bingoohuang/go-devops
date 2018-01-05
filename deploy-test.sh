@@ -19,6 +19,7 @@ mv ~/deploy-agent.sh .
 ps -ef|grep $deployName|grep -v grep|awk '{print \$2}'|xargs -r kill -9
 chmod +x ./deploy-agent.sh
 ./deploy-agent.sh $deployName app01 app/$deployName
+./deploy-agent.sh $deployName cpapp@app01 app/$deployName 6889 false
 ./deploy-agent.sh $deployName app02 app/$deployName
 rm -f $deployName.linux.bin
 bzip2 -d $deployName.linux.bin.bz2

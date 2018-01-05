@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
@@ -15,17 +16,19 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	lines := vars["lines"]
 	log := devopsConf.Logs[loggerName]
 
-	machinesNum := len(log.Machines)
-
-	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machineName := range log.Machines {
-		go CallLogFileCommand(machineName, log, resultChan,
+	resultChan := make(chan LogFileInfoResult, len(log.Machines))
+	var wg sync.WaitGroup
+	for _, logMachineName := range log.Machines {
+		wg.Add(1)
+		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"TailLogFile", false, "-"+lines, 0)
 	}
 
+	wg.Wait()
+	close(resultChan)
+
 	resultsMap := make(map[string]*LogFileInfoResult)
-	for i := 0; i < machinesNum; i++ {
-		commandResult := <-resultChan
+	for commandResult := range resultChan {
 		resultsMap[commandResult.MachineName] = &commandResult
 	}
 
@@ -45,16 +48,19 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	machinesNum := len(log.Machines)
 
 	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machineName := range log.Machines {
-		seq := findSeq(machineLogSeqMap, machineName)
-		go CallLogFileCommand(machineName, log, resultChan,
+	var wg sync.WaitGroup
+	for _, logMachineName := range log.Machines {
+		wg.Add(1)
+		seq := findSeq(machineLogSeqMap, logMachineName)
+		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"TailFLog", false, "", seq)
 	}
+	wg.Wait()
+	close(resultChan)
 
 	resultsMap := make(map[string]*LogFileInfoResult)
 	newSeqMap := make(map[string]int)
-	for i := 0; i < machinesNum; i++ {
-		commandResult := <-resultChan
+	for commandResult := range resultChan {
 		resultsMap[commandResult.MachineName] = &commandResult
 		newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
 	}
@@ -70,8 +76,8 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 		})
 }
 
-func findSeq(machineLogSeqMap map[string]int, machineName string) int {
-	machineLogSeq, ok := machineLogSeqMap[machineName]
+func findSeq(machineLogSeqMap map[string]int, logMachineName string) int {
+	machineLogSeq, ok := machineLogSeqMap[findMachineName(logMachineName)]
 	if ok {
 		return machineLogSeq
 	}

@@ -45,10 +45,6 @@ type MachineCommandResult struct {
 	CostTime    string
 }
 
-func (p *MachineCommandResult) SortValue() string {
-	return p.MachineName
-}
-
 type MachineCommand int
 
 func (t *MachineCommand) MachineInfo(args *MachineCommandArg, result *MachineCommandResult) error {

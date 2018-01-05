@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"sync"
 )
 
 func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +16,10 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 
 	resultChan := make(chan LogFileInfoResult, 1)
-	CallLogFileCommand(logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
+	var wg sync.WaitGroup
+	CallLogFileCommand(&wg, logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
+	wg.Wait()
+	close(resultChan)
 
 	result := <-resultChan
 	json.NewEncoder(w).Encode(result)

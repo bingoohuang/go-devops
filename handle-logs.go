@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"sync"
 	"time"
 )
 
@@ -43,14 +44,18 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 func showLog(logger string, log Log, results chan LogShowResult) {
 	machinesNum := len(log.Machines)
 	resultChan := make(chan LogFileInfoResult, machinesNum)
-	for _, machineName := range log.Machines {
-		go CallLogFileCommand(machineName, log, resultChan,
+	var wg sync.WaitGroup
+	for _, logMachineName := range log.Machines {
+		wg.Add(1)
+		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"LogFileInfo", false, "", 0)
 	}
 
+	wg.Wait()
+	close(resultChan)
+
 	resultsMap := make(map[string]*LogFileInfoResult)
-	for i := 0; i < machinesNum; i++ {
-		commandResult := <-resultChan
+	for commandResult := range resultChan {
 		resultsMap[commandResult.MachineName] = &commandResult
 	}
 
@@ -65,8 +70,8 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 
 func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogFileInfoResult {
 	logs := make([]*LogFileInfoResult, 0)
-	for _, machineName := range log.Machines {
-		result, ok := resultsMap[machineName]
+	for _, logMachineName := range log.Machines {
+		result, ok := resultsMap[findMachineName(logMachineName)]
 		if ok {
 			logs = append(logs, result)
 		}

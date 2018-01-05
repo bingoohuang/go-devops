@@ -5,7 +5,7 @@ import (
 	"net/rpc"
 )
 
-func GoDevOpServer() error {
+func StartDevOpServer() error {
 	rpc.Register(new(ShellCommand))
 	rpc.Register(new(ShellCommand))
 	rpc.Register(new(LogFileCommand))
