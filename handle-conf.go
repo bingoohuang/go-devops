@@ -32,16 +32,28 @@ func HandleLoadConf(w http.ResponseWriter, r *http.Request) {
 
 func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
 	config := r.FormValue("config")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	ioutil.WriteFile(configFile, []byte(config), 0644)
 	meta, err := toml.Decode(config, &devopsConf)
-	FatalIfErr(err)
+	if err != nil {
+		json.NewEncoder(w).Encode(struct {
+			OK  string
+			Msg string
+		}{
+			OK:  "ERROR",
+			Msg: err.Error(),
+		})
+		return
+	}
+
 	parseMetas(&meta)
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(struct {
-		OK string
+		OK  string
+		Msg string
 	}{
-		OK: "OK",
+		OK:  "OK",
+		Msg: "OK",
 	})
 }

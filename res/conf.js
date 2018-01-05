@@ -34,9 +34,9 @@
             data: {config: tomlEditor.getValue()},
             success: function (content, textStatus, request) {
                 if (content.OK === "OK") {
-                    toogleConfigDiv()
+                    location.reload()
                 } else {
-                    alert(content)
+                    alert(content.Msg)
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
