@@ -15,11 +15,11 @@ func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan LogFileInfoResult, 1)
+	resultChan := make(chan *LogFileInfoResult, 1)
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 	CallLogFileCommand(&wg, logMachine, log, resultChan, "RestartProcess", true, "", 0)
-
 	wg.Wait()
 	close(resultChan)
 

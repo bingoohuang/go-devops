@@ -160,7 +160,7 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
 }
 
-func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan LogFileInfoResult,
+func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan *LogFileInfoResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
 	defer wg.Done()
 
@@ -173,19 +173,16 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 	if !found {
 		fmt.Println(logMachineName, "is unknown")
 		return
-
 	}
 
 	machineName, machineAddress, errorMsg := parseLogMachineNameAndAddress(logMachineName)
-	fmt.Println("logPath", log.Path, "funcName:", funcName, "machineName:", machineName, ",machineAddress:", machineAddress, ",errorMsg:", errorMsg)
 
 	reply := LogFileInfoResult{
 		MachineName: machineName,
 		Error:       errorMsg,
 	}
-
 	if errorMsg != "" {
-		resultChan <- reply
+		resultChan <- &reply
 		return
 	}
 
@@ -196,7 +193,7 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 
 	if processConfigRequired && (process.Home == "" || process.Kill == "" || process.Start == "") {
 		reply.Error = log.Path + " is not well configured"
-		resultChan <- reply
+		resultChan <- &reply
 		return
 	}
 
@@ -213,23 +210,21 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 				Options: options,
 				LogSeq:  logSeq,
 			}
-			fmt.Println("machineAddress:", machineAddress, "call func: LogFileCommand.", funcName, ",arg:", arg)
 			return client.Call("LogFileCommand."+funcName, arg, &reply)
 		})
 		if err != nil {
 			reply.Error = err.Error()
 		}
 
-		fmt.Println("reply:", reply)
 		c <- reply
 	}()
 
 	select {
 	case result := <-c:
-		resultChan <- result
+		resultChan <- &result
 	case <-time.After(1 * time.Second):
 		reply.Error = "timeout"
-		resultChan <- reply
+		resultChan <- &reply
 	}
 }
 func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {

@@ -15,7 +15,7 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan LogFileInfoResult, 1)
+	resultChan := make(chan *LogFileInfoResult, 1)
 	var wg sync.WaitGroup
 	CallLogFileCommand(&wg, logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
 	wg.Wait()

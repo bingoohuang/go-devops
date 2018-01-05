@@ -64,7 +64,7 @@ func init() {
 	flag.Parse()
 
 	if *versionArg {
-		fmt.Println("Version 0.0.4")
+		fmt.Println("Version 0.0.5")
 		os.Exit(0)
 	}
 

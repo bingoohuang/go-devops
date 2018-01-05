@@ -20,17 +20,19 @@ type LogShowResult struct {
 func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	logsNum := len(devopsConf.Logs)
-	resultChan := make(chan LogShowResult, logsNum)
+	resultChan := make(chan *LogShowResult, len(devopsConf.Logs))
 
+	var wg sync.WaitGroup
 	for logger, log := range devopsConf.Logs {
-		go showLog(logger, log, resultChan)
+		wg.Add(1)
+		go showLog(wg, logger, log, resultChan)
 	}
+	wg.Done()
+	close(resultChan)
 
 	resultsMap := make(map[string]*LogShowResult)
-	for i := 0; i < logsNum; i++ {
-		result := <-resultChan
-		resultsMap[result.Logger] = &result
+	for result := range resultChan {
+		resultsMap[result.Logger] = result
 	}
 
 	results := make([]*LogShowResult, 0)
@@ -41,34 +43,29 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
-func showLog(logger string, log Log, results chan LogShowResult) {
-	machinesNum := len(log.Machines)
-	resultChan := make(chan LogFileInfoResult, machinesNum)
+func showLog(logsWg sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
+	defer logsWg.Done()
+
+	resultChan := make(chan *LogFileInfoResult, len(log.Machines))
+
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
 		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"LogFileInfo", false, "", 0)
 	}
-
 	wg.Wait()
 	close(resultChan)
 
 	resultsMap := make(map[string]*LogFileInfoResult)
 	for commandResult := range resultChan {
-		fmt.Println("logger:", logger, "logs:", &commandResult)
-		resultsMap[commandResult.MachineName] = &commandResult
+		resultsMap[commandResult.MachineName] = commandResult
 	}
 
-	logs := createLogsResult(log, resultsMap)
-
-	//jsonbytes, _ := json.Marshal(logs)
-	//fmt.Println("logger:", logger, "logs:", string(jsonbytes))
-
-	results <- LogShowResult{
+	results <- &LogShowResult{
 		Logger:  logger,
 		LogPath: log.Path,
-		Logs:    logs,
+		Logs:    createLogsResult(log, resultsMap),
 	}
 }
 
@@ -77,7 +74,6 @@ func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogF
 	for _, logMachineName := range log.Machines {
 		machineName := findMachineName(logMachineName)
 		result, ok := resultsMap[machineName]
-		fmt.Println("logMachineName", logMachineName, "machineName:", machineName, "logPath:", log.Path, "result:", result, "ok:", ok)
 		if ok {
 			logs = append(logs, result)
 		}

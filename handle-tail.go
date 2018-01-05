@@ -16,7 +16,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	lines := vars["lines"]
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan LogFileInfoResult, len(log.Machines))
+	resultChan := make(chan *LogFileInfoResult, len(log.Machines))
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
@@ -29,7 +29,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 
 	resultsMap := make(map[string]*LogFileInfoResult)
 	for commandResult := range resultChan {
-		resultsMap[commandResult.MachineName] = &commandResult
+		resultsMap[commandResult.MachineName] = commandResult
 	}
 
 	logs := createLogsResult(log, resultsMap)
@@ -47,7 +47,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 	machinesNum := len(log.Machines)
 
-	resultChan := make(chan LogFileInfoResult, machinesNum)
+	resultChan := make(chan *LogFileInfoResult, machinesNum)
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
@@ -61,7 +61,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	resultsMap := make(map[string]*LogFileInfoResult)
 	newSeqMap := make(map[string]int)
 	for commandResult := range resultChan {
-		resultsMap[commandResult.MachineName] = &commandResult
+		resultsMap[commandResult.MachineName] = commandResult
 		newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
 	}
 
