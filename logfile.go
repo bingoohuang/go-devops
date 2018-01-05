@@ -177,7 +177,7 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 	}
 
 	machineName, machineAddress, errorMsg := parseLogMachineNameAndAddress(logMachineName)
-	fmt.Println("funcName:", funcName, "machineName:", machineName, ",machineAddress:", machineAddress, ",errorMsg:", errorMsg)
+	fmt.Println("logPath", log.Path, "funcName:", funcName, "machineName:", machineName, ",machineAddress:", machineAddress, ",errorMsg:", errorMsg)
 
 	reply := LogFileInfoResult{
 		MachineName: machineName,

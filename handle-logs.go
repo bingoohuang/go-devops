@@ -56,10 +56,14 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 
 	resultsMap := make(map[string]*LogFileInfoResult)
 	for commandResult := range resultChan {
+		fmt.Println("logger:", logger, "logs:", &commandResult)
 		resultsMap[commandResult.MachineName] = &commandResult
 	}
 
 	logs := createLogsResult(log, resultsMap)
+
+	//jsonbytes, _ := json.Marshal(logs)
+	//fmt.Println("logger:", logger, "logs:", string(jsonbytes))
 
 	results <- LogShowResult{
 		Logger:  logger,
@@ -71,7 +75,9 @@ func showLog(logger string, log Log, results chan LogShowResult) {
 func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogFileInfoResult {
 	logs := make([]*LogFileInfoResult, 0)
 	for _, logMachineName := range log.Machines {
-		result, ok := resultsMap[findMachineName(logMachineName)]
+		machineName := findMachineName(logMachineName)
+		result, ok := resultsMap[machineName]
+		fmt.Println("logMachineName", logMachineName, "machineName:", machineName, "logPath:", log.Path, "result:", result, "ok:", ok)
 		if ok {
 			logs = append(logs, result)
 		}
