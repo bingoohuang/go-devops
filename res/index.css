@@ -17,6 +17,10 @@ table td.LogPath {
     overflow-x: auto;
 }
 
+table td.LogPath::-webkit-scrollbar, table td.ProcessInfo::-webkit-scrollbar {
+    display: none;
+}
+
 table td.ProcessInfo {
     max-width: 500px;
     overflow-x: auto;
