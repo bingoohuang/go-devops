@@ -17,6 +17,7 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 
 	resultChan := make(chan *LogFileInfoResult, 1)
 	var wg sync.WaitGroup
+	wg.Add(1)
 	CallLogFileCommand(&wg, logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
 	wg.Wait()
 	close(resultChan)
