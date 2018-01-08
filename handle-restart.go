@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
-	"sync"
 )
 
 func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
@@ -16,12 +15,7 @@ func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 
 	resultChan := make(chan *LogFileInfoResult, 1)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-	CallLogFileCommand(&wg, logMachine, log, resultChan, "RestartProcess", true, "", 0)
-	wg.Wait()
-	close(resultChan)
+	CallLogFileCommand(nil, logMachine, log, resultChan, "RestartProcess", true, "", 0)
 
 	result := <-resultChan
 	json.NewEncoder(w).Encode(result)

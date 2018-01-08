@@ -162,7 +162,9 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 
 func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan *LogFileInfoResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
-	defer wg.Done()
+	if wg != nil {
+		defer wg.Done()
+	}
 
 	found := fullFindLogMachineName(log, logMachineName)
 
