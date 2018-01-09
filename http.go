@@ -9,7 +9,7 @@ import (
 func StartHttpSever() {
 	r := mux.NewRouter()
 
-	r.HandleFunc(contextPath+"/font/{fontName}", HandleFont)
+	r.HandleFunc(contextPath+"/iconfont.{extension}", HandleFont)
 	r.HandleFunc(contextPath+"/favicon.ico", HandleFavicon)
 
 	r.HandleFunc(contextPath+"/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile)

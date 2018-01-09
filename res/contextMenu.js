@@ -6,6 +6,10 @@
         $.stopTailFLog()
     })
 
+    $('#clearFileContent').click(function () {
+        $('#preContent .preWrap').html('')
+    })
+
     $.createTailTabs = function (content) {
         var tailTabsHtml = ''
         for (var i = 0; i < content.length; ++i) {
