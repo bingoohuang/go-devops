@@ -26,6 +26,8 @@
                 + '" class="tabcontent"><pre class="preWrap">' + content[i].TailContent + '</pre></div>'
         }
         $('#preContent .datas').html(datasHtml)
+
+        $.scrollToBottom()
     }
 
     $.bindTabClicks = function () {
@@ -64,33 +66,23 @@
     }
 
     $.createLogFileTailContextMenu = function () {
-        var lines = 10
         $.contextMenu({
             selector: '.LogPath',
-            callback: function (key, options, rootMenu, originalEvent) {
+            callback: function (key, options) {
                 var $row = $(this).parent()
                 var loggerName = $row.find('td.LoggerName').text()
                 var logPath = $row.find('td.LogPath').text()
 
                 if (key === "TailLogFile") {
                     $('#refresh').unbind('click').show().find('span').text('Refresh')
+                    var lines = $.contextMenu.getInputValues(options).Lines
                     TailLogFile(loggerName, logPath, lines)
                 } else if (key === 'TailFLog') {
                     $.bindTailFLogEvent(loggerName, logPath)
                 }
             },
             items: {
-                // <input type="text">
-                Lines: {
-                    name: "How Many Lines to Tail",
-                    type: 'text',
-                    value: "10",
-                    events: {
-                        keyup: function (e) {
-                            lines = $(this).val()
-                        }
-                    }
-                },
+                Lines: {name: "Tail Last Lines:", type: 'text', value: "300"},
                 TailLogFile: {name: "Tail Log", icon: "tail"},
                 TailFLog: {name: "Tail -F Log", icon: "tail"},
             }

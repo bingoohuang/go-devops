@@ -36,7 +36,8 @@
         for (var i = 0; i < content.length; ++i) {
             if (content[i].TailContent == "") continue
 
-            $('#machine-' + content[i].MachineName + " .preWrap").append(content[i].TailContent)
+            var machinePreWrap = $('#machine-' + content[i].MachineName + " .preWrap")
+            machinePreWrap.append(content[i].TailContent)
             $.scrollToBottom()
         }
     }
