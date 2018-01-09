@@ -4,3 +4,9 @@ if (contextPath.lastIndexOf("/", contextPath.length - 1) !== -1) {
 }
 
 
+(function () {
+    $.scrollToBottom = function () {
+        $('html, body').scrollTop($(document).height())
+    }
+})()
+
