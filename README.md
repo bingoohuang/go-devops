@@ -74,3 +74,39 @@ echo "It took $DIFF seconds"
 [yogaapp@host1 ~]$ ssh-keygen -t rsa 
 [yogaapp@host1 ~]$ ssh-copy-id -i .ssh/id_rsa.pub cpapp@host2
 ```
+
+## Startup JAVA program
+Go program os.Getenv("PATH") print PATH: /usr/local/bin:/bin:/usr/bin, So we need link java executable to /usr/bin or /usr/local/bin.
+
+```bash
+[root@hitest.app.02 ~]# which java
+/opt/jdk1.8.0_20/bin/java
+[root@hitest.app.02 ~]# ln -s /opt/jdk1.8.0_20/bin/java /usr/bin/java
+[root@hitest.app.02 ~]# ls -l /usr/bin/java
+lrwxrwxrwx 1 root root 25 Jan 10 10:56 /usr/bin/java -> /opt/jdk1.8.0_20/bin/java
+```
+
+## ls -l command output explanation
+[From](https://superuser.com/questions/171858/how-do-i-interpret-the-results-of-the-ls-l-command)
+<pre>
+
+      +-permissions that apply to the owner
+      |
+      |     +-permissions that apply to all other users
+      |     |
+      |     |  +-number of hard links
+      |     |  |
+      |     |  |             +-size      +-last modification date and time
+     _|_   _|_ |            _|__ ________|_______
+    drwxr-xr-x 2 ataka root 4096 2008-11-04 16:58 ataka
+        ___      _____ ____                       _____
+         |         |    |                           |
+         |         |    |                           +-name of file or directory
+         |         |    |
+         |         |    +-the group that the group permissions applies to
+         |         |
+         |         +-owner
+         |
+         +-permissions that apply to users who are members of the group
+         
+</pre>

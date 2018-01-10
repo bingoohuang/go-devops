@@ -51,19 +51,13 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 
 	killTemplate := fasttemplate.New(args.Kill, "${", "}")
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
-	ExecuteCommands(killCommand, 500*time.Millisecond, true)
+	ExecuteCommands(killCommand, 500*time.Millisecond)
 
 	argsHome, _ := homedir.Expand(args.Home)
-	ExecuteCommands("cd "+argsHome+";"+args.Start, 1000*time.Millisecond, false)
-	//randomShellName := RandStringBytesMaskImpr(16) + ".sh"
-	//ExecuteCommands("cd "+args.Home+"\n"+
-	//	"echo \""+args.Start+"\">"+randomShellName+"\n"+
-	//	"chmod +x "+randomShellName+"\n"+
-	//	"./"+randomShellName+"\n"+
-	//	"rm "+randomShellName, 500*time.Millisecond)
+	ExecuteCommands("cd "+argsHome+";"+args.Start, 500*time.Millisecond)
 
 	err := ""
-	result.ProcessInfo, err = ExecuteCommands(args.Ps, 500*time.Millisecond, true)
+	result.ProcessInfo, err = ExecuteCommands(args.Ps, 500*time.Millisecond)
 	if err != "" {
 		result.Error = err
 	}
@@ -78,7 +72,7 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+logPath, 500*time.Millisecond, true)
+		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+logPath, 500*time.Millisecond)
 		result.TailContent = stdout
 		if stderr != "" {
 			result.Error = stderr
@@ -101,7 +95,7 @@ func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoRe
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		ExecuteCommands("> "+logPath, 500*time.Millisecond, true)
+		ExecuteCommands("> "+logPath, 500*time.Millisecond)
 		info, _ := os.Stat(logPath)
 
 		result.FileSize = humanize.IBytes(uint64(info.Size()))
@@ -122,7 +116,7 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	start := time.Now()
 
 	if args.Ps != "" {
-		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond, true)
+		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond)
 		humanizedPsOutput(result)
 	}
 

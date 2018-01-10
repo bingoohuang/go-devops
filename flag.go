@@ -45,7 +45,6 @@ type Process struct {
 	Ps    string
 	Kill  string
 	Start string
-	Conf  string
 }
 
 var devopsConf DevopsConf
@@ -69,7 +68,7 @@ func init() {
 	}
 
 	if *directCmdsArg != "" {
-		ExecuteCommands(*directCmdsArg, 3*time.Second, true)
+		ExecuteCommands(*directCmdsArg, 3*time.Second)
 		os.Exit(0)
 	}
 
