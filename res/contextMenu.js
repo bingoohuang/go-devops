@@ -18,7 +18,6 @@
         $('#preContent .tabs').html(tailTabsHtml)
     }
 
-
     $.createTailContents = function (content) {
         var datasHtml = ''
         for (var i = 0; i < content.length; ++i) {
@@ -58,6 +57,7 @@
                 })
 
                 $.bindLocateLogClick(loggerName)
+                $.bindGrepLogClick(loggerName)
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)

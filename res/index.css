@@ -85,7 +85,7 @@ div.tabs button.active {
     display: none;
 }
 
-#fromTimestamp, #toTimestamp {
+#locateLogSpan input {
     width: 200px;
     height: 20px;
     line-height: 20px;

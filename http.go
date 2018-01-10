@@ -15,6 +15,7 @@ func StartHttpSever() {
 	r.HandleFunc(contextPath+"/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile)
 	r.HandleFunc(contextPath+"/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess)
 	r.HandleFunc(contextPath+"/locateLog/{loggerName}/{timestampFrom}/{timestampTo}", gzipWrapper(HandleLocateLog))
+	r.HandleFunc(contextPath+"/grepLog/{loggerName}/{grepText}", gzipWrapper(HandleGrepLog))
 	r.HandleFunc(contextPath+"/tailLogFile/{loggerName}/{lines}", gzipWrapper(HandleTailLogFile))
 	r.HandleFunc(contextPath+"/tailFLog/{loggerName}/{logSeq}", gzipWrapper(HandleTailFLog))
 	r.HandleFunc(contextPath+"/machines", HandleMachines)

@@ -1,5 +1,5 @@
 (function () {
-    function replaceLocateContents(content) {
+    $.replaceLocateContents = function(content) {
         for (var i = 0; i < content.length; ++i) {
             $('#machine-' + content[i].MachineName + " .preWrap").html(content[i].Stdout)
             $.scrollToBottom()

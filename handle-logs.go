@@ -81,6 +81,22 @@ func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogF
 	return logs
 }
 
+func HandleGrepLog(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	vars := mux.Vars(r)
+	loggerName := vars["loggerName"]
+
+	log, ok := devopsConf.Logs[loggerName]
+	if !ok {
+		return
+	}
+
+	grepText := vars["grepText"]
+
+	command := `grep "` + grepText + `" ` + log.Path
+	executeCommand(log, command, w)
+}
+
 func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
@@ -99,24 +115,24 @@ func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	const awkTmpl = `awk 'substr($0,1,%d)>="%s" && substr($0,1,%d)<="%s"' < %s`
 	command := fmt.Sprintf(awkTmpl, size, timestampFrom, size, timestampTo, log.Path)
 
+	executeCommand(log, command, w)
+}
+
+func executeCommand(log Log, command string, w http.ResponseWriter) {
 	logMachinesNum := len(log.Machines)
 	resultChan := make(chan CommandsResult, logMachinesNum)
-
 	for _, machine := range log.Machines {
 		go TimeoutCallShellCommand(machine, command, resultChan)
 	}
-
 	resultsMap := make(map[string]*CommandsResult)
 	for i := 0; i < logMachinesNum; i++ {
 		result := <-resultChan
 		resultsMap[result.MachineName] = &result
 	}
-
 	results := make([]*CommandsResult, 0)
 	for _, machineName := range log.Machines {
 		results = append(results, resultsMap[machineName])
 	}
-
 	json.NewEncoder(w).Encode(results)
 }
 
