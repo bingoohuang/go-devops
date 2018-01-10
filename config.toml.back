@@ -73,14 +73,12 @@
     ps = "ps aux|grep easyhi-cp-boss|grep java|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup java -jar easyhi-cp-boss-1.0-SNAPSHOT.jar 2>&1 >> easyhi-cp-boss-1.0-SNAPSHOT.log &"
-    conf = ""
 
     [processes.DEVOPS]
     home = "~/app/go-devops"
     ps = "ps aux|grep go-devops|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup ./go-devops.linux.bin 2>&1 >> nohup.out &"
-    conf = ""
 
 
     [processes.YOGA-BOSS]
@@ -88,4 +86,3 @@
     ps = "ps aux|grep yoga-boss|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "bin/catalina.sh start"
-    conf = ""

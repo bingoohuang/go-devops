@@ -34,8 +34,6 @@ can      29529  0.0  0.0 38332 1904 ?        S    Mar07   0:00 sshd: can@notty
     TIME = cumulative CPU time
     COMMAND = command with all its arguments
 
-
-
 Process state codes:
 
     R running or runnable (on run queue)
@@ -70,7 +68,6 @@ echo "It took $DIFF seconds"
 
 ## SSH from host1 to host2 without a password on linux
 ```bash
-#  
 [yogaapp@host1 ~]$ ssh-keygen -t rsa 
 [yogaapp@host1 ~]$ ssh-copy-id -i .ssh/id_rsa.pub cpapp@host2
 ```

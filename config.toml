@@ -21,12 +21,10 @@
     ps = "ps aux|grep et-server-0.0.1|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup java -jar et-server-0.0.1.jar 2>&1 >> et-server-0.0.1.log &"
-    conf = ""
 
     [processes.randomLogGen]
     home = "~/GitHub/go-devops/"
     ps = "ps aux|grep go-devops|grep randomLogGen|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
-    conf = "config.toml"
 
