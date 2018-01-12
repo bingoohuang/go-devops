@@ -14,7 +14,7 @@
                 type: 'POST',
                 url: contextPath + "/locateLog/" + loggerName + "/" + fromTimestamp + "/" + toTimestamp,
                 success: function (content, textStatus, request) {
-                    replaceLocateContents(content)
+                    $.replaceLocateContents(content)
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
