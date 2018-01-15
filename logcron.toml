@@ -1,0 +1,17 @@
+[logCron]
+    at  = "01:30"
+
+[copyTruncates]
+    [copyTruncates.yoga-glass]
+    file = "~/tomcat/yoga-glass/logs/catalina.out"
+    thresholdSize = "100M"
+
+[clearLogs]
+    [clearLogs.yoga-glass]
+    dirs = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
+
+[rotateLogs]
+    [rotateLogs.yoga-glass]
+    dir = "~/tomcat/yoga-glass/logs"
+    pattern = "localhost_access_log.{yyyy-MM-dd}.txt"
+    daysKeep = 3
