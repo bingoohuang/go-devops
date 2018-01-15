@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/jasonlvhit/gocron"
 )
 
 type LogCronConf struct {
@@ -39,4 +40,16 @@ func loadLogCronConfig() {
 		fmt.Println("DecodeFile error:", err)
 		return
 	}
+}
+
+func startLogCron() {
+	// refer https://github.com/jasonlvhit/gocron
+	gocron.Clear()
+	if logCronConf.LogCron.At != "" {
+		gocron.Every(1).Day().At(logCronConf.LogCron.At).Do(dealLogCron)
+	}
+}
+
+func dealLogCron() {
+
 }
