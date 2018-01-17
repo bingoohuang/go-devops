@@ -107,3 +107,9 @@ lrwxrwxrwx 1 root root 25 Jan 10 10:56 /usr/bin/java -> /opt/jdk1.8.0_20/bin/jav
          +-permissions that apply to users who are members of the group
          
 </pre>
+
+## Linux中查看各文件夹大小命令
+```bash
+# -h或–human-readable 以K，M，G为单位，提高信息的可读性。
+du -h --max-depth=1
+```
