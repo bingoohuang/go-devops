@@ -33,12 +33,21 @@
     }
 
     function appendTailContents(content) {
+        var maxSize = 1 * 1024 * 1024; // 1M
         for (var i = 0; i < content.length; ++i) {
             if (content[i].TailContent == "") continue
 
             var machinePreWrap = $('#machine-' + content[i].MachineName + " .preWrap")
             machinePreWrap.append(content[i].TailContent)
-            $.scrollToBottom()
+            textLength  = machinePreWrap.text().length
+
+            if (ttlTailTimeout != null && textLength > maxSize) {
+                machinePreWrap.text(machinePreWrap.text().substring(textLength - maxSize))
+            }
+
+            if (ttlTailTimeout != null) {
+                $.scrollToBottom()
+            }
         }
     }
 
