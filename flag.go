@@ -25,9 +25,19 @@ var (
 )
 
 type DevopsConf struct {
-	Machines  map[string]Machine
-	Logs      map[string]Log
-	Processes map[string]Process
+	Machines   map[string]Machine
+	Logs       map[string]Log
+	Processes  map[string]Process
+	Logrotates map[string]Logrotate
+}
+
+type Logrotate struct {
+	Machines   []string
+	Files      []string
+	Dirs       []string
+	Cron       string
+	Type       string
+	Parameters string
 }
 
 type Machine struct {

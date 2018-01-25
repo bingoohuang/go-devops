@@ -28,3 +28,26 @@
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
 
+
+
+[logrotates]
+    [logrotates.yoga-glass-catalina]
+    machines = ["LOCAL"]
+    files = ["~/tomcat/yoga-glass/logs/catalina.out"]
+    cron  = "at 01:30"
+    type = "CopyTruncate"
+    parameters = "thresholdSize=100M"
+
+    [logrotates.yoga-glass-dir]
+    machines = ["LOCAL"]
+    dirs = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
+    cron  = "at 01:30"
+    type = "Delete"
+
+    [logrotates.yoga-glass-access]
+    machines = ["LOCAL"]
+    dir = "~/tomcat/yoga-glass/logs"
+    cron  = "at 01:30"
+    type = "DeleteOlds"
+    parameters = "days=7,pattern=localhost_access_log.{yyyy-MM-dd}.txt"
+
