@@ -95,7 +95,8 @@ func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoRe
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		ExecuteCommands("> "+logPath, 500*time.Millisecond)
+		ExecuteCommands("tail -100000 " + logPath + " > " + logPath + ".tmp;"+
+			"cat "+ logPath+ ".tmp > "+ logPath, 500*time.Millisecond)
 		info, _ := os.Stat(logPath)
 
 		result.FileSize = humanize.IBytes(uint64(info.Size()))

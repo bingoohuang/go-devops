@@ -113,3 +113,19 @@ lrwxrwxrwx 1 root root 25 Jan 10 10:56 /usr/bin/java -> /opt/jdk1.8.0_20/bin/jav
 # -h或–human-readable 以K，M，G为单位，提高信息的可读性。
 du -h --max-depth=1
 ```
+## [Limit log file size.](https://www.bluedelta.nl/linux/limit-log-file-size/)
+```bash
+#!/bin/bash
+logfile=$1
+
+# truncate a log-file at 50000 lines.
+if [ -f ${logfile} ]
+then
+    ls -lh ${logfile}
+    tail -50000 $logfile > $logfile.tmp
+    cat $logfile.tmp > $logfile
+    ls -lh ${logfile}
+else
+    echo "File $logfile not found"
+fi
+```
