@@ -124,6 +124,7 @@ then
     ls -lh ${logfile}
     tail -50000 $logfile > $logfile.tmp
     cat $logfile.tmp > $logfile
+    rm $logfile.tmp
     ls -lh ${logfile}
 else
     echo "File $logfile not found"
