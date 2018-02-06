@@ -15,7 +15,6 @@
     #process = "ET"
 
 [processes]
-
     [processes.ET]
     home = "~/gitlab/et-server/target"
     ps = "ps aux|grep et-server-0.0.1|grep -v grep"
@@ -29,25 +28,24 @@
     start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
 
 
-
 [logrotates]
     [logrotates.yoga-glass-catalina]
     machines = ["LOCAL"]
     files = ["~/tomcat/yoga-glass/logs/catalina.out"]
-    cron  = "at 01:30"
+    crons  = ["@every 3s"]
     type = "CopyTruncate"
     parameters = "thresholdSize=100M"
 
     [logrotates.yoga-glass-dir]
     machines = ["LOCAL"]
-    dirs = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
-    cron  = "at 01:30"
+    files = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
+    crons  = ["@daily"]
     type = "Delete"
 
     [logrotates.yoga-glass-access]
     machines = ["LOCAL"]
-    dir = "~/tomcat/yoga-glass/logs"
-    cron  = "at 01:30"
+    files = ["~/tomcat/yoga-glass/logs"]
+    crons  = ["@daily"]
     type = "DeleteOlds"
     parameters = "days=7,pattern=localhost_access_log.{yyyy-MM-dd}.txt"
 

@@ -47,7 +47,7 @@ func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parseMetas(&meta)
+	parseConfig(&meta)
 
 	json.NewEncoder(w).Encode(struct {
 		OK  string

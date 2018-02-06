@@ -28,14 +28,13 @@ type DevopsConf struct {
 	Machines   map[string]Machine
 	Logs       map[string]Log
 	Processes  map[string]Process
-	Logrotates map[string]Logrotate
+	Logrotates map[string]LogRotate
 }
 
-type Logrotate struct {
+type LogRotate struct {
 	Machines   []string
 	Files      []string
-	Dirs       []string
-	Cron       string
+	Crons      []string
 	Type       string
 	Parameters string
 }
@@ -107,10 +106,15 @@ func loadConfig() {
 		return
 	}
 
-	parseMetas(&meta)
+	parseConfig(&meta)
 }
 
-func parseMetas(meta *toml.MetaData) {
+func parseConfig(meta *toml.MetaData) {
+	loadCrons()
+	parseMeta(meta)
+}
+
+func parseMeta(meta *toml.MetaData) {
 	machineNames = make([]string, 0)
 	loggers = make([]string, 0)
 	for _, key := range meta.Keys() {
