@@ -35,7 +35,7 @@ func findMachineName(logMachineName string) string {
 	return logMachineName
 }
 
-func parseLogMachineNameAndAddress(logMachineName string) (string, string, string) {
+func parseMachineNameAndAddress(logMachineName string) (string, string, string) {
 	machineName := logMachineName
 	machinePort := rpcPort
 	errorMsg := ""
@@ -52,5 +52,4 @@ func parseLogMachineNameAndAddress(logMachineName string) (string, string, strin
 	}
 
 	return machineName, machine.IP + ":" + machinePort, errorMsg
-
 }

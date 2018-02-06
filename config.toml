@@ -34,7 +34,7 @@
     files = ["~/tomcat/yoga-glass/logs/catalina.out"]
     crons  = ["@every 3s"]
     type = "CopyTruncate"
-    parameters = "thresholdSize=100M"
+    parameters = "maxSize=100M"
 
     [logrotates.yoga-glass-dir]
     machines = ["LOCAL"]

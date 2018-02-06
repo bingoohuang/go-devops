@@ -33,15 +33,19 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 	return nil
 }
 
+func ExecCommands(cmds string) (string, string) {
+	return ExecuteCommandsWithArgs(cmds, 500 * time.Millisecond)
+}
+
 func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
 	return ExecuteCommandsWithArgs(cmds, timeout)
 }
 
 func ExecuteCommandsWithArgs(cmds string, timeout time.Duration) (string, string) {
-	return ExecuteCommandsWithSleep(timeout, "bash", "-c", cmds)
+	return TimeoutExecuteCommands(timeout, "bash", "-c", cmds)
 }
 
-func ExecuteCommandsWithSleep(timeout time.Duration, name string, args ...string) (string, string) {
+func TimeoutExecuteCommands(timeout time.Duration, name string, args ...string) (string, string) {
 	start := time.Now()
 	cmd := exec.Command(name, args...)
 

@@ -32,6 +32,7 @@ type DevopsConf struct {
 }
 
 type LogRotate struct {
+	Name       string
 	Machines   []string
 	Files      []string
 	Crons      []string

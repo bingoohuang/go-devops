@@ -162,7 +162,6 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 	}
 
 	found := fullFindLogMachineName(log, logMachineName)
-
 	if !found {
 		logMachineName, found = prefixFindLogMachineName(log, logMachineName)
 	}
@@ -172,7 +171,7 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 		return
 	}
 
-	machineName, machineAddress, errorMsg := parseLogMachineNameAndAddress(logMachineName)
+	machineName, machineAddress, errorMsg := parseMachineNameAndAddress(logMachineName)
 
 	reply := LogFileInfoResult{
 		MachineName: machineName,
