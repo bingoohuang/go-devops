@@ -101,6 +101,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
 	ExecCommands("tail -c " + o.maxSizeStr + " > " + file + ".tmp; cat " + file + ".tmp > " + file)
+	log.Println("CopyTruncate ", file)
 }
 
 type DeleteCronExecutable struct {
@@ -117,6 +118,7 @@ func (o *DeleteCronExecutable) Execute(files []string) {
 	}
 
 	ExecCommands(cmds)
+	log.Println("delete files by ", cmds)
 }
 
 type DeleteOldsExecutable struct {
@@ -168,5 +170,6 @@ func (o *DeleteOldsExecutable) deleteFile(file string) {
 	time, err := fmtdate.Parse(o.pattern, filepath.Base(file))
 	if err == nil && time.Before(o.cutTime) {
 		os.Remove(file)
+		log.Println("removed file", file)
 	}
 }

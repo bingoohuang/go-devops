@@ -3,10 +3,8 @@ package main
 import (
 	"github.com/robfig/cron"
 	"log"
-	"regexp"
+	"net/rpc"
 )
-
-var cronRegexp = regexp.MustCompile(`(?i)Every\s+(\d+)\s+(Second|Minute|Hour|Day|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Weeks)s?(\s+at\s+(\d\d:\d\d))?`)
 
 var c *cron.Cron = nil
 
@@ -34,6 +32,23 @@ func addCron(logRotateName string, logRotate LogRotate) {
 func dealLogCron(logRotate LogRotate) {
 	log.Println("run", logRotate)
 
-	
+	for _, logMachineName := range logRotate.Machines {
+		_, nameAndAddress, err := parseMachineNameAndAddress(logMachineName)
+		if err != "" {
+			log.Println("unknown machine", err)
+			continue
+		}
 
+		go executeCron(nameAndAddress, logRotate)
+	}
+}
+func executeCron(nameAndAddress string, rotate LogRotate) {
+	var reply CronCommandResult
+	DialAndCall(nameAndAddress, func(client *rpc.Client) error {
+		return client.Call("CronCommand.ExecuteCron", &CronCommandArg{
+			Files:      rotate.Files,
+			Type:       rotate.Type,
+			Parameters: rotate.Parameters,
+		}, &reply)
+	})
 }
