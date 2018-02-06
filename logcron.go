@@ -34,5 +34,6 @@ func addCron(logRotateName string, logRotate LogRotate) {
 func dealLogCron(logRotate LogRotate) {
 	log.Println("run", logRotate)
 
+	
 
 }

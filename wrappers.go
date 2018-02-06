@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
+	"encoding/base64"
 	"io"
 	"net/http"
 	"strings"
-	"encoding/base64"
-	"bytes"
 )
 
 type gzipResponseWriter struct {

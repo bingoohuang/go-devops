@@ -34,7 +34,7 @@ func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error 
 }
 
 func ExecCommands(cmds string) (string, string) {
-	return ExecuteCommandsWithArgs(cmds, 500 * time.Millisecond)
+	return ExecuteCommandsWithArgs(cmds, 500*time.Millisecond)
 }
 
 func ExecuteCommands(cmds string, timeout time.Duration) (string, string) {
