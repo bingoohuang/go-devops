@@ -23,6 +23,7 @@ func StartHttpSever() {
 	r.HandleFunc(contextPath+"/saveConfig", HandleSaveConf)
 	r.HandleFunc(contextPath+"/loadConfig", HandleLoadConf)
 	r.HandleFunc(contextPath+"/", gzipWrapper(HandleHome))
+	//r.HandleFunc(contextPath+"/", BasicAuth(gzipWrapper(HandleHome), []byte("bingoo"), []byte("bingoo")))
 
 	http.Handle(contextPath+"/", r)
 
