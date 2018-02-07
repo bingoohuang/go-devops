@@ -44,11 +44,17 @@ func dealLogCron(logRotate LogRotate) {
 }
 func executeCron(nameAndAddress string, rotate LogRotate) {
 	var reply CronCommandResult
-	DialAndCall(nameAndAddress, func(client *rpc.Client) error {
+	err := DialAndCall(nameAndAddress, func(client *rpc.Client) error {
 		return client.Call("CronCommand.ExecuteCron", &CronCommandArg{
 			Files:      rotate.Files,
 			Type:       rotate.Type,
 			Parameters: rotate.Parameters,
 		}, &reply)
 	})
+
+	if err != nil {
+		log.Println("executeCron error", err.Error())
+	}
+
+	log.Println("reply", reply)
 }

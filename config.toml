@@ -31,21 +31,21 @@
 [logrotates]
     [logrotates.yoga-glass-catalina]
     machines = ["LOCAL"]
-    files = ["~/tomcat/yoga-glass/logs/catalina.out"]
-    crons  = ["@every 3s"]
+    files = ["CopyTruncate.log"]
+    crons  = ["@every 10s"]
     type = "CopyTruncate"
-    parameters = "maxSize=100M"
+    parameters = "maxSize=10"
 
     [logrotates.yoga-glass-dir]
     machines = ["LOCAL"]
-    files = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
-    crons  = ["@daily"]
+    files = ["Delete.log", "DeleteDir"]
+    crons  = ["@every 10s"]
     type = "Delete"
 
     [logrotates.yoga-glass-access]
     machines = ["LOCAL"]
-    files = ["~/tomcat/yoga-glass/logs"]
-    crons  = ["@daily"]
+    files = ["./logs"]
+    crons  = ["@every 10s"]
     type = "DeleteOlds"
-    parameters = "days=7,pattern=localhost_access_log.YYYY-MM-DD.txt"
+    parameters = "days=3,pattern=log.YYYY-MM-DD.log"
 

@@ -86,3 +86,25 @@
     ps = "ps aux|grep yoga-boss|grep -v grep"
     kill = "${ps}|awk '{print $2}'|xargs kill -9"
     start = "bin/catalina.sh start"
+
+
+[logrotates]
+    [logrotates.yoga-glass-catalina]
+    machines = ["LOCAL"]
+    files = ["~/tomcat/yoga-glass/logs/catalina.out"]
+    crons  = ["@every 3s"]
+    type = "CopyTruncate"
+    parameters = "maxSize=100M"
+
+    [logrotates.yoga-glass-dir]
+    machines = ["LOCAL"]
+    files = ["~/tomcat/yoga-glass/logs/contextName_IS_UNDEFINED"]
+    crons  = ["@daily"]
+    type = "Delete"
+
+    [logrotates.yoga-glass-access]
+    machines = ["LOCAL"]
+    files = ["~/tomcat/yoga-glass/logs"]
+    crons  = ["@daily"]
+    type = "DeleteOlds"
+    parameters = "days=7,pattern=localhost_access_log.YYYY-MM-DD.txt"

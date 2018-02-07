@@ -17,13 +17,12 @@ type CronCommandArg struct {
 }
 
 type CronCommandResult struct {
-	MachineName    string
 	Error          string
-	Stdout, Stderr string
 	CostMillis     string
 }
 
-type CronCommand int
+type CronCommand struct {
+}
 
 func (t *CronCommand) ExecuteCron(arg *CronCommandArg, result *CronCommandResult) error {
 	start := time.Now()
@@ -100,7 +99,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 }
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
-	ExecCommands("tail -c " + o.maxSizeStr + " > " + file + ".tmp; cat " + file + ".tmp > " + file)
+	ExecCommands("tail -c " + o.maxSizeStr + " " + file + " > " + file + ".tmp; cat " + file + ".tmp > " + file)
 	log.Println("CopyTruncate ", file)
 }
 
@@ -168,7 +167,12 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 
 func (o *DeleteOldsExecutable) deleteFile(file string) {
 	time, err := fmtdate.Parse(o.pattern, filepath.Base(file))
-	if err == nil && time.Before(o.cutTime) {
+	if err != nil {
+		log.Println("parse error ", o.pattern, "for file", file, err.Error())
+		return
+	}
+
+	if !time.After(o.cutTime) {
 		os.Remove(file)
 		log.Println("removed file", file)
 	}
