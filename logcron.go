@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"github.com/robfig/cron"
-	"log"
 	"net/rpc"
 )
 
@@ -30,12 +30,12 @@ func addCron(logRotateName string, logRotate LogRotate) {
 }
 
 func dealLogCron(logRotate LogRotate) {
-	log.Println("run", logRotate)
+	fmt.Println("run", logRotate)
 
 	for _, logMachineName := range logRotate.Machines {
 		_, nameAndAddress, err := parseMachineNameAndAddress(logMachineName)
 		if err != "" {
-			log.Println("unknown machine", err)
+			fmt.Println("unknown machine", err)
 			continue
 		}
 
@@ -53,8 +53,8 @@ func executeCron(nameAndAddress string, rotate LogRotate) {
 	})
 
 	if err != nil {
-		log.Println("executeCron error", err.Error())
+		fmt.Println("executeCron error", err.Error())
 	}
 
-	log.Println("reply", reply)
+	fmt.Println("reply", reply)
 }

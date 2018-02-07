@@ -28,6 +28,7 @@
     start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
 
 
+
 [logrotates]
     [logrotates.yoga-glass-catalina]
     machines = ["LOCAL"]
@@ -48,4 +49,3 @@
     crons  = ["@every 10s"]
     type = "DeleteOlds"
     parameters = "days=3,pattern=log.YYYY-MM-DD.log"
-

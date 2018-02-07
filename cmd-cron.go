@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/docker/go-units"
-	"github.com/metakeule/fmtdate"
-	"log"
+	"github.com/mitchellh/go-homedir"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -25,6 +25,8 @@ type CronCommand struct {
 }
 
 func (t *CronCommand) ExecuteCron(arg *CronCommandArg, result *CronCommandResult) error {
+	fmt.Println("ExecuteCron with arg ", *arg)
+
 	start := time.Now()
 	elapsed := time.Since(start)
 
@@ -37,7 +39,7 @@ func (t *CronCommand) ExecuteCron(arg *CronCommandArg, result *CronCommandResult
 		executable = &DeleteOldsExecutable{}
 	} else {
 		result.Error = "unknown CronCommand Type " + arg.Type
-		log.Println("unknown CronCommand Type", arg.Type)
+		fmt.Println("unknown CronCommand Type", arg.Type)
 		executable = nil
 	}
 
@@ -70,16 +72,19 @@ func (o *CopyTruncateCronExecutable) LoadParameters(parameters string) {
 
 	maxSize, err := units.FromHumanSize(humanMaxSize)
 	if err != nil {
-		log.Println("FromHumanSize " + humanMaxSize + "err" + err.Error())
+		fmt.Println("FromHumanSize " + humanMaxSize + "err" + err.Error())
 		maxSize = 100 * 1024 * 1024
 	}
 
 	o.maxSize = maxSize
 	o.maxSizeStr = strconv.FormatInt(maxSize, 10)
+	fmt.Println(*o)
 }
 
 func (o *CopyTruncateCronExecutable) Execute(files []string) {
-	for _, file := range files {
+	for _, xfile := range files {
+		file, _ := homedir.Expand(xfile)
+
 		stat, err := os.Stat(file)
 		if os.IsNotExist(err) {
 			continue
@@ -99,8 +104,8 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 }
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
-	ExecCommands("tail -c " + o.maxSizeStr + " " + file + " > " + file + ".tmp; cat " + file + ".tmp > " + file)
-	log.Println("CopyTruncate ", file)
+	ExecuteCommands("tail -c "+o.maxSizeStr+" "+file+" > "+file+".tmp; cat "+file+".tmp > "+file, 10*time.Second)
+	fmt.Println("CopyTruncate ", file)
 }
 
 type DeleteCronExecutable struct {
@@ -112,12 +117,13 @@ func (o *DeleteCronExecutable) LoadParameters(parameters string) {
 
 func (o *DeleteCronExecutable) Execute(files []string) {
 	cmds := "rm -fr "
-	for _, file := range files {
+	for _, xfile := range files {
+		file, _ := homedir.Expand(xfile)
 		cmds += file + " "
 	}
 
 	ExecCommands(cmds)
-	log.Println("delete files by ", cmds)
+	fmt.Println("delete files by ", cmds)
 }
 
 type DeleteOldsExecutable struct {
@@ -138,15 +144,18 @@ func (o *DeleteOldsExecutable) LoadParameters(parameters string) {
 
 	pattern, ok := m["pattern"]
 	if !ok {
-		log.Println("pattern required for DeleteOlds type")
+		fmt.Println("pattern required for DeleteOlds type")
 		return
 	}
 
 	o.pattern = pattern
+
+	fmt.Println("config:", *o)
 }
 
 func (o *DeleteOldsExecutable) Execute(files []string) {
-	for _, file := range files {
+	for _, xfile := range files {
+		file, _ := homedir.Expand(xfile)
 		stat, err := os.Stat(file)
 		if os.IsNotExist(err) {
 			continue
@@ -166,14 +175,17 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 }
 
 func (o *DeleteOldsExecutable) deleteFile(file string) {
-	time, err := fmtdate.Parse(o.pattern, filepath.Base(file))
+	base := filepath.Base(file)
+	time, err := ParseFmtDate(o.pattern, base)
 	if err != nil {
-		log.Println("parse error ", o.pattern, "for file", file, err.Error())
+		//fmt.Println("parse error ", o.pattern, "for base", base, err.Error())
 		return
 	}
 
+	//fmt.Println("file", file, "'s time is", time)
+
 	if !time.After(o.cutTime) {
 		os.Remove(file)
-		log.Println("removed file", file)
+		fmt.Println("removed file", file)
 	}
 }
