@@ -17,8 +17,8 @@ type CronCommandArg struct {
 }
 
 type CronCommandResult struct {
-	Error          string
-	CostMillis     string
+	Error      string
+	CostMillis string
 }
 
 type CronCommand struct {
