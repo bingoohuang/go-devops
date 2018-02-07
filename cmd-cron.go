@@ -104,7 +104,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 }
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
-	ExecuteCommands("tail -c "+o.maxSizeStr+" "+file+" > "+file+".tmp; cat "+file+".tmp > "+file, 10*time.Second)
+	ExecuteCommands("tail -c "+o.maxSizeStr+" "+file+" > "+file+".tmp; cat "+file+".tmp > "+file, 5*time.Minute)
 	fmt.Println("CopyTruncate ", file)
 }
 
