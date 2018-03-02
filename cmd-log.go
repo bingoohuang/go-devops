@@ -172,7 +172,6 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 	}
 
 	machineName, machineAddress, errorMsg := parseMachineNameAndAddress(logMachineName)
-
 	reply := LogFileInfoResult{
 		MachineName: machineName,
 		Error:       errorMsg,

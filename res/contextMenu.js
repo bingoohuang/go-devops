@@ -78,12 +78,18 @@
                     var lines = $.contextMenu.getInputValues(options).Lines
                     TailLogFile(loggerName, logPath, lines)
                 } else if (key === 'TailFLog') {
-                    $.bindTailFLogEvent(loggerName, logPath)
+                    var traceMobile = $.contextMenu.getInputValues(options).TraceMobile
+                    if ($.trim(traceMobile) === "") {
+                        traceMobile = "0"
+                    }
+
+                    $.bindTailFLogEvent(loggerName, traceMobile)
                 }
             },
             items: {
                 Lines: {name: "Tail Last Lines:", type: 'text', value: "300"},
                 TailLogFile: {name: "Tail Log", icon: "tail"},
+                TraceMobile: {name: "Trace Mobile:", type: 'text', value: ""},
                 TailFLog: {name: "Tail -F Log", icon: "tail"},
             }
         })

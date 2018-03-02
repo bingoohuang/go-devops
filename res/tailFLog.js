@@ -2,11 +2,11 @@
     var ttlTailTimeout = null
     var NewLogSeq = null
 
-    function TailFLog(loggerName, logPath, tailSeq) {
+    function TailFLog(loggerName, traceMobile, tailSeq) {
         $('#locateLogSpan').hide()
         $.ajax({
             type: 'POST',
-            url: contextPath + "/tailFLog/" + loggerName + "/" + tailSeq,
+            url: contextPath + "/tailFLog/" + loggerName  + "/" + traceMobile + "/" + tailSeq,
             success: function (content, textStatus, request) {
                 if (tailSeq == "init") {
                     $.createTailTabs(content.Results)
@@ -22,7 +22,7 @@
                 if (ttlTailTimeout != null) {
                     NewLogSeq = content.NewLogSeq
                     ttlTailTimeout = setTimeout(function () {
-                        TailFLog(loggerName, logPath, NewLogSeq)
+                        TailFLog(loggerName, traceMobile, NewLogSeq)
                     }, 1000)
                 }
             },
@@ -56,7 +56,7 @@
         ttlTailTimeout = null
     }
 
-    $.bindTailFLogEvent = function (loggerName, logPath) {
+    $.bindTailFLogEvent = function (loggerName, traceMobile) {
         $('#refresh').unbind('click').click(function () {
             var span = $(this).find('span');
             if (span.text() === "Stop") {
@@ -65,12 +65,12 @@
                 span.text('Resume')
             } else if (span.text() === "Resume") {
                 ttlTailTimeout = {}
-                TailFLog(loggerName, logPath, NewLogSeq)
+                TailFLog(loggerName, traceMobile, NewLogSeq)
                 span.text('Stop')
             }
         }).find('span').text('Stop')
 
         ttlTailTimeout = {}
-        TailFLog(loggerName, logPath, "init")
+        TailFLog(loggerName, traceMobile, "init")
     }
 })()

@@ -41,10 +41,17 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
+	traceMobile := vars["traceMobile"]
 	logSeq, _ := vars["logSeq"]
 
 	machineLogSeqMap := parseMachineSeqs(logSeq)
 	log := devopsConf.Logs[loggerName]
+	if traceMobile != "0" {
+		lastSlash := strings.LastIndex(log.Path, "/")
+		if (lastSlash >= 0) {
+			log.Path = log.Path[:lastSlash] + "/" + traceMobile + ".log"
+		}
+	}
 	machinesNum := len(log.Machines)
 
 	resultChan := make(chan *LogFileInfoResult, machinesNum)
