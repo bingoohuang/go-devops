@@ -48,17 +48,19 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 	if traceMobile != "0" {
 		lastSlash := strings.LastIndex(log.Path, "/")
-		if (lastSlash >= 0) {
+		if lastSlash >= 0 {
 			log.Path = log.Path[:lastSlash] + "/" + traceMobile + ".log"
 		}
 	}
 	machinesNum := len(log.Machines)
 
+	newSeqMap := make(map[string]int)
 	resultChan := make(chan *LogFileInfoResult, machinesNum)
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
-		seq := findSeq(machineLogSeqMap, logMachineName)
+		machineName, seq := findSeq(machineLogSeqMap, logMachineName)
+		newSeqMap[machineName] = seq
 		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"TailFLog", false, "", seq)
 	}
@@ -66,10 +68,12 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	close(resultChan)
 
 	resultsMap := make(map[string]*LogFileInfoResult)
-	newSeqMap := make(map[string]int)
+
 	for commandResult := range resultChan {
 		resultsMap[commandResult.MachineName] = commandResult
-		newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
+		if commandResult.Error == "" {
+			newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
+		}
 	}
 
 	logs := createLogsResult(log, resultsMap)
@@ -83,12 +87,13 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 		})
 }
 
-func findSeq(machineLogSeqMap map[string]int, logMachineName string) int {
-	machineLogSeq, ok := machineLogSeqMap[findMachineName(logMachineName)]
+func findSeq(machineLogSeqMap map[string]int, logMachineName string) (string, int) {
+	machineName := findMachineName(logMachineName)
+	machineLogSeq, ok := machineLogSeqMap[machineName]
 	if ok {
-		return machineLogSeq
+		return machineName, machineLogSeq
 	}
-	return -1
+	return machineName, -1
 }
 
 func createMachineSeqs(newSeqMap map[string]int) string {
