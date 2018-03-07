@@ -1,12 +1,25 @@
 (function () {
-    $.replaceLocateContents = function(content) {
+    $.replaceLocateContents = function (content) {
+        var hasContentActivated = false
         for (var i = 0; i < content.length; ++i) {
-            $('#machine-' + content[i].MachineName + " .preWrap").html(content[i].Stdout)
-            $.scrollToBottom()
+            var out = content[i].Stdout
+            var machineName = content[i].MachineName;
+            $('#machine-' + machineName + " .preWrap").html(out)
+
+            if (out != "") {
+                $.scrollToBottom()
+
+                if (!hasContentActivated) {
+                    hasContentActivated = true
+                    setTimeout(function () {
+                        $('.tablink-' + machineName).click()
+                    }, 500)
+                }
+            }
         }
     }
 
-    $.bindLocateLogClick = function(loggerName) {
+    $.bindLocateLogClick = function (loggerName) {
         $('#locateLog').unbind('click').click(function () {
             var fromTimestamp = $('#fromTimestamp').val()
             var toTimestamp = $('#toTimestamp').val()

@@ -12,10 +12,14 @@
 
     $.createTailTabs = function (content) {
         var tailTabsHtml = ''
+        // var machinesChecked = ''
         for (var i = 0; i < content.length; ++i) {
-            tailTabsHtml += '<button class="tablinks">' + content[i].MachineName + '</button>'
+            tailTabsHtml += '<button class="tablinks tablink-' + content[i].MachineName + '">' + content[i].MachineName + '</button>'
+            // machinesChecked += '<label><input type="checkbox" checked>' + content[i].MachineName + '</label>'
         }
+
         $('#preContent .tabs').html(tailTabsHtml)
+        // $('#machinesChecked').html(machinesChecked)
     }
 
     $.createTailContents = function (content) {

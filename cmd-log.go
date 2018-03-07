@@ -222,6 +222,7 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 		resultChan <- &reply
 	}
 }
+
 func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {
 	for _, configLogMachineName := range log.Machines {
 		if strings.Index(configLogMachineName, logMachineName+":") == 0 {
