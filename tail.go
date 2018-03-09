@@ -43,7 +43,7 @@ func tail(logFile string, seq int) ([]byte, int) {
 	}
 
 	// reset expiration
-	tailCache.Set(logFile, logQueue, cache.DefaultExpiration)
+	tailCache.Set(logFile, logQueue, 10*time.Minute)
 	if !found {
 		return nil, 0
 	}
