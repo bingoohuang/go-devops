@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
@@ -93,6 +94,6 @@ func GetHardwareInfo() HardwareInfo {
 		FreeDisk:                 diskStat.Free,
 		HumanizedFreeDisk:        humanize.IBytes(diskStat.Free),
 		DiskUsedPercent:          diskStat.UsedPercent,
-		Ips:                      GetIps(),
+		Ips:                      go_utils.GetLocalIps(),
 	}
 }

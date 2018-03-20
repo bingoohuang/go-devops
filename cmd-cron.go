@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bingoohuang/go-utils"
 	"github.com/docker/go-units"
 	"github.com/mitchellh/go-homedir"
 	"os"
@@ -63,7 +64,7 @@ type CopyTruncateCronExecutable struct {
 }
 
 func (o *CopyTruncateCronExecutable) LoadParameters(parameters string) {
-	m := parseCommaSeparatedKeyVales(parameters)
+	m := go_utils.ParseMapString(parameters, ",", "=")
 
 	humanMaxSize, ok := m["maxSize"]
 	if !ok {
@@ -133,7 +134,7 @@ type DeleteOldsExecutable struct {
 }
 
 func (o *DeleteOldsExecutable) LoadParameters(parameters string) {
-	m := parseCommaSeparatedKeyVales(parameters)
+	m := go_utils.ParseMapString(parameters, ",", "=")
 	daysStr, ok := m["days"]
 	if !ok {
 		daysStr = "3"
@@ -176,7 +177,7 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 
 func (o *DeleteOldsExecutable) deleteFile(file string) {
 	base := filepath.Base(file)
-	time, err := ParseFmtDate(o.pattern, base)
+	time, err := go_utils.ParseFmtDate(o.pattern, base)
 	if err != nil {
 		//fmt.Println("parse error ", o.pattern, "for base", base, err.Error())
 		return

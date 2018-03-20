@@ -53,31 +53,3 @@ func parseMachineNameAndAddress(logMachineName string) (string, string, string) 
 
 	return machineName, machine.IP + ":" + machinePort, errorMsg
 }
-
-func parseCommaSeparatedKeyVales(str string) map[string]string {
-	parts := strings.Split(str, ",")
-
-	m := make(map[string]string)
-	for _, part := range parts {
-		p := strings.TrimSpace(part)
-		if p == "" {
-			continue
-		}
-
-		index := strings.Index(p, "=")
-		if index > 0 {
-			key := p[0:index]
-			val := p[index+1:]
-			k := strings.TrimSpace(key)
-			v := strings.TrimSpace(val)
-
-			if k != "" {
-				m[k] = v
-			}
-		} else if index < 0 {
-			m[p] = ""
-		}
-	}
-
-	return m
-}
