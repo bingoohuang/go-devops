@@ -7,6 +7,7 @@ import (
 	"github.com/valyala/fasttemplate"
 	"net/rpc"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -124,7 +125,15 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	logPath, _ := homedir.Expand(args.LogPath)
 	info, err := os.Stat(logPath)
 	if err == nil {
-		result.FileSize = humanize.IBytes(uint64(info.Size()))
+		size := info.Size()
+		if info.IsDir() {
+			size, err = DirSize(args.LogPath)
+			if err != nil {
+				result.Error = err.Error()
+			}
+		}
+
+		result.FileSize = humanize.IBytes(uint64(size))
 		result.LastModified = humanize.Time(info.ModTime())
 	} else {
 		if os.IsNotExist(err) {
@@ -136,6 +145,17 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 
 	result.CostTime = time.Since(start).String()
 	return nil
+}
+
+func DirSize(path string) (int64, error) {
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+	return size, err
 }
 
 func humanizedPsOutput(result *LogFileInfoResult) {
