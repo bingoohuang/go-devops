@@ -1,0 +1,85 @@
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  name = "github.com/BurntSushi/toml"
+  version = "0.3.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/bingoohuang/go-utils"
+
+[[constraint]]
+  name = "github.com/docker/go-units"
+  version = "0.3.2"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/dustin/go-humanize"
+
+[[constraint]]
+  name = "github.com/gorilla/mux"
+  version = "1.6.1"
+
+[[constraint]]
+  name = "github.com/metakeule/fmtdate"
+  version = "1.1.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
+
+[[constraint]]
+  name = "github.com/patrickmn/go-cache"
+  version = "2.1.0"
+
+[[constraint]]
+  name = "github.com/robfig/cron"
+  version = "1.0.0"
+
+[[constraint]]
+  #branch = "master"
+  name = "github.com/shirou/gopsutil"
+  revision = "fc04d2dd9a512906a2604242b35275179e250eda"
+
+[[constraint]]
+  name = "github.com/tdewolff/minify"
+  version = "2.3.4"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/valyala/fasttemplate"
+
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true
+
+  [[prune.project]]
+    name = "github.com/shirou/gopsutil"
+    non-go = false
+    unused-packages = false
