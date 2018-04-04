@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -81,22 +82,6 @@ func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogF
 	return logs
 }
 
-func HandleGrepLog(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	vars := mux.Vars(r)
-	loggerName := vars["loggerName"]
-
-	log, ok := devopsConf.Logs[loggerName]
-	if !ok {
-		return
-	}
-
-	grepText := vars["grepText"]
-
-	command := `grep "` + grepText + `" ` + log.Path
-	executeCommand(log, command, w)
-}
-
 func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	vars := mux.Vars(r)
@@ -107,13 +92,12 @@ func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timestampFrom := vars["timestampFrom"]
-	timestampTo := vars["timestampTo"]
-	size := len(timestampFrom)
+	logKey := vars["logKey"]
+	preLines := vars["preLines"]
+	lines := vars["lines"]
 
-	// awk 'substr($0,1,23)>="2017-12-17 15:31:54.587" && substr($0,1,23)<="2017-12-17 15:31:54.588"' < demo.log
-	const awkTmpl = `awk 'substr($0,1,%d)>="%s" && substr($0,1,%d)<="%s"' < %s`
-	command := fmt.Sprintf(awkTmpl, size, timestampFrom, size, timestampTo, log.Path)
+	const awkTmpl = `awk 'BEGIN{phead=1;psize=0;found=0;pamx=%s;max=%s}{if(found==0&&$0~/%s/){found=1;for(i=phead;i<=psize;i++)print parr[i];for(j=1;j<phead;j++)print parr[j]}else if(found==0){if(psize<pamx)parr[++psize]=$0;else{parr[phead]=$0;if(++phead>pamx)phead=1}}if(found>0){print;if(++found>max)exit}}' %s`
+	command := fmt.Sprintf(awkTmpl, preLines, lines, regexp.QuoteMeta(logKey), log.Path)
 
 	executeCommand(log, command, w)
 }

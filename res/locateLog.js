@@ -1,31 +1,29 @@
 (function () {
     $.replaceLocateContents = function (content) {
-        var hasContentActivated = false
+        var tablLink = null
         for (var i = 0; i < content.length; ++i) {
             var out = content[i].Stdout
             var machineName = content[i].MachineName;
             $('#machine-' + machineName + " .preWrap").html(out)
 
-            if (out != "") {
-                $.scrollToBottom()
-
-                if (!hasContentActivated) {
-                    hasContentActivated = true
-                    setTimeout(function () {
-                        $('.tablink-' + machineName).click()
-                    }, 500)
-                }
+            if (tablLink == null && out !== "") {
+                tablLink = $('.tablink-' + machineName)
             }
+        }
+
+        if (tablLink != null) {
+            setTimeout(function () {tablLink.click()}, 500)
         }
     }
 
     $.bindLocateLogClick = function (loggerName) {
         $('#locateLog').unbind('click').click(function () {
-            var fromTimestamp = $('#fromTimestamp').val()
-            var toTimestamp = $('#toTimestamp').val()
+            var logKey = $('#logKey').val()
+            var preLines = $('#preLines').val()
+            var lines = $('#lines').val()
             $.ajax({
                 type: 'POST',
-                url: contextPath + "/locateLog/" + loggerName + "/" + fromTimestamp + "/" + toTimestamp,
+                url: contextPath + "/locateLog/" + loggerName + "/" + logKey + "/" + preLines + "/" + lines,
                 success: function (content, textStatus, request) {
                     $.replaceLocateContents(content)
                 },

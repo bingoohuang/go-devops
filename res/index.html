@@ -33,15 +33,12 @@
         <span id="locateLogSpan">
             <span id="machinesChecked"></span>
 
-            <input id="fromTimestamp" placeholder="From Timestamp">
-            <input id="toTimestamp" placeholder="To Timestamp">
+            日志关键字<input id="logKey" class="loginput" placeholder="Log Key">
+            关键字前面多少行:<input id="preLines" class="tinyinput" placeholder="Previous Lines" value="100">
+            关键字后面多少行:<input id="lines"  class="tinyinput" placeholder="Forward Lines" value="300">
 
               &nbsp;
             <button id="locateLog"><span class="context-menu-icons context-menu-icon-locate">Locate Log</span></button>
-
-            <input id="grepText" placeholder="Something to GREP">
-            &nbsp;
-            <button id="grepLog"><span class="context-menu-icons context-menu-icon-find">Grep Log</span></button>
         </span>
     </div>
     <div id="preContent">

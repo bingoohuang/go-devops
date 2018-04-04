@@ -130,3 +130,42 @@ else
     echo "File $logfile not found"
 fi
 ```
+
+## Search log context lines by keyword
+```awk
+#!/bin/awk -f
+BEGIN {
+    phead = 1
+    psize = 0
+    pmax = 30
+    found = 0
+    max =  100
+}
+{
+    if(found == 0 && $0 ~ /2018-04-04 09:44:09.040/) {
+      found = 1
+      for ( i = phead; i <= psize; i++ ) {
+        print parr[i]
+      }
+      for ( j = 1; j < phead; j++ ) {
+        print parr[j]
+      }
+    } else if (found == 0){
+      if (psize < pmax) {
+        parr[++psize] = $0
+      } else {
+        parr[phead] = $0
+        if (++phead > pmax) phead = 1
+      }
+    }
+
+    if(found > 0) {
+      print $0
+      if(++found > max) exit;
+    }
+}
+END {
+}
+
+
+``` 

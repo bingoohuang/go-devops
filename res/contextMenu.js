@@ -61,7 +61,6 @@
                 })
 
                 $.bindLocateLogClick(loggerName)
-                $.bindGrepLogClick(loggerName)
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)

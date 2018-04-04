@@ -68,7 +68,7 @@ func mergeScripts() string {
 		"index.js", "jquery.contextMenu.js", "jquery.ui.position.js",
 		"util.js", "machines.js", "contextMenu.js",
 		"locateLog.js", "logSize.js", "tailFLog.js", "processInfo.js",
-		"logs.js", "highlight.machine.js", "grepLog.js",
+		"logs.js", "highlight.machine.js",
 		"codemirror-5.33.0.min.js", "toml-5.33.0.min.js", "conf.js")
 }
 
