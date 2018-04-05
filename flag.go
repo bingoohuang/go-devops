@@ -16,6 +16,7 @@ var (
 	startHttp    bool
 	rpcPort      string
 	devMode      bool
+	authBasic    bool
 	configFile   string
 	randomLogGen bool
 	hostname     string
@@ -69,6 +70,7 @@ func init() {
 	directCmdsArg := flag.String("directCmds", "", "direct Cmds")
 	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
 	versionArg := flag.Bool("v", false, "print version")
+	authBasicArg := flag.Bool("authBasic", false, "authBasic based on poems")
 
 	flag.Parse()
 
@@ -87,6 +89,7 @@ func init() {
 	startHttp = *startHttpArg
 	rpcPort = strconv.Itoa(*rpcPortArg)
 	devMode = *devModeArg
+	authBasic = *authBasicArg
 	configFile = *configFileArg
 	randomLogGen = *randomLogGenArg
 
