@@ -135,11 +135,11 @@ fi
 ```awk
 #!/bin/awk -f
 BEGIN {
-    phead = 1
-    psize = 0
-    pmax = 30
-    found = 0
-    max =  100
+    phead = 1 # head of previous lines queue
+    psize = 0 # size of previous lines queue 
+    pmax = 30 # max size of previous lines queue
+    found = 0 # found lines from keyword
+    max =  100 # max lines from keyword
 }
 {
     if(found == 0 && $0 ~ /2018-04-04 09:44:09.040/) {
@@ -160,7 +160,7 @@ BEGIN {
     }
 
     if(found > 0) {
-      print $0
+      print
       if(++found > max) exit;
     }
 }
