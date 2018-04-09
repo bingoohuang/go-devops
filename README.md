@@ -136,32 +136,24 @@ fi
 #!/bin/awk -f
 BEGIN {
     phead = 1 # head of previous lines queue
-    psize = 0 # size of previous lines queue 
-    pmax = 30 # max size of previous lines queue
+    ptail = 1 # size of previous lines queue
+    pmax = 3 # max size of previous lines queue
     found = 0 # found lines from keyword
-    max =  100 # max lines from keyword
+    max =  2 # max lines from keyword
 }
 {
-    if(found == 0 && $0 ~ /2018-04-04 09:44:09.040/) {
-      found = 1
-      for ( i = phead; i <= psize; i++ ) {
-        print parr[i]
-      }
-      for ( j = 1; j < phead; j++ ) {
-        print parr[j]
-      }
-    } else if (found == 0){
-      if (psize < pmax) {
-        parr[++psize] = $0
+    if (found == 0) {
+      if ($0 ~ /7/) {
+        found = 1
+        for(key in parr) print parr[key]
+        print
       } else {
-        parr[phead] = $0
-        if (++phead > pmax) phead = 1
+        parr[ptail++] = $0
+        if(ptail - phead > pmax) delete parr[phead++]
       }
-    }
-
-    if(found > 0) {
+    } else {
       print
-      if(++found > max) exit;
+      if(++found == max) exit
     }
 }
 END {

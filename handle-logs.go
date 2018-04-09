@@ -96,7 +96,7 @@ func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	preLines := vars["preLines"]
 	lines := vars["lines"]
 
-	const awkTmpl = `awk 'BEGIN{h=1;s=0;f=0;p=%s;m=%s}{if(f==0&&$0~/%s/){f=1;for(i=h;i<=s;i++)print a[i];for(j=1;j<h;j++)print a[j]}else if(f==0){if(s<p)a[++s]=$0;else{a[h]=$0;if(++h>p)h=1}}if(f>0){print;if(++f>m)exit}}' %s`
+	const awkTmpl = `awk 'BEGIN{h=1;t=1;p=%s;f=0;m=%s}{if(f==0){if($0~/%s/){f=1;for(k in a)print a[k];print}else{a[t++]=$0;if(t-h>p)delete a[h++]}}else{print;if(++f==m)exit}}' %s`
 	command := fmt.Sprintf(awkTmpl, preLines, lines, regexp.QuoteMeta(logKey), log.Path)
 
 	executeCommand(log, command, w)
