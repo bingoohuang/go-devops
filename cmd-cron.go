@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -128,9 +129,9 @@ func (o *DeleteCronExecutable) Execute(files []string) {
 }
 
 type DeleteOldsExecutable struct {
-	days    int
-	cutTime time.Time
-	pattern string
+	days     int
+	cutTime  time.Time
+	patterns []string
 }
 
 func (o *DeleteOldsExecutable) LoadParameters(parameters string) {
@@ -149,7 +150,7 @@ func (o *DeleteOldsExecutable) LoadParameters(parameters string) {
 		return
 	}
 
-	o.pattern = pattern
+	o.patterns = strings.Split(pattern, "|")
 
 	fmt.Println("config:", *o)
 }
@@ -177,16 +178,23 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 
 func (o *DeleteOldsExecutable) deleteFile(file string) {
 	base := filepath.Base(file)
-	time, err := go_utils.ParseFmtDate(o.pattern, base)
-	if err != nil {
-		//fmt.Println("parse error ", o.pattern, "for base", base, err.Error())
-		return
-	}
 
-	//fmt.Println("file", file, "'s time is", time)
+	time := o.fileTime(base)
+	// fmt.Println("file", file, "'s time is", time)
 
 	if !time.After(o.cutTime) {
 		os.Remove(file)
 		fmt.Println("removed file", file)
 	}
+}
+
+func (o *DeleteOldsExecutable) fileTime(base string) time.Time {
+	for _, pattern := range o.patterns {
+		time, err := go_utils.ParseFmtDate(pattern, base)
+		if err == nil {
+			return time
+		}
+	}
+
+	return time.Now()
 }
