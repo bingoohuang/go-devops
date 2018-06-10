@@ -11,9 +11,9 @@ import (
 func HandleLoadConf(w http.ResponseWriter, r *http.Request) {
 	var conf []byte
 
-	_, err := os.Stat(configFile)
+	_, err := os.Stat(*configFile)
 	if err == nil {
-		conf, _ = ioutil.ReadFile(configFile)
+		conf, _ = ioutil.ReadFile(*configFile)
 	} else {
 		conf = []byte("")
 	}
@@ -34,7 +34,7 @@ func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
 	config := r.FormValue("config")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	ioutil.WriteFile(configFile, []byte(config), 0644)
+	ioutil.WriteFile(*configFile, []byte(config), 0644)
 	meta, err := toml.Decode(config, &devopsConf)
 	if err != nil {
 		json.NewEncoder(w).Encode(struct {

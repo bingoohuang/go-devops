@@ -10,48 +10,34 @@ import (
 func StartHttpSever() {
 	r := mux.NewRouter()
 
-	handleFunc(r, "/iconfont.{extension}", HandleFont, false, false)
-	handleFunc(r, "/favicon.ico", HandleFavicon, false, false)
+	handleFunc(r, "/iconfont.{extension}", HandleFont, false)
+	handleFunc(r, "/favicon.ico", HandleFavicon, false)
 
-	handleFunc(r, "/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile, false, true)
-	handleFunc(r, "/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess, false, true)
-	handleFunc(r, "/locateLog/{loggerName}/{logKey}/{preLines}/{lines}", HandleLocateLog, true, true)
-	handleFunc(r, "/tailLogFile/{loggerName}/{lines}", HandleTailLogFile, true, true)
-	handleFunc(r, "/tailFLog/{loggerName}/{traceMobile}/{logSeq}", HandleTailFLog, true, true)
-	handleFunc(r, "/machines", HandleMachines, false, true)
-	handleFunc(r, "/logs", HandleLogs, false, true)
-	handleFunc(r, "/saveConfig", HandleSaveConf, false, true)
-	handleFunc(r, "/loadConfig", HandleLoadConf, false, true)
+	handleFunc(r, "/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile, false)
+	handleFunc(r, "/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess, false)
+	handleFunc(r, "/locateLog/{loggerName}/{logKey}/{preLines}/{lines}", HandleLocateLog, true)
+	handleFunc(r, "/tailLogFile/{loggerName}/{lines}", HandleTailLogFile, true)
+	handleFunc(r, "/tailFLog/{loggerName}/{traceMobile}/{logSeq}", HandleTailFLog, true)
+	handleFunc(r, "/machines", HandleMachines, false)
+	handleFunc(r, "/logs", HandleLogs, false)
+	handleFunc(r, "/saveConfig", HandleSaveConf, false)
+	handleFunc(r, "/loadConfig", HandleLoadConf, false)
 
-	handleFunc(r, "/", serveWelcome, false, false)
-	handleFunc(r, "/home", HandleHome, true, true)
+	handleFunc(r, "/", HandleHome, false)
 
-	http.Handle(contextPath+"/", r)
+	http.Handle(*contextPath+"/", r)
 
 	fmt.Println("start to listen at ", httpPort)
 	http.ListenAndServe(":"+httpPort, nil)
 }
 
-func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Request), requiredGzip, requiredBasicAuth bool) {
+func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Request), requiredGzip bool) {
 	wrap := go_utils.DumpRequest(f)
-	if requiredBasicAuth && authBasic {
-		wrap = go_utils.RandomPoemBasicAuth(wrap)
-	}
+	wrap = go_utils.MustAuth(wrap, authParam)
 
 	if requiredGzip {
 		wrap = go_utils.GzipHandlerFunc(wrap)
 	}
 
-	r.HandleFunc(contextPath+path, wrap)
-}
-
-func serveWelcome(w http.ResponseWriter, r *http.Request) {
-	if !authBasic {
-		// fmt.Println("Redirect to", contextPath+"/home")
-		// http.Redirect(w, r, contextPath+"/home", 301)
-		HandleHome(w, r)
-	} else {
-		welcome := MustAsset("res/welcome.html")
-		go_utils.ServeWelcome(w, welcome, contextPath)
-	}
+	r.HandleFunc(*contextPath+path, wrap)
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/bingoohuang/go-utils"
 	"github.com/shirou/gopsutil/host"
 	"os"
 	"strconv"
@@ -11,18 +12,19 @@ import (
 )
 
 var (
-	contextPath  string
+	contextPath  *string
 	httpPort     string
-	startHttp    bool
+	startHttp    *bool
 	rpcPort      string
-	devMode      bool
-	authBasic    bool
-	configFile   string
+	devMode      *bool
+	configFile   *string
 	randomLogGen bool
 	hostname     string
 
 	machineNames []string
 	loggers      []string
+
+	authParam go_utils.MustAuthParam
 )
 
 type DevopsConf struct {
@@ -61,16 +63,17 @@ type Process struct {
 var devopsConf DevopsConf
 
 func init() {
-	contextPathArg := flag.String("contextPath", "", "context path")
+	contextPath = flag.String("contextPath", "", "context path")
 	httpPortArg := flag.Int("httpPort", 6879, "Port to serve.")
-	startHttpArg := flag.Bool("startHttp", true, "Port to serve.")
+	startHttp = flag.Bool("startHttp", true, "Port to serve.")
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
-	devModeArg := flag.Bool("devMode", false, "devMode(disable js/css minify)")
-	configFileArg := flag.String("config", "config.toml", "config file path")
+	devMode = flag.Bool("devMode", false, "devMode(disable js/css minify)")
+	configFile = flag.String("config", "config.toml", "config file path")
 	directCmdsArg := flag.String("directCmds", "", "direct Cmds")
 	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
 	versionArg := flag.Bool("v", false, "print version")
-	authBasicArg := flag.Bool("authBasic", false, "authBasic based on poems")
+
+	go_utils.PrepareMustAuthFlag(&authParam)
 
 	flag.Parse()
 
@@ -84,19 +87,14 @@ func init() {
 		os.Exit(0)
 	}
 
-	contextPath = *contextPathArg
 	httpPort = strconv.Itoa(*httpPortArg)
-	startHttp = *startHttpArg
 	rpcPort = strconv.Itoa(*rpcPortArg)
-	devMode = *devModeArg
-	authBasic = *authBasicArg
-	configFile = *configFileArg
 	randomLogGen = *randomLogGenArg
 
 	ostStat, _ := host.Info()
 	hostname = ostStat.Hostname
 
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+	if _, err := os.Stat(*configFile); os.IsNotExist(err) {
 		return
 	}
 
@@ -104,7 +102,7 @@ func init() {
 }
 
 func loadConfig() {
-	meta, err := toml.DecodeFile(configFile, &devopsConf)
+	meta, err := toml.DecodeFile(*configFile, &devopsConf)
 	if err != nil {
 		fmt.Println("DecodeFile error:", err)
 		return
