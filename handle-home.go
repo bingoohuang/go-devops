@@ -13,24 +13,13 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 
 	html := go_utils.MinifyHtml(indexHtml, *devMode)
 
-	css := go_utils.MinifyCss(mergeCss(), *devMode)
-	js := go_utils.MinifyJs(mergeScripts(), *devMode)
+	mergeCss := go_utils.MergeCss(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".css"))
+	css := go_utils.MinifyCss(mergeCss, *devMode)
+	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
+	js := go_utils.MinifyJs(mergeScripts, *devMode)
 	html = strings.Replace(html, "/*.CSS*/", css, 1)
 	html = strings.Replace(html, "/*.SCRIPT*/", js, 1)
 	html = strings.Replace(html, "${contextPath}", *contextPath, -1)
 
 	w.Write([]byte(html))
-}
-
-func mergeCss() string {
-	return go_utils.MergeCss(MustAsset, "index.css", "jquery.contextMenu.css")
-}
-
-func mergeScripts() string {
-	return go_utils.MergeJs(MustAsset, "jquery.loading.js",
-		"index.js", "jquery.ui.position.js",
-		"util.js", "machines.js", "contextMenu.js",
-		"locateLog.js", "logSize.js", "tailFLog.js", "processInfo.js",
-		"logs.js", "highlight.machine.js",
-		"conf.js")
 }
