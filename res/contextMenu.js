@@ -26,7 +26,7 @@
         var datasHtml = ''
         for (var i = 0; i < content.length; ++i) {
             datasHtml += '<div id="machine-' + content[i].MachineName
-                + '" class="tabcontent"><pre class="preWrap">' + content[i].TailContent + '</pre></div>'
+                + '" class="tabcontent"><pre class="preWrap">' + content[i].TailContent.escapeHtml() + '</pre></div>'
         }
         $('#preContent .datas').html(datasHtml)
 

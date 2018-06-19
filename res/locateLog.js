@@ -2,7 +2,7 @@
     $.replaceLocateContents = function (content) {
         var tablLink = null
         for (var i = 0; i < content.length; ++i) {
-            var out = content[i].Stdout
+            var out = content[i].Stdout.escapeHtml()
             var machineName = content[i].MachineName;
             $('#machine-' + machineName + " .preWrap").html(out)
 

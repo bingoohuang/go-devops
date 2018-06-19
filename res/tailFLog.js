@@ -38,8 +38,8 @@
             if (content[i].TailContent == "") continue
 
             var machinePreWrap = $('#machine-' + content[i].MachineName + " .preWrap")
-            machinePreWrap.append(content[i].TailContent)
-            textLength  = machinePreWrap.text().length
+            machinePreWrap.append(content[i].TailContent.escapeHtml())
+            var textLength  = machinePreWrap.text().length
 
             if (ttlTailTimeout != null && textLength > maxSize) {
                 machinePreWrap.text(machinePreWrap.text().substring(textLength - maxSize))
