@@ -7,7 +7,7 @@ import (
 )
 
 func HandleHome(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	go_utils.HeadContentTypeHtml(w)
 
 	indexHtml := string(MustAsset("res/index.html"))
 

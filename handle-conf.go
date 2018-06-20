@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
+	"github.com/bingoohuang/go-utils"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -26,13 +27,13 @@ func HandleLoadConf(w http.ResponseWriter, r *http.Request) {
 		Conf: string(conf),
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 	json.NewEncoder(w).Encode(result)
 }
 
 func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
+	go_utils.HeadContentTypeJson(w)
 	config := r.FormValue("config")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	ioutil.WriteFile(*configFile, []byte(config), 0644)
 	meta, err := toml.Decode(config, &devopsConf)

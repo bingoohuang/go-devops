@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/bingoohuang/go-utils"
 	"net/http"
 	"net/rpc"
 	"time"
 )
 
 func HandleMachines(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 
 	size := len(devopsConf.Machines)
 	resultChan := make(chan MachineCommandResult, size)

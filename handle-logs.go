@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bingoohuang/go-utils"
 	"github.com/gorilla/mux"
 	"net"
 	"net/http"
@@ -19,7 +20,7 @@ type LogShowResult struct {
 }
 
 func HandleLogs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 
 	resultChan := make(chan *LogShowResult, len(devopsConf.Logs))
 
@@ -83,7 +84,7 @@ func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogF
 }
 
 func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
 

@@ -2,12 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/bingoohuang/go-utils"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
 	logMachine := vars["logMachine"]

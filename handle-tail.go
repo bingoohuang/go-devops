@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/bingoohuang/go-utils"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 )
 
 func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
 	lines := vars["lines"]
@@ -38,7 +39,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	go_utils.HeadContentTypeJson(w)
 	vars := mux.Vars(r)
 	loggerName := vars["loggerName"]
 	traceMobile := vars["traceMobile"]
