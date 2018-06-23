@@ -46,9 +46,40 @@ type MachineCommandResult struct {
 	CostTime    string
 }
 
+type MachineCommandExecute struct {
+}
+
 type MachineCommand int
 
-func (t *MachineCommand) MachineInfo(args *MachineCommandArg, result *MachineCommandResult) error {
+func (t *MachineCommandResult) GetMachineName() string {
+	return t.MachineName
+}
+
+func (t *MachineCommandResult) SetMachineName(machineName string) {
+	t.MachineName = machineName
+}
+
+func (t *MachineCommandResult) GetError() string {
+	return t.Error
+}
+
+func (t *MachineCommandResult) SetError(err error) {
+	if err != nil {
+		t.Error += err.Error()
+	}
+}
+
+func (t *MachineCommandExecute) CreateResult(err error) RpcResult {
+	result := &MachineCommandResult{}
+	result.SetError(err)
+	return result
+}
+
+func (t *MachineCommandExecute) CommandName() string {
+	return "MachineCommand"
+}
+
+func (t *MachineCommand) Execute(args *MachineCommandArg, result *MachineCommandResult) error {
 	start := time.Now()
 
 	hardwareInfo := GetHardwareInfo()

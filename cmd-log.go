@@ -5,7 +5,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/mitchellh/go-homedir"
 	"github.com/valyala/fasttemplate"
-	"net/rpc"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -24,6 +23,34 @@ type LogFileArg struct {
 	LogSeq  int
 }
 
+func (t *LogFileInfoResult) GetMachineName() string {
+	return t.MachineName
+}
+
+func (t *LogFileInfoResult) SetMachineName(machineName string) {
+	t.MachineName = machineName
+}
+
+func (t *LogFileInfoResult) GetError() string {
+	return t.Error
+}
+
+func (t *LogFileInfoResult) SetError(err error) {
+	if err != nil {
+		t.Error += err.Error()
+	}
+}
+
+func (t *LogFileCommandExecute) CreateResult(err error) RpcResult {
+	result := &LogFileInfoResult{}
+	result.SetError(err)
+	return result
+}
+
+func (t *LogFileCommandExecute) CommandName() string {
+	return "LogFileCommand"
+}
+
 type LogFileInfoResult struct {
 	MachineName  string
 	Error        string
@@ -35,6 +62,8 @@ type LogFileInfoResult struct {
 	ProcessInfo  string
 }
 
+type LogFileCommandExecute struct {
+}
 type LogFileCommand int
 
 func (t *LogFileCommand) TailFLog(args *LogFileArg, result *LogFileInfoResult) error {
@@ -175,7 +204,7 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
 }
 
-func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan *LogFileInfoResult,
+func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
 	if wg != nil {
 		defer wg.Done()
@@ -185,7 +214,6 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 	if !found {
 		logMachineName, found = prefixFindLogMachineName(log, logMachineName)
 	}
-
 	if !found {
 		fmt.Println(logMachineName, "is unknown")
 		return
@@ -212,35 +240,16 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 		return
 	}
 
-	c := make(chan LogFileInfoResult, 1)
-
-	go func() {
-		err := DialAndCall(machineAddress, func(client *rpc.Client) error {
-			arg := &LogFileArg{
-				LogPath: log.Path,
-				Ps:      process.Ps,
-				Home:    process.Home,
-				Kill:    process.Kill,
-				Start:   process.Start,
-				Options: options,
-				LogSeq:  logSeq,
-			}
-			return client.Call("LogFileCommand."+funcName, arg, &reply)
-		})
-		if err != nil {
-			reply.Error = err.Error()
-		}
-
-		c <- reply
-	}()
-
-	select {
-	case result := <-c:
-		resultChan <- &result
-	case <-time.After(1 * time.Second):
-		reply.Error = "timeout"
-		resultChan <- &reply
+	arg := &LogFileArg{
+		LogPath: log.Path,
+		Ps:      process.Ps,
+		Home:    process.Home,
+		Kill:    process.Kill,
+		Start:   process.Start,
+		Options: options,
+		LogSeq:  logSeq,
 	}
+	RpcCallTimeout(machineName, machineAddress, funcName, arg, &LogFileCommandExecute{}, 1*time.Second, resultChan)
 }
 
 func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {

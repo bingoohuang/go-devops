@@ -15,7 +15,7 @@ func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan *LogFileInfoResult, 1)
+	resultChan := make(chan RpcResult, 1)
 	CallLogFileCommand(nil, logMachine, log, resultChan, "RestartProcess", true, "", 0)
 
 	result := <-resultChan

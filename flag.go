@@ -3,12 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	"github.com/bingoohuang/go-utils"
 	"github.com/shirou/gopsutil/host"
 	"os"
 	"strconv"
-	"time"
 )
 
 var (
@@ -27,41 +25,6 @@ var (
 	authParam go_utils.MustAuthParam
 )
 
-type DevopsConf struct {
-	Machines   map[string]Machine
-	Logs       map[string]Log
-	Processes  map[string]Process
-	Logrotates map[string]LogRotate
-}
-
-type LogRotate struct {
-	Name       string
-	Machines   []string
-	Files      []string
-	Crons      []string
-	Type       string
-	Parameters string
-}
-
-type Machine struct {
-	IP string
-}
-
-type Log struct {
-	Machines []string
-	Path     string
-	Process  string
-}
-
-type Process struct {
-	Home  string
-	Ps    string
-	Kill  string
-	Start string
-}
-
-var devopsConf DevopsConf
-
 func init() {
 	contextPath = flag.String("contextPath", "", "context path")
 	httpPortArg := flag.Int("httpPort", 6879, "Port to serve.")
@@ -69,8 +32,6 @@ func init() {
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
 	devMode = flag.Bool("devMode", false, "devMode(disable js/css minify)")
 	configFile = flag.String("config", "config.toml", "config file path")
-	directCmdsArg := flag.String("directCmds", "", "direct Cmds")
-	randomLogGenArg := flag.Bool("randomLogGen", false, "random log generator to aaa.log")
 	versionArg := flag.Bool("v", false, "print version")
 
 	go_utils.PrepareMustAuthFlag(&authParam)
@@ -78,19 +39,12 @@ func init() {
 	flag.Parse()
 
 	if *versionArg {
-		fmt.Println("Version 0.0.5")
-		os.Exit(0)
-	}
-
-	if *directCmdsArg != "" {
-		ExecuteCommands(*directCmdsArg, 3*time.Second)
+		fmt.Println("Version 0.1.0")
 		os.Exit(0)
 	}
 
 	httpPort = strconv.Itoa(*httpPortArg)
 	rpcPort = strconv.Itoa(*rpcPortArg)
-	randomLogGen = *randomLogGenArg
-
 	ostStat, _ := host.Info()
 	hostname = ostStat.Hostname
 
@@ -99,35 +53,4 @@ func init() {
 	}
 
 	loadConfig()
-}
-
-func loadConfig() {
-	meta, err := toml.DecodeFile(*configFile, &devopsConf)
-	if err != nil {
-		fmt.Println("DecodeFile error:", err)
-		return
-	}
-
-	parseConfig(&meta)
-}
-
-func parseConfig(meta *toml.MetaData) {
-	loadCrons()
-	parseMeta(meta)
-}
-
-func parseMeta(meta *toml.MetaData) {
-	machineNames = make([]string, 0)
-	loggers = make([]string, 0)
-	for _, key := range meta.Keys() {
-		if len(key) != 2 {
-			continue
-		}
-
-		if key[0] == "machines" {
-			machineNames = append(machineNames, key[1])
-		} else if key[0] == "logs" {
-			loggers = append(loggers, key[1])
-		}
-	}
 }

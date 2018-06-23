@@ -24,14 +24,6 @@
 #   go-tests = true
 #   unused-packages = true
 
-[[override]]
-  name = "github.com/tdewolff/minify"
-  branch = "master"
-
-[[override]]
-  name = "github.com/tdewolff/parse"
-  branch = "master"
-
 
 [[constraint]]
   name = "github.com/BurntSushi/toml"
@@ -43,7 +35,7 @@
 
 [[constraint]]
   name = "github.com/docker/go-units"
-  version = "0.3.2"
+  version = "0.3.3"
 
 [[constraint]]
   branch = "master"
@@ -51,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/gorilla/mux"
-  version = "1.6.1"
+  version = "1.6.2"
 
 [[constraint]]
   name = "github.com/metakeule/fmtdate"
@@ -67,24 +59,16 @@
 
 [[constraint]]
   name = "github.com/robfig/cron"
-  version = "1.0.0"
+  version = "1.1.0"
 
 [[constraint]]
-  #branch = "master"
   name = "github.com/shirou/gopsutil"
-  revision = "fc04d2dd9a512906a2604242b35275179e250eda"
-
+  version = "2.18.5"
 
 [[constraint]]
   branch = "master"
   name = "github.com/valyala/fasttemplate"
 
 [prune]
-  non-go = true
   go-tests = true
   unused-packages = true
-
-  [[prune.project]]
-    name = "github.com/shirou/gopsutil"
-    non-go = false
-    unused-packages = false

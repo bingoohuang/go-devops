@@ -3,8 +3,16 @@ package main
 import (
 	"fmt"
 	"github.com/robfig/cron"
-	"net/rpc"
 )
+
+type LogRotate struct {
+	Name       string
+	Machines   []string
+	Files      []string
+	Crons      []string
+	Type       string
+	Parameters string
+}
 
 var c *cron.Cron = nil
 
@@ -29,32 +37,20 @@ func addCron(logRotateName string, logRotate LogRotate) {
 	}
 }
 
-func dealLogCron(logRotate LogRotate) {
-	fmt.Println("run", logRotate)
+func dealLogCron(rotate LogRotate) {
+	fmt.Println("run", rotate)
 
-	for _, logMachineName := range logRotate.Machines {
-		_, nameAndAddress, err := parseMachineNameAndAddress(logMachineName)
+	for _, logMachineName := range rotate.Machines {
+		machineName, nameAndAddress, err := parseMachineNameAndAddress(logMachineName)
 		if err != "" {
 			fmt.Println("unknown machine", err)
 			continue
 		}
 
-		go executeCron(nameAndAddress, logRotate)
-	}
-}
-func executeCron(nameAndAddress string, rotate LogRotate) {
-	var reply CronCommandResult
-	err := DialAndCall(nameAndAddress, func(client *rpc.Client) error {
-		return client.Call("CronCommand.ExecuteCron", &CronCommandArg{
+		go RpcCall(machineName, nameAndAddress, &CronCommandArg{
 			Files:      rotate.Files,
 			Type:       rotate.Type,
 			Parameters: rotate.Parameters,
-		}, &reply)
-	})
-
-	if err != nil {
-		fmt.Println("executeCron error", err.Error())
+		}, &CronCommandExecute{})
 	}
-
-	fmt.Println("reply", reply)
 }

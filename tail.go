@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"github.com/bingoohuang/go-utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/patrickmn/go-cache"
 	"io"
@@ -18,11 +20,12 @@ var tailCache *cache.Cache
 var cacheMux sync.Mutex
 
 func OnEvicted(key string, val interface{}) {
-	logQueue := val.(*CycleQueue)
+	logQueue := val.(*go_utils.CycleQueue)
 
-	logQueue.stop <- true
-	logQueue.cmd.Process.Kill()
-	logQueue.cmd.Process.Wait()
+	attach := logQueue.Attach.(*CycleQueueAttach)
+	attach.Stop <- true
+	attach.Exec.Process.Kill()
+	attach.Exec.Process.Wait()
 }
 
 func init() {
@@ -32,14 +35,23 @@ func init() {
 	tailCache.OnEvicted(OnEvicted)
 }
 
+type CycleQueueAttach struct {
+	Stop chan bool
+	Exec *exec.Cmd
+}
+
 func tail(logFile string, seq int) ([]byte, int) {
 	cacheMux.Lock()
 	defer cacheMux.Unlock()
 
 	logQueue, found := tailCache.Get(logFile)
 	if !found {
-		logQueue = NewQueue(100)
-		go startTail(logFile, logQueue.(*CycleQueue))
+		cycleQueue := go_utils.NewCycleQueue(100)
+		cycleQueue.Attach = &CycleQueueAttach{
+			Stop: make(chan bool),
+		}
+		logQueue = cycleQueue
+		go startTail(logFile, cycleQueue)
 	}
 
 	// reset expiration
@@ -48,20 +60,29 @@ func tail(logFile string, seq int) ([]byte, int) {
 		return nil, 0
 	}
 
-	q := logQueue.(*CycleQueue)
-	return q.Get(seq)
+	q := logQueue.(*go_utils.CycleQueue)
+
+	nodes, index := q.FetchAll(seq)
+
+	var tailBytes bytes.Buffer
+	for _, node := range nodes {
+		tailBytes.Write(node.([]byte))
+	}
+
+	return tailBytes.Bytes(), index
 }
 
-func startTail(logFile string, logQueue *CycleQueue) {
+func startTail(logFile string, logQueue *go_utils.CycleQueue) {
 	fullPathLogFile, _ := homedir.Expand(logFile)
-	logQueue.cmd = exec.Command("tail", "-F", fullPathLogFile)
-	stdout, err := logQueue.cmd.StdoutPipe()
+	cmd := exec.Command("tail", "-F", fullPathLogFile)
+	logQueue.Attach.(*CycleQueueAttach).Exec = cmd
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	reader := bufio.NewReader(stdout)
-	if err := logQueue.cmd.Start(); err != nil {
+	if err := cmd.Start(); err != nil {
 		log.Fatal("Buffer Error:", err)
 	}
 
@@ -71,14 +92,14 @@ func startTail(logFile string, logQueue *CycleQueue) {
 Loop:
 	for {
 		select {
-		case <-logQueue.stop:
+		case <-logQueue.Attach.(*CycleQueueAttach).Stop:
 			break Loop
 		default:
 		}
 
 		length, err := reader.Read(tmp)
 		if err != nil && err != io.EOF {
-			logQueue.Add(&Node{[]byte(err.Error())})
+			logQueue.Add([]byte(err.Error()))
 			break
 		}
 
@@ -89,7 +110,7 @@ Loop:
 
 		b := make([]byte, length)
 		copy(b, tmp[0:length])
-		logQueue.Add(&Node{b})
+		logQueue.Add(b)
 	}
 	log.Println("Exit tail -F " + logFile)
 

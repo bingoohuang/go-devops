@@ -17,7 +17,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	lines := vars["lines"]
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan *LogFileInfoResult, len(log.Machines))
+	resultChan := make(chan RpcResult, len(log.Machines))
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
@@ -28,9 +28,9 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	wg.Wait()
 	close(resultChan)
 
-	resultsMap := make(map[string]*LogFileInfoResult)
+	resultsMap := make(map[string]RpcResult)
 	for commandResult := range resultChan {
-		resultsMap[commandResult.MachineName] = commandResult
+		resultsMap[commandResult.GetMachineName()] = commandResult
 	}
 
 	logs := createLogsResult(log, resultsMap)
@@ -56,7 +56,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	machinesNum := len(log.Machines)
 
 	newSeqMap := make(map[string]int)
-	resultChan := make(chan *LogFileInfoResult, machinesNum)
+	resultChan := make(chan RpcResult, machinesNum)
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
@@ -68,19 +68,20 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	wg.Wait()
 	close(resultChan)
 
-	resultsMap := make(map[string]*LogFileInfoResult)
+	resultsMap := make(map[string]RpcResult)
 
 	for commandResult := range resultChan {
-		resultsMap[commandResult.MachineName] = commandResult
-		if commandResult.Error == "" {
-			newSeqMap[commandResult.MachineName] = commandResult.TailNextSeq
+		machineName := commandResult.GetMachineName()
+		resultsMap[machineName] = commandResult
+		if commandResult.GetError() == "" {
+			newSeqMap[machineName] = commandResult.(*LogFileInfoResult).TailNextSeq
 		}
 	}
 
 	logs := createLogsResult(log, resultsMap)
 	json.NewEncoder(w).Encode(
 		struct {
-			Results   []*LogFileInfoResult
+			Results   []RpcResult
 			NewLogSeq string
 		}{
 			Results:   logs,

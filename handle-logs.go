@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/gorilla/mux"
-	"net"
 	"net/http"
-	"net/rpc"
 	"regexp"
 	"sync"
 	"time"
@@ -16,7 +14,7 @@ import (
 type LogShowResult struct {
 	Logger  string
 	LogPath string
-	Logs    []*LogFileInfoResult
+	Logs    []RpcResult
 }
 
 func HandleLogs(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +46,7 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
 	defer logsWg.Done()
 
-	resultChan := make(chan *LogFileInfoResult, len(log.Machines))
+	resultChan := make(chan RpcResult, len(log.Machines))
 
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
@@ -59,9 +57,9 @@ func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogSh
 	wg.Wait()
 	close(resultChan)
 
-	resultsMap := make(map[string]*LogFileInfoResult)
+	resultsMap := make(map[string]RpcResult)
 	for commandResult := range resultChan {
-		resultsMap[commandResult.MachineName] = commandResult
+		resultsMap[commandResult.GetMachineName()] = commandResult
 	}
 
 	results <- &LogShowResult{
@@ -71,8 +69,8 @@ func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogSh
 	}
 }
 
-func createLogsResult(log Log, resultsMap map[string]*LogFileInfoResult) []*LogFileInfoResult {
-	logs := make([]*LogFileInfoResult, 0)
+func createLogsResult(log Log, resultsMap map[string]RpcResult) []RpcResult {
+	logs := make([]RpcResult, 0)
 	for _, logMachineName := range log.Machines {
 		machineName := findMachineName(logMachineName)
 		result, ok := resultsMap[machineName]
@@ -105,58 +103,19 @@ func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 
 func executeCommand(log Log, command string, w http.ResponseWriter) {
 	logMachinesNum := len(log.Machines)
-	resultChan := make(chan CommandsResult, logMachinesNum)
+	resultChan := make(chan RpcResult, logMachinesNum)
 	for _, machine := range log.Machines {
-		go TimeoutCallShellCommand(machine, command, resultChan)
+		args := &CommandsArg{command, 3 * time.Minute}
+		go RpcCallTimeout(machine, "", "Execute", args, &ShellCommandExecute{}, 3*time.Minute, resultChan)
 	}
-	resultsMap := make(map[string]*CommandsResult)
+	resultsMap := make(map[string]RpcResult)
 	for i := 0; i < logMachinesNum; i++ {
 		result := <-resultChan
-		resultsMap[result.MachineName] = &result
+		resultsMap[result.GetMachineName()] = result
 	}
-	results := make([]*CommandsResult, 0)
+	results := make([]RpcResult, 0)
 	for _, machineName := range log.Machines {
 		results = append(results, resultsMap[machineName])
 	}
 	json.NewEncoder(w).Encode(results)
-}
-
-func TimeoutCallShellCommand(machineName, commands string, resultChan chan CommandsResult) {
-	machine := devopsConf.Machines[machineName]
-	c := make(chan CommandsResult, 1)
-	go func() { c <- DialAndCallShellCommand(machine, commands) }()
-	select {
-	case result := <-c:
-		result.MachineName = machineName
-		resultChan <- result
-	case <-time.After(3 * time.Minute):
-		resultChan <- CommandsResult{
-			Error:       "timeout",
-			MachineName: machineName,
-		}
-	}
-}
-
-func DialAndCallShellCommand(machine Machine, commands string) CommandsResult {
-	conn, err := net.DialTimeout("tcp", machine.IP+":"+rpcPort, 3*time.Second)
-	if err != nil {
-		return CommandsResult{Error: err.Error()}
-	}
-
-	client := rpc.NewClient(conn)
-	defer client.Close()
-
-	return CallShellCommand(client, commands)
-}
-
-func CallShellCommand(client *rpc.Client, commands string) CommandsResult {
-	args := &CommandsArg{commands, 3 * time.Minute}
-	var reply CommandsResult
-
-	err := client.Call("ShellCommand.Execute", args, &reply)
-	if err != nil {
-		return CommandsResult{Error: err.Error()}
-	}
-
-	return reply
 }

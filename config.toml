@@ -28,7 +28,6 @@
     start = "nohup ./go-devops -randomLogGen=true 2>&1 >> randomLogGen.out &"
 
 
-
 [logrotates]
     [logrotates.yoga-glass-catalina]
     machines = ["LOCAL"]
@@ -49,3 +48,31 @@
     crons  = ["@every 10s"]
     type = "DeleteOlds"
     parameters = "days=3,pattern=log.YYYY-MM-DD.log"
+
+[blackcatThreshold]
+    load5Threshold = 0.9
+    diskAvailThreshold = "20G"
+    diskAvailRatioThreshold = 0.1
+    memAvailThreshold = "200M"
+    memAvailRatioThreshold = 0.1
+    thresholdCron  = "@every 60s"
+    exLogsCron  = "@every 10s"
+    machines = ["LOCAL"]
+
+
+[blackcatExLogs]
+    [blackcatExLogs.et]
+    directRegex = true
+    normalRegex = "2017-11-19 23:54:53.026"
+    exceptionRegex = "\\.(\\S+)?Exception\\b"
+    ignores = [""]
+    logFileName = "a.log"
+    properties = ["tcode", "tenantCode\\[(\\d+)\\]"]
+    machines = ["LOCAL"]
+
+[blackcatProcesses]
+   [blackcatProcesses.et]
+   keywords=["et-server-0.0.1.jar"]
+   machines = ["LOCAL"]
+
+

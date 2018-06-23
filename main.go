@@ -1,6 +1,10 @@
 package main
 
 func main() {
+	startMain()
+}
+
+func startMain() {
 	if randomLogGen {
 		createRandomLog()
 		return

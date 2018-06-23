@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/bingoohuang/go-utils"
   packages = ["."]
-  revision = "f3b63d8bc5d4a082c0958002eedbd5609d3f664c"
+  revision = "469b3ef4eec06f099d621f938fcf1a3049881e74"
 
 [[projects]]
   name = "github.com/docker/go-units"
@@ -95,11 +95,13 @@
     "disk",
     "host",
     "internal/common",
+    "load",
     "mem",
     "net",
     "process"
   ]
-  revision = "fc04d2dd9a512906a2604242b35275179e250eda"
+  revision = "eeb1d38d69593f121e060d24d17f7b1f0936b203"
+  version = "v2.18.05"
 
 [[projects]]
   branch = "master"
@@ -125,7 +127,6 @@
   version = "v2.3.5"
 
 [[projects]]
-  branch = "master"
   name = "github.com/tdewolff/parse"
   packages = [
     ".",
@@ -136,6 +137,7 @@
     "strconv"
   ]
   revision = "d739d6fccb0971177e06352fea02d3552625efb1"
+  version = "v2.3.3"
 
 [[projects]]
   branch = "master"
@@ -156,11 +158,11 @@
     "unix",
     "windows"
   ]
-  revision = "bff228c7b664c5fce602223a05fb708fd8654986"
+  revision = "63fc586f45fe72d95d5240a5d5eb95e6503907d3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1e636a47bfc330d0a31657fcffb4dc3b79def624a468ae81beabd2a30056d743"
+  inputs-digest = "497bb1e3ef8bb3a9177a84fca54ea5a0fc26abeac218c6f043ee3d6f64295419"
   solver-name = "gps-cdcl"
   solver-version = 1

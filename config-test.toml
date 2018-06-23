@@ -1,0 +1,49 @@
+[machines]
+    # You can indent as you please. Tabs or spaces. TOML don't care.
+    [machines.LOCAL]
+    ip = "127.0.0.1"
+
+[logs]
+    [logs.DEMO]
+    machines = ["LOCAL"]
+    path = "a.log"
+    process = "go-devops"
+
+    #[logs.ET]
+    #machines = ["LOCAL"]
+    #path = "~/gitlab/et-server/target/et-server-0.0.1.log"
+    #process = "ET"
+
+[processes]
+    [processes.go-devops]
+    home = "/Users/bingoo/go/src/github.com/bingoohuang/go-devops"
+    ps = "ps aux|grep go-devops|grep -v grep"
+    kill = "${ps}|awk '{print $2}'|xargs kill -9"
+
+
+[blackcatThreshold]
+    load5Threshold = 0.9
+    diskAvailThreshold = "20G"
+    diskAvailRatioThreshold = 0.1
+    memAvailThreshold = "200M"
+    memAvailRatioThreshold = 0.1
+    thresholdCron  = "@every 60s"
+    exLogsCron  = "@every 10s"
+    machines = ["LOCAL"]
+
+[blackcatExLogs]
+    [blackcatExLogs.et]
+    directRegex = false
+    normalRegex = "2017-11-19 23:54:53.026"
+    exceptionRegex = "\\.(\\S+)?Exception\\b"
+    ignores = [""]
+    logFileName = "./a.log"
+    properties = ["tcode", "tenantCode\\[(\\d+)\\]"]
+    machines = ["LOCAL"]
+
+[blackcatProcesses]
+    [blackcatProcesses.et]
+    keywords=["go-devops"]
+    machines = ["LOCAL"]
+
+

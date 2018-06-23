@@ -19,14 +19,44 @@ type CronCommandArg struct {
 }
 
 type CronCommandResult struct {
-	Error      string
-	CostMillis string
+	MachineName string
+	Error       string
+	CostMillis  string
 }
 
-type CronCommand struct {
+type CronCommand int
+type CronCommandExecute struct {
 }
 
-func (t *CronCommand) ExecuteCron(arg *CronCommandArg, result *CronCommandResult) error {
+func (t *CronCommandResult) GetMachineName() string {
+	return t.MachineName
+}
+
+func (t *CronCommandResult) SetMachineName(machineName string) {
+	t.MachineName = machineName
+}
+
+func (t *CronCommandResult) GetError() string {
+	return t.Error
+}
+
+func (t *CronCommandResult) SetError(err error) {
+	if err != nil {
+		t.Error += err.Error()
+	}
+}
+
+func (t *CronCommandExecute) CreateResult(err error) RpcResult {
+	result := &CronCommandResult{}
+	result.SetError(err)
+	return result
+}
+
+func (t *CronCommandExecute) CommandName() string {
+	return "CronCommand"
+}
+
+func (t *CronCommand) Execute(arg *CronCommandArg, result *CronCommandResult) error {
 	fmt.Println("ExecuteCron with arg ", *arg)
 
 	start := time.Now()

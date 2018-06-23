@@ -20,7 +20,38 @@ type CommandsResult struct {
 	CostMillis     string
 }
 
+func (t *CommandsResult) GetMachineName() string {
+	return t.MachineName
+}
+
+func (t *CommandsResult) SetMachineName(machineName string) {
+	t.MachineName = machineName
+}
+
+func (t *CommandsResult) GetError() string {
+	return t.Error
+}
+
+func (t *CommandsResult) SetError(err error) {
+	if err != nil {
+		t.Error += err.Error()
+	}
+}
+
+func (t *ShellCommandExecute) CreateResult(err error) RpcResult {
+	result := &CommandsResult{}
+	result.SetError(err)
+	return result
+}
+
+func (t *ShellCommandExecute) CommandName() string {
+	return "ShellCommand"
+}
+
 type ShellCommand int
+
+type ShellCommandExecute struct {
+}
 
 func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error {
 	start := time.Now()
@@ -126,26 +157,3 @@ func goReadOut(closer io.ReadCloser) <-chan string {
 
 	return ch
 }
-
-/*
-https://superuser.com/questions/171858/how-do-i-interpret-the-results-of-the-ls-l-command
-
-      +-permissions that apply to the owner
-      |
-      |     +-permissions that apply to all other users
-      |     |
-      |     |  +-number of hard links
-      |     |  |
-      |     |  |             +-size      +-last modification date and time
-     _|_   _|_ |            _|__ ________|_______
-    drwxr-xr-x 2 ataka root 4096 2008-11-04 16:58 ataka
-        ___      _____ ____                       _____
-         |         |    |                           |
-         |         |    |                           +-name of file or directory
-         |         |    |
-         |         |    +-the group that the group permissions applies to
-         |         |
-         |         +-owner
-         |
-         +-permissions that apply to users who are members of the group
-*/

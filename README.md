@@ -159,5 +159,14 @@ BEGIN {
 END {
 }
 
-
 ``` 
+
+
+##  Show top five CPU consuming processes with `ps`
+```bash
+# n for numeric sorting, r for reverse order and k 2,2 for the second column.
+ps aux | sort -nrk 3,3 | head -n 5
+
+# If you want something that's truly 'top'esq with constant updates, use watch
+watch "ps aux | sort -nrk 3,3 | head -n 5"
+```
