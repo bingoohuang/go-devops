@@ -32,7 +32,7 @@ func RpcCallTimeout(machineName, addr, funcName string, arg interface{}, callabl
 
 	c := make(chan RpcResult, 1)
 	go func() {
-		conn, err := net.DialTimeout("tcp", addr, 3*time.Second)
+		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
 		if err != nil {
 			c <- callable.CreateResult(err)
 			return

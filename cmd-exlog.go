@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"sync"
 )
 
 type ExLogCommandArg struct {
@@ -54,12 +55,12 @@ type ExLogTailerRuntime struct {
 	Stop      chan bool
 }
 
-var exLogChanMap = make(map[string]*ExLogTailerRuntime)
+var exLogChanMap sync.Map
 
 func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error {
 	fmt.Println("Execute ExLogCommand:", a)
 	for k, v := range a.LogFiles {
-		m, ok := exLogChanMap[k]
+		m, ok := exLogChanMap.Load(k)
 		if !ok {
 			err := StartNewTailer(k, &v)
 			fmt.Println("Start New Tailer")
@@ -68,32 +69,34 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 				return err
 			}
 		} else {
-			if !reflect.DeepEqual(m.Conf, &v) {
+			rt := m.(*ExLogTailerRuntime)
+			if !reflect.DeepEqual(rt.Conf, &v) {
 				fmt.Println("ReStart Tailer")
-				m.Stop <- true
+				rt.Stop <- true
 				StartNewTailer(k, &v)
 			} else {
-				fmt.Println("Resure old Tailer", m)
+				fmt.Println("Reuse old Tailer")
 			}
 		}
 	}
 
 	r.ExLogs = make([]ExLog, 0)
-	for k, v := range exLogChanMap {
+	exLogChanMap.Range(func(k, v interface{}) bool {
+		rt := v.(*ExLogTailerRuntime)
 		for {
 			select {
-			case x, ok := <-v.ExLogChan:
+			case x, ok := <-rt.ExLogChan:
 				if ok {
 					r.ExLogs = append(r.ExLogs, x)
 				} else {
-					delete(exLogChanMap, k)
-					return nil
+					exLogChanMap.Delete(k)
+					return true
 				}
 			default:
-				return nil
+				return true
 			}
 		}
-	}
+	})
 
 	return nil
 }
@@ -104,12 +107,16 @@ func StartNewTailer(k string, v *ExLogTailerConf) error {
 		ExLogChan: make(chan ExLog, 10),
 		Stop:      make(chan bool, 2),
 	}
-	exLogChanMap[k] = &rt
+
+	exLogChanMap.Store(k, &rt)
+
 	tailer, err := NewExLogTailer(rt.ExLogChan, rt.Conf)
 	if err != nil {
 		return err
 	}
 
-	go Tailf(v.LogFileName, tailer, rt.Stop)
+	go Tailf(v.LogFileName, tailer, rt.Stop, func() {
+		exLogChanMap.Delete(k)
+	})
 	return nil
 }

@@ -3,6 +3,9 @@
     [machines.LOCAL]
     ip = "127.0.0.1"
 
+    [machines.OTHER]
+    ip = "192.168.1.11"
+
 [logs]
     [logs.DEMO]
     machines = ["LOCAL"]
@@ -29,7 +32,7 @@
     memAvailRatioThreshold = 0.1
     thresholdCron  = "@every 60s"
     exLogsCron  = "@every 10s"
-    machines = ["LOCAL"]
+    machines = ["LOCAL", "OTHER"]
 
 [blackcatExLogs]
     [blackcatExLogs.et]

@@ -1,5 +1,7 @@
 package main
 
+import "github.com/pkg/errors"
+
 type AgentCommandArg struct {
 	Processes map[string][]string
 }
@@ -71,6 +73,8 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 		grep := PsAuxGrep(v...)
 		if len(grep) > 0 {
 			processes[k] = *grep[0]
+		} else {
+			r.SetError(errors.New("Process " + k + " not found!"))
 		}
 	}
 

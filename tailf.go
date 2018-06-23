@@ -12,7 +12,9 @@ type Tailer interface {
 	error(err error)
 }
 
-func Tailf(logFile string, tailer Tailer, stop chan bool) {
+func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
+	defer exitFunc()
+
 	expanded, _ := homedir.Expand(logFile)
 	cmd := exec.Command("bash", "-c", "tail -F "+expanded)
 	stdout, err := cmd.StdoutPipe()

@@ -92,7 +92,10 @@ func cronExLog(threshold BlackcatThreshold) {
 	})
 
 	for x := range exLogChan {
-		fmt.Println("===exLog:", x.(*ExLogCommandResult))
+		exLogResult := x.(*ExLogCommandResult)
+		if exLogResult.Error != "" || len(exLogResult.ExLogs) != 0 {
+			blackcatAlertExLog(exLogResult)
+		}
 	}
 }
 
@@ -129,6 +132,15 @@ func cronAgent(threshold BlackcatThreshold) {
 	}
 
 	for x := range resultChan {
-		fmt.Println("===agent:", x.(*AgentCommandResult))
+		agentResult := x.(*AgentCommandResult)
+		if agentResult.Error != "" || beyondThreadhold(agentResult, threshold) {
+			blackcatAlertAgent(agentResult)
+		}
 	}
+}
+
+func beyondThreadhold(result *AgentCommandResult, threshold BlackcatThreshold) bool {
+	return result.Load5 >= threshold.Load5Threshold ||
+		result.MemAvailable <= threshold.MemAvailThresholdSize ||
+		1-result.MemUsedPercent <= threshold.MemAvailRatioThreshold
 }
