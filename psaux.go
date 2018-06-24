@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -44,10 +45,12 @@ func PsAuxTop(n int) []*PsAuxItem {
 	return PsAux(`ps aux|sed '1d'|sort -nrk 3,3 | head -n ` + strconv.Itoa(n))
 }
 
+var BlankRegex = regexp.MustCompile(`\s+`)
+
 func PsAux(shellCmd string) []*PsAuxItem {
 	items := ExecuteBash(shellCmd, func(line string) interface{} {
 		// USER  PID  %CPU %MEM  VSZ RSS TT  STAT STARTED TIME COMMAND
-		f := strings.SplitN(line, " ", 11)
+		f := BlankRegex.Split(line, 11)
 		return &PsAuxItem{
 			User: f[0], Pid: f[1], Cpu: f[2], Mem: f[3], Vsz: f[4], Rss: f[5],
 			Tty: f[6], Stat: f[7], Start: f[8], Time: f[9], Command: f[10]}

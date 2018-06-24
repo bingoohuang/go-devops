@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <title>Go DevOps Agent Alter View</title>
+    <style>
+        .keySpan {
+            color: blue;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table td {
+            border: 1px solid #eeeeee;
+            white-space: nowrap;
+        }
+
+        table thead {
+            background-color: aliceblue;
+        }
+
+    </style>
+</head>
+<body>
+
+<div style="margin-top:20px;margin-left: 20px;">
+    <span style="color:red"><Error/></span>
+    <div id="summary">
+        <div><span class="keySpan">LogId:</span><LogId/></div>
+        <div><span class="keySpan">Hostname:</span><Hostname/></div>
+        <div><span class="keySpan">Load1:</span><Load1/></div>
+        <div><span class="keySpan">Load5:</span><Load5/></div>
+        <div><span class="keySpan">Load15:</span><Load15/></div>
+        <div><span class="keySpan">MemTotal:</span><MemTotal/></div>
+        <div><span class="keySpan">MemAvailable:</span><MemAvailable/></div>
+        <div><span class="keySpan">MemUsed:</span><MemUsed/></div>
+        <div><span class="keySpan">MemUsedPercent:</span><MemUsedPercent/></div>
+
+        <p/>
+        <div>Disk Usages:</div>
+        <div><DiskUsages/></div>
+
+        <p/>
+        <div>Tops 10:</div>
+        <div><Top/></div>
+    </div>
+
+</div>
+</body>
+
+</html>

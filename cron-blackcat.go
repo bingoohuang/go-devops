@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
 	"github.com/robfig/cron"
@@ -90,8 +89,6 @@ func cronExLog(threshold *BlackcatThreshold) {
 		}
 	}
 
-	fmt.Println("machineExLogConfs:", machineExLogConfs)
-
 	blackcatCron.AddFunc(threshold.ExLogsCron, func() {
 		for machineName, confs := range machineExLogConfs {
 			logFiles := make(map[string]ExLogTailerConf)
@@ -125,12 +122,8 @@ func createExLogTailerConf(logger string, conf BlackcatExLogConf) ExLogTailerCon
 	}
 }
 
-// 20000000000
-// 1786191872
-
 func cronAgent(threshold *BlackcatThreshold) {
 	resultChan := make(chan RpcResult)
-	fmt.Println("threshold:", threshold)
 	for _, machineName := range threshold.Machines {
 		processes := make(map[string][]string)
 
@@ -140,7 +133,6 @@ func cronAgent(threshold *BlackcatThreshold) {
 			}
 		}
 
-		fmt.Println("machineName:", machineName, "processes:", processes)
 		blackcatCron.AddFunc(threshold.ThresholdCron, func() {
 			go RpcCallTimeout(machineName, "", "Execute",
 				&AgentCommandArg{Processes: processes},
@@ -150,7 +142,6 @@ func cronAgent(threshold *BlackcatThreshold) {
 
 	for x := range resultChan {
 		agentResult := x.(*AgentCommandResult)
-		fmt.Println("BlackcatAgent:", agentResult)
 		if agentResult.Error != "" || beyondThreshold(agentResult, threshold) {
 			blackcatAlertAgent(agentResult)
 		}

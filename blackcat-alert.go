@@ -9,12 +9,10 @@ import (
 	"time"
 )
 
-func blackcatAlertExLog(exLogResult *ExLogCommandResult) {
-	for _, log := range exLogResult.ExLogs {
+func blackcatAlertExLog(result *ExLogCommandResult) {
+	for _, log := range result.ExLogs {
 		key := "ex" + NextID()
-		fmt.Println("===exLog Id:", key)
-		log.MachineName = exLogResult.GetMachineName()
-
+		log.MachineName = result.GetMachineName()
 		json, _ := json.Marshal(log)
 		WriteDb(exLogDb, key, json, 7*24*time.Hour)
 
@@ -25,20 +23,16 @@ func blackcatAlertExLog(exLogResult *ExLogCommandResult) {
 		SendAlertMsg("黑猫发现异常啦~", content)
 	}
 
-	if exLogResult.Error != "" {
+	if result.Error != "" {
 		key := "er" + NextID()
-		fmt.Println("===exLog Id:", key)
-
-		WriteDb(exLogDb, key, []byte(exLogResult.Error), 7*24*time.Hour)
-		content := "\nLogId: " + key + "\nEx: " + exLogResult.Error
+		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
+		content := "\nLogId: " + key + "\nEx: " + result.Error
 		SendAlertMsg("黑猫发现错误啦~", content)
 	}
 }
 
 func blackcatAlertAgent(result *AgentCommandResult) {
 	key := "ag" + NextID()
-	fmt.Println("===agent Id:", key)
-
 	json, _ := json.Marshal(result)
 	WriteDb(exLogDb, key, json, 7*24*time.Hour)
 

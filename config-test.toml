@@ -25,7 +25,7 @@
     load5Threshold = 1.5
     diskAvailThreshold = "20G"
     diskAvailRatioThreshold = 0.1
-    memAvailThreshold = "2GiB"
+    memAvailThreshold = "100MiB"
     memAvailRatioThreshold = 0.1
     thresholdCron  = "@every 60s"
     exLogsCron  = "@every 10s"
@@ -43,7 +43,7 @@
 
 [blackcatProcesses]
     [blackcatProcesses.et]
-    keywords=["et-server"]
+    keywords=["go-devops"]
     machines = ["LOCAL"]
 
 
