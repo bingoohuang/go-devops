@@ -18,6 +18,7 @@ type BlackcatThreshold struct {
 	MemAvailRatioThreshold  float64
 	ThresholdCron           string
 	ExLogsCron              string
+	PatrolCron              string
 	Machines                []string
 }
 
@@ -40,18 +41,7 @@ var blackcatCron *cron.Cron = nil
 
 func loadBlackcatCrons() {
 	threshold := &devopsConf.BlackcatThreshold
-	if threshold.DiskAvailThresholdSize == 0 {
-		threshold.DiskAvailThresholdSize, _ = humanize.ParseBytes(threshold.DiskAvailThreshold)
-	}
-	if threshold.DiskAvailThreshold == "" {
-		threshold.DiskAvailThreshold = humanize.IBytes(threshold.DiskAvailThresholdSize)
-	}
-	if threshold.MemAvailThresholdSize == 0 {
-		threshold.MemAvailThresholdSize, _ = humanize.ParseBytes(threshold.MemAvailThreshold)
-	}
-	if threshold.MemAvailThreshold == "" {
-		threshold.MemAvailThreshold = humanize.IBytes(threshold.MemAvailThresholdSize)
-	}
+	fixBlackcatConfig(threshold)
 
 	if blackcatCron != nil {
 		blackcatCron.Stop()
@@ -67,6 +57,24 @@ func loadBlackcatCrons() {
 	hourlyTip()
 
 	blackcatCron.Start()
+}
+
+func fixBlackcatConfig(threshold *BlackcatThreshold) {
+	if threshold.DiskAvailThresholdSize == 0 {
+		threshold.DiskAvailThresholdSize, _ = humanize.ParseBytes(threshold.DiskAvailThreshold)
+	}
+	if threshold.DiskAvailThreshold == "" {
+		threshold.DiskAvailThreshold = humanize.IBytes(threshold.DiskAvailThresholdSize)
+	}
+	if threshold.MemAvailThresholdSize == 0 {
+		threshold.MemAvailThresholdSize, _ = humanize.ParseBytes(threshold.MemAvailThreshold)
+	}
+	if threshold.MemAvailThreshold == "" {
+		threshold.MemAvailThreshold = humanize.IBytes(threshold.MemAvailThresholdSize)
+	}
+	if threshold.PatrolCron == "" {
+		threshold.PatrolCron = "@hourly"
+	}
 }
 
 func hourlyTip() {
@@ -149,7 +157,17 @@ func cronAgent(threshold *BlackcatThreshold) {
 }
 
 func beyondThreshold(result *AgentCommandResult, threshold *BlackcatThreshold) bool {
-	return result.Load5 >= threshold.Load5Threshold*float64(result.Cores) ||
-		result.MemAvailable <= threshold.MemAvailThresholdSize ||
-		1-result.MemUsedPercent/100. <= threshold.MemAvailRatioThreshold
+	return result.Load5 > threshold.Load5Threshold*float64(result.Cores) ||
+		result.MemAvailable < threshold.MemAvailThresholdSize || 1-result.MemUsedPercent/100 < threshold.MemAvailRatioThreshold ||
+		diskBeyondThreshold(result, threshold)
+}
+
+func diskBeyondThreshold(result *AgentCommandResult, threshold *BlackcatThreshold) bool {
+	for _, du := range result.DiskUsages {
+		if du.Free < threshold.DiskAvailThresholdSize || (1-du.UsedPercent/100) < threshold.DiskAvailRatioThreshold {
+			return true
+		}
+	}
+
+	return false
 }

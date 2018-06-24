@@ -170,3 +170,44 @@ ps aux | sort -nrk 3,3 | head -n 5
 # If you want something that's truly 'top'esq with constant updates, use watch
 watch "ps aux | sort -nrk 3,3 | head -n 5"
 ```
+
+## Cron Expression
+```
+0 0 8-20 * * ?
+
+```
+####[CRON Expression Format](https://godoc.org/github.com/robfig/cron)
+
+A cron expression represents a set of times, using 6 space-separated fields.
+
+Field name   | Mandatory? | Allowed values  | Allowed special characters
+----------   | ---------- | --------------  | --------------------------
+Seconds      | Yes        | 0-59            | * / , -
+Minutes      | Yes        | 0-59            | * / , -
+Hours        | Yes        | 0-23            | * / , -
+Day of month | Yes        | 1-31            | * / , - ?
+Month        | Yes        | 1-12 or JAN-DEC | * / , -
+Day of week  | Yes        | 0-6 or SUN-SAT  | * / , - ?
+
+####Predefined schedules 
+
+You may use one of several pre-defined schedules in place of a cron expression.
+
+Entry                  | Description                                | Equivalent To
+-----                  | -----------                                | -------------
+@yearly (or @annually) | Run once a year, midnight, Jan. 1st        | 0 0 0 1 1 *
+@monthly               | Run once a month, midnight, first of month | 0 0 0 1 * *
+@weekly                | Run once a week, midnight between Sat/Sun  | 0 0 0 * * 0
+@daily (or @midnight)  | Run once a day, midnight                   | 0 0 0 * * *
+@hourly                | Run once an hour, beginning of hour        | 0 0 * * * *
+
+####Intervals
+You may also schedule a job to execute at fixed intervals, starting at the time it's added or cron is run. This is supported by formatting the cron spec like this:
+
+`@every <duration>`
+
+where "duration" is a string accepted by [time.ParseDuration](http://golang.org/pkg/time/#ParseDuration).
+
+`A duration string is a possibly signed sequence of decimal numbers, each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`
+
+For example, "@every 1h30m10s" would indicate a schedule that activates after 1 hour, 30 minutes, 10 seconds, and then every interval after that.
