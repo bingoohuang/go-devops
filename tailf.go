@@ -2,14 +2,15 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"os/exec"
+	"time"
 )
 
 type Tailer interface {
-	line(line string)
-	error(err error)
+	Line(line string)
+	Loop()
+	Error(err error)
 }
 
 func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
@@ -19,53 +20,46 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 	cmd := exec.Command("bash", "-c", "tail -F "+expanded)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		tailer.error(err)
+		tailer.Error(err)
 		return
 	}
 
 	if err := cmd.Start(); err != nil {
-		tailer.error(err)
+		tailer.Error(err)
 		return
 	}
 	defer cmd.Wait()
 
+	reader := bufio.NewReader(stdout)
+	timeoutCh := make(chan bool)
 	go func() {
-		reader := bufio.NewReader(stdout)
 		for {
 			line, err := reader.ReadString('\n')
+			timeoutCh <- true
 			if err != nil {
-				tailer.error(err)
-				fmt.Println("read err", err.Error())
+				tailer.Error(err)
 				stop <- true
 				return
 			}
+			tailer.Line(line)
+		}
 
-			tailer.line(line)
+		close(timeoutCh)
+	}()
+
+	go func() {
+		for {
+			select {
+			case _, ok := <-timeoutCh:
+				if !ok {
+					return
+				}
+			case <-time.After(1 * time.Second):
+				tailer.Loop()
+			}
 		}
 	}()
 
 	<-stop
 	stdout.Close()
-
-	fmt.Println("Tailf stopped", expanded)
 }
-
-/*
-type LogTailer struct {
-}
-
-func (t *LogTailer) line(line string) {
-	fmt.Print(line)
-}
-func (t *LogTailer) error(err error) {
-	fmt.Println(err)
-}
-
-func main() {
-	stop := make(chan bool)
-	go Tailf("./a.log", &LogTailer{}, stop)
-	time.Sleep(10 * time.Second)
-	stop <- true
-}
-
-*/

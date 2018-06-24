@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"regexp"
 	"strings"
@@ -57,7 +56,6 @@ func NewExLogTailer(exLogChan chan<- ExLog, conf *ExLogTailerConf) (*ExLogTailer
 				expr += `\` + string(char)
 			}
 		}
-		fmt.Println("normal regex:", expr)
 		normal, err = regexp.Compile(expr)
 	}
 	if err != nil {
@@ -107,18 +105,24 @@ func NewExLogTailer(exLogChan chan<- ExLog, conf *ExLogTailerConf) (*ExLogTailer
 	}, nil
 }
 
-func (t *ExLogTailer) line(line string) {
+func (t *ExLogTailer) Loop() {
+	if !t.Previous.Empty() && len(t.Following) > 0 {
+		t.evictEx()
+		t.resetTailer()
+	}
+}
+func (t *ExLogTailer) Line(line string) {
 	if t.Normal.MatchString(line) {
-		if !t.Previous.Empty() && len(t.Following) > 0 {
-			t.evictEx()
-			t.resetTailer()
-		}
-
+		t.Loop()
 		t.Previous.Append(line)
-	} else {
-		if !t.Previous.Empty() {
-			t.Following = append(t.Following, line)
-		}
+	} else if !t.Previous.Empty() {
+		t.Following = append(t.Following, line)
+	}
+}
+
+func (t *ExLogTailer) Error(err error) {
+	t.ExLogChan <- ExLog{
+		Err: err.Error(),
 	}
 }
 
@@ -195,41 +199,3 @@ func (t *ExLogTailer) createContext(pop string) string {
 
 	return context
 }
-
-func (t *ExLogTailer) error(err error) {
-	t.ExLogChan <- ExLog{
-		Err: err.Error(),
-	}
-}
-
-/*
-func demo() {
-	exLogChan := make(chan ExLog)
-	tailer, err := NewExLogTailer(exLogChan,
-		false, "2017-11-19 23:54:53.026", `\.(\S+)?Exception\b`,
-		"", "testlogger", map[string]string{`tcode`: `tenantCode\[(\d+)\]`, `tid`: `tenantId\[(.*?)\]`})
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	stop := make(chan bool)
-	go Tailf("./a.log", tailer, stop)
-
-	tick := time.NewTicker(30 * time.Second)
-
-Loop:
-	for {
-		select {
-		case exLog := <-exLogChan:
-			fmt.Println("======", exLog)
-		case <-tick.C:
-			println("Timer expired")
-			stop <- true
-			break Loop
-		}
-	}
-
-	select {}
-}
-
-*/
