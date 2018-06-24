@@ -10,13 +10,14 @@ import (
 )
 
 var (
-	contextPath  *string
+	contextPath  string
 	httpPort     string
-	startHttp    *bool
+	startHttp    bool
 	rpcPort      string
-	devMode      *bool
-	configFile   *string
+	devMode      bool
+	configFile   string
 	randomLogGen bool
+	qywxToken    string
 	hostname     string
 
 	machineNames []string
@@ -26,13 +27,14 @@ var (
 )
 
 func init() {
-	contextPath = flag.String("contextPath", "", "context path")
+	flag.StringVar(&contextPath, "contextPath", "", "context path")
 	httpPortArg := flag.Int("httpPort", 6879, "Port to serve.")
-	startHttp = flag.Bool("startHttp", true, "Port to serve.")
+	flag.BoolVar(&startHttp, "startHttp", true, "Port to serve.")
 	rpcPortArg := flag.Int("rpcPort", 6979, "Port to serve.")
-	devMode = flag.Bool("devMode", false, "devMode(disable js/css minify)")
-	configFile = flag.String("config", "config.toml", "config file path")
+	flag.BoolVar(&devMode, "devMode", false, "devMode(disable js/css minify)")
+	flag.StringVar(&configFile, "config", "config.toml", "config file path")
 	versionArg := flag.Bool("v", false, "print version")
+	flag.StringVar(&qywxToken, "qywxToken", "", "CorpID/AgentId/Secret")
 
 	go_utils.PrepareMustAuthFlag(&authParam)
 
@@ -48,7 +50,7 @@ func init() {
 	ostStat, _ := host.Info()
 	hostname = ostStat.Hostname
 
-	if _, err := os.Stat(*configFile); os.IsNotExist(err) {
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		return
 	}
 

@@ -1,9 +1,22 @@
 package main
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/host"
+)
 
 type AgentCommandArg struct {
 	Processes map[string][]string
+}
+
+type DiskUsage struct {
+	Path        string
+	Fstype      string
+	Total       uint64
+	Free        uint64
+	Used        uint64
+	UsedPercent float64
 }
 
 type AgentCommandResult struct {
@@ -16,11 +29,33 @@ type AgentCommandResult struct {
 	MemUsed        uint64
 	MemUsedPercent float64
 
+	DiskUsages []DiskUsage
+
+	Cores    int32 // number of cores
+	Hostname string
+
 	Processes map[string]PsAuxItem
 	Top       []PsAuxItem
 
 	MachineName string
 	Error       string
+}
+
+var Cores int32 // number of cores
+var Hostname string
+
+func init() {
+	// cpu - get CPU number of cores and speed
+	cpuStats, _ := cpu.Info()
+	var cores int32 = 0
+	for _, cpuState := range cpuStats {
+		cores += cpuState.Cores
+	}
+
+	Cores = cores
+
+	hostStat, _ := host.Info()
+	Hostname = hostStat.Hostname
 }
 
 type AgentCommand int
@@ -67,6 +102,15 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 	r.MemAvailable = memory.Available
 	r.MemUsed = memory.Used
 	r.MemUsedPercent = memory.UsedPercent
+
+	r.Cores = Cores
+	r.Hostname = Hostname
+
+	disks := Disk()
+	r.DiskUsages = make([]DiskUsage, len(disks))
+	for i, d := range disks {
+		r.DiskUsages[i] = DiskUsage{d.Path, d.Fstype, d.Total, d.Free, d.Used, d.UsedPercent}
+	}
 
 	processes := make(map[string]PsAuxItem)
 	for k, v := range a.Processes {

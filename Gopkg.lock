@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/AndreasBriese/bbloom"
+  packages = ["."]
+  revision = "28f7e881ca57bc00e028f9ede9f0d9104cfeef5e"
+
+[[projects]]
   name = "github.com/BurntSushi/toml"
   packages = ["."]
   revision = "b26d9c308763d68093482582cea63d69be07a0f0"
@@ -17,7 +23,26 @@
   branch = "master"
   name = "github.com/bingoohuang/go-utils"
   packages = ["."]
-  revision = "469b3ef4eec06f099d621f938fcf1a3049881e74"
+  revision = "bad1c19211f84bb48e7eb1b40fce8e6fade3c010"
+
+[[projects]]
+  name = "github.com/dgraph-io/badger"
+  packages = [
+    ".",
+    "options",
+    "protos",
+    "skl",
+    "table",
+    "y"
+  ]
+  revision = "a6f0866f06a0ef6ac612e427ffe5d081db4e6fab"
+  version = "v1.5.2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/dgryski/go-farm"
+  packages = ["."]
+  revision = "2de33835d10275975374b37b2dcfd22c9020a1f5"
 
 [[projects]]
   name = "github.com/docker/go-units"
@@ -39,6 +64,12 @@
   ]
   revision = "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506"
   version = "v1.2.1"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -83,6 +114,12 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/robfig/cron"
   packages = ["."]
   revision = "b41be1df696709bb6395fe435af20370037c0b4c"
@@ -97,7 +134,6 @@
     "internal/common",
     "load",
     "mem",
-    "net",
     "process"
   ]
   revision = "eeb1d38d69593f121e060d24d17f7b1f0936b203"
@@ -105,15 +141,15 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/shirou/w32"
-  packages = ["."]
-  revision = "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
-
-[[projects]]
-  branch = "master"
   name = "github.com/skratchdot/open-golang"
   packages = ["open"]
   revision = "75fb7ed4208cf72d323d7d02fd1a5964a7a9073c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/sony/sonyflake"
+  packages = ["."]
+  revision = "fa881fb1052b152e977c41023052c2f2a1c475e9"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -153,6 +189,16 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = [
+    "context",
+    "internal/timeseries",
+    "trace"
+  ]
+  revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -163,6 +209,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "497bb1e3ef8bb3a9177a84fca54ea5a0fc26abeac218c6f043ee3d6f64295419"
+  inputs-digest = "83a7b6e09e6c01302bb1aeecf01d152283ca501b87d3d38d5fe8ee410e30b5cd"
   solver-name = "gps-cdcl"
   solver-version = 1

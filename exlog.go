@@ -14,6 +14,7 @@ type ExLog struct {
 	Normal         string
 	Context        string
 	Err            string
+	MachineName    string
 }
 
 type ExLogTailer struct {
@@ -132,12 +133,12 @@ func (t *ExLogTailer) resetTailer() {
 }
 
 func (t *ExLogTailer) evictEx() {
-	exceptionNames := t.createExceptionNames()
+	pop := t.Previous.Pop().(string)
+	exceptionNames := t.createExceptionNames(pop)
 	if t.isIgnored(exceptionNames) {
 		return
 	}
 
-	pop := t.Previous.Pop().(string)
 	normal := t.Normal.FindString(pop)
 	properties := t.createProperties(pop)
 	context := t.createContext(pop)
@@ -160,8 +161,12 @@ func (t *ExLogTailer) isIgnored(exceptionNames string) bool {
 	return false
 }
 
-func (t *ExLogTailer) createExceptionNames() string {
+func (t *ExLogTailer) createExceptionNames(pop string) string {
 	exceptionNames := ""
+	if t.Exception.MatchString(pop) {
+		exceptionNames += pop
+	}
+
 	for _, l := range t.Following {
 		if t.Exception.MatchString(l) {
 			exceptionNames += l

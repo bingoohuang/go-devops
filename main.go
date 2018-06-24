@@ -13,7 +13,7 @@ func startMain() {
 	err := StartDevOpServer()
 	FatalIfErr(err)
 
-	if *startHttp {
+	if startHttp {
 		go StartHttpSever()
 	}
 

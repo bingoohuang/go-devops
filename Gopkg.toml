@@ -34,6 +34,10 @@
   name = "github.com/bingoohuang/go-utils"
 
 [[constraint]]
+  name = "github.com/dgraph-io/badger"
+  version = "1.5.2"
+
+[[constraint]]
   name = "github.com/docker/go-units"
   version = "0.3.3"
 
@@ -58,12 +62,20 @@
   version = "2.1.0"
 
 [[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
   name = "github.com/robfig/cron"
   version = "1.1.0"
 
 [[constraint]]
   name = "github.com/shirou/gopsutil"
   version = "2.18.5"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/sony/sonyflake"
 
 [[constraint]]
   branch = "master"

@@ -3,9 +3,6 @@
     [machines.LOCAL]
     ip = "127.0.0.1"
 
-    [machines.OTHER]
-    ip = "192.168.1.11"
-
 [logs]
     [logs.DEMO]
     machines = ["LOCAL"]
@@ -25,14 +22,14 @@
 
 
 [blackcatThreshold]
-    load5Threshold = 0.9
+    load5Threshold = 1.5
     diskAvailThreshold = "20G"
     diskAvailRatioThreshold = 0.1
-    memAvailThreshold = "200M"
+    memAvailThreshold = "2GiB"
     memAvailRatioThreshold = 0.1
     thresholdCron  = "@every 60s"
     exLogsCron  = "@every 10s"
-    machines = ["LOCAL", "OTHER"]
+    machines = ["LOCAL"]
 
 [blackcatExLogs]
     [blackcatExLogs.et]
@@ -46,7 +43,7 @@
 
 [blackcatProcesses]
     [blackcatProcesses.et]
-    keywords=["go-devops"]
+    keywords=["et-server"]
     machines = ["LOCAL"]
 
 

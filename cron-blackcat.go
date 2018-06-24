@@ -40,12 +40,18 @@ type BlackcatExLogConf struct {
 var blackcatCron *cron.Cron = nil
 
 func loadBlackcatCrons() {
-	threshold := devopsConf.BlackcatThreshold
+	threshold := &devopsConf.BlackcatThreshold
 	if threshold.DiskAvailThresholdSize == 0 {
 		threshold.DiskAvailThresholdSize, _ = humanize.ParseBytes(threshold.DiskAvailThreshold)
 	}
+	if threshold.DiskAvailThreshold == "" {
+		threshold.DiskAvailThreshold = humanize.IBytes(threshold.DiskAvailThresholdSize)
+	}
 	if threshold.MemAvailThresholdSize == 0 {
 		threshold.MemAvailThresholdSize, _ = humanize.ParseBytes(threshold.MemAvailThreshold)
+	}
+	if threshold.MemAvailThreshold == "" {
+		threshold.MemAvailThreshold = humanize.IBytes(threshold.MemAvailThresholdSize)
 	}
 
 	if blackcatCron != nil {
@@ -59,10 +65,18 @@ func loadBlackcatCrons() {
 
 	go cronExLog(threshold)
 
+	hourlyTip()
+
 	blackcatCron.Start()
 }
 
-func cronExLog(threshold BlackcatThreshold) {
+func hourlyTip() {
+	blackcatCron.AddFunc("@hourly", func() {
+		SendAlertMsg("黑猫正在巡逻中~", "敬请及时关注信息~")
+	})
+}
+
+func cronExLog(threshold *BlackcatThreshold) {
 	exLogChan := make(chan RpcResult)
 	machineExLogConfs := make(map[string][]ExLogTailerConf)
 	for logger, exLogConf := range devopsConf.BlackcatExLogs {
@@ -111,7 +125,10 @@ func createExLogTailerConf(logger string, conf BlackcatExLogConf) ExLogTailerCon
 	}
 }
 
-func cronAgent(threshold BlackcatThreshold) {
+// 20000000000
+// 1786191872
+
+func cronAgent(threshold *BlackcatThreshold) {
 	resultChan := make(chan RpcResult)
 	fmt.Println("threshold:", threshold)
 	for _, machineName := range threshold.Machines {
@@ -133,14 +150,15 @@ func cronAgent(threshold BlackcatThreshold) {
 
 	for x := range resultChan {
 		agentResult := x.(*AgentCommandResult)
-		if agentResult.Error != "" || beyondThreadhold(agentResult, threshold) {
+		fmt.Println("BlackcatAgent:", agentResult)
+		if agentResult.Error != "" || beyondThreshold(agentResult, threshold) {
 			blackcatAlertAgent(agentResult)
 		}
 	}
 }
 
-func beyondThreadhold(result *AgentCommandResult, threshold BlackcatThreshold) bool {
-	return result.Load5 >= threshold.Load5Threshold ||
+func beyondThreshold(result *AgentCommandResult, threshold *BlackcatThreshold) bool {
+	return result.Load5 >= threshold.Load5Threshold*float64(result.Cores) ||
 		result.MemAvailable <= threshold.MemAvailThresholdSize ||
-		1-result.MemUsedPercent <= threshold.MemAvailRatioThreshold
+		1-result.MemUsedPercent/100. <= threshold.MemAvailRatioThreshold
 }

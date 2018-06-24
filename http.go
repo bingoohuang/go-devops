@@ -22,10 +22,11 @@ func StartHttpSever() {
 	handleFunc(r, "/logs", HandleLogs, false)
 	handleFunc(r, "/saveConfig", HandleSaveConf, false)
 	handleFunc(r, "/loadConfig", HandleLoadConf, false)
+	handleFunc(r, "/exlog/{exLogId}", HandleExLog, false)
 
 	handleFunc(r, "/", HandleHome, false)
 
-	http.Handle(*contextPath+"/", r)
+	http.Handle(contextPath+"/", r)
 
 	fmt.Println("start to listen at ", httpPort)
 	http.ListenAndServe(":"+httpPort, nil)
@@ -39,5 +40,5 @@ func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Re
 		wrap = go_utils.GzipHandlerFunc(wrap)
 	}
 
-	r.HandleFunc(*contextPath+path, wrap)
+	r.HandleFunc(contextPath+path, wrap)
 }

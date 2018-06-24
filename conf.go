@@ -35,7 +35,7 @@ type Process struct {
 var devopsConf DevopsConf
 
 func loadConfig() {
-	meta, err := toml.DecodeFile(*configFile, &devopsConf)
+	meta, err := toml.DecodeFile(configFile, &devopsConf)
 	if err != nil {
 		fmt.Println("DecodeFile error:", err)
 		return
