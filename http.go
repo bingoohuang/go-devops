@@ -23,6 +23,7 @@ func StartHttpSever() {
 	handleFunc(r, "/saveConfig", HandleSaveConf, false)
 	handleFunc(r, "/loadConfig", HandleLoadConf, false)
 	handleFunc(r, "/exlog/{exLogId}", HandleExLog, false)
+	handleFunc(r, "/machineInfo/{machineName}", HandleMachineInfo, false)
 
 	handleFunc(r, "/", HandleHome, false)
 

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"html"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -51,52 +52,66 @@ func agentView(log []byte, index string, exLogId string, err error) string {
 	exLog := &AgentCommandResult{}
 	if log != nil {
 		json.Unmarshal(log, exLog)
-		index = strings.Replace(index, `<LogId/>`, exLogId, -1)
-		index = strings.Replace(index, `<Hostname/>`, exLog.Hostname, -1)
-		index = strings.Replace(index, `<Load1/>`, fmt.Sprintf("%.2f", exLog.Load1), -1)
-		index = strings.Replace(index, `<Load5/>`, fmt.Sprintf("%.2f", exLog.Load5), -1)
-		index = strings.Replace(index, `<Load15/>`, fmt.Sprintf("%.2f", exLog.Load15), -1)
-		index = strings.Replace(index, `<MemTotal/>`, humanize.Bytes(exLog.MemTotal), -1)
-		index = strings.Replace(index, `<MemAvailable/>`, humanize.Bytes(exLog.MemAvailable), -1)
-		index = strings.Replace(index, `<MemUsed/>`, humanize.Bytes(exLog.MemUsed), -1)
-		index = strings.Replace(index, `<MemUsedPercent/>`, fmt.Sprintf("%.2f", exLog.MemUsedPercent), -1)
+		return buildAgentView(index, exLogId, exLog)
 
-		diskUsages := ""
-		for _, du := range exLog.DiskUsages {
-			if diskUsages == "" {
-				diskUsages = "<table><thead><tr><td>Path</td><td>Fstype</td><td>Total</td><td>Free</td><td>Used</td><td>UsedPercent</td></tr></thead><tbody>"
-			}
-
-			diskUsages += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.2f</td></tr>",
-				du.Path, du.Fstype, humanize.Bytes(du.Total), humanize.Bytes(du.Free), humanize.Bytes(du.Used), du.UsedPercent)
-		}
-
-		if diskUsages != "" {
-			diskUsages += "</tbody></table>"
-		}
-
-		index = strings.Replace(index, `<DiskUsages/>`, diskUsages, -1)
-
-		top := ""
-		for _, t := range exLog.Top {
-			if top == "" {
-				top = "<table><thead><tr><td>User</td><td>Pid</td><td>Cpu</td><td>Mem</td><td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>"
-			}
-
-			top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-				t.User, t.Pid, t.Cpu, t.Mem, t.Vsz, t.Rss, t.Tty, t.Stat, t.Start, t.Time, t.Command)
-		}
-
-		if top != "" {
-			top += "</tbody></table>"
-		}
-
-		return strings.Replace(index, `<Top/>`, top, -1)
 	} else if err != nil {
 		return strings.Replace(index, `<Error/>`, html.EscapeString(err.Error()), -1)
 	} else {
 		return strings.Replace(index, `<Error/>`, `LogId=`+exLogId+` Not Found!`, -1)
 	}
+}
+
+func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
+	index = strings.Replace(index, `<LogId/>`, exLogId, -1)
+	index = strings.Replace(index, `<Timestamp/>`, exLog.Timestamp, -1)
+	index = strings.Replace(index, `<Hostname/>`, exLog.Hostname, -1)
+	index = strings.Replace(index, `<Load1/>`, fmt.Sprintf("%.2f", exLog.Load1), -1)
+	index = strings.Replace(index, `<Load5/>`, fmt.Sprintf("%.2f", exLog.Load5), -1)
+	index = strings.Replace(index, `<Load15/>`, fmt.Sprintf("%.2f", exLog.Load15), -1)
+	index = strings.Replace(index, `<MemTotal/>`, humanize.IBytes(exLog.MemTotal), -1)
+	index = strings.Replace(index, `<MemAvailable/>`, humanize.IBytes(exLog.MemAvailable), -1)
+	index = strings.Replace(index, `<MemUsed/>`, humanize.IBytes(exLog.MemUsed), -1)
+	index = strings.Replace(index, `<MemUsedPercent/>`, fmt.Sprintf("%.2f", exLog.MemUsedPercent), -1)
+
+	diskUsages := ""
+	for _, du := range exLog.DiskUsages {
+		if diskUsages == "" {
+			diskUsages = "<table><thead><tr><td>Path</td><td>Fstype</td><td>Total</td><td>Free</td><td>Used</td><td>UsedPercent</td></tr></thead><tbody>"
+		}
+
+		diskUsages += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.2f</td></tr>",
+			du.Path, du.Fstype, humanize.IBytes(du.Total), humanize.IBytes(du.Free), humanize.IBytes(du.Used), du.UsedPercent)
+	}
+
+	if diskUsages != "" {
+		diskUsages += "</tbody></table>"
+	}
+
+	index = strings.Replace(index, `<DiskUsages/>`, diskUsages, -1)
+
+	top := ""
+	for _, t := range exLog.Top {
+		if top == "" {
+			top = "<table><thead><tr><td>User</td><td>Pid</td><td>%Cpu</td><td>%Mem</td><td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>"
+		}
+
+		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+			t.User, t.Pid, t.Cpu, humanizeIBytes(t.Mem), humanizeIBytes(t.Vsz), humanizeIBytes(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
+	}
+
+	if top != "" {
+		top += "</tbody></table>"
+	}
+
+	return strings.Replace(index, `<Top/>`, top, -1)
+}
+
+func humanizeIBytes(bytes string) string {
+	u, e := strconv.ParseUint(bytes, 10, 64)
+	if e != nil {
+		return bytes
+	}
+	return humanize.IBytes(u)
 }
 
 func exLogView(log []byte, index string, exLogId string, err error) string {

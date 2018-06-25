@@ -68,24 +68,24 @@ func ExLogClearAll() {
 	}
 }
 
-func fixBlackcatConfig(threshold *BlackcatThreshold) {
-	if threshold.DiskAvailThresholdSize == 0 {
-		threshold.DiskAvailThresholdSize, _ = humanize.ParseBytes(threshold.DiskAvailThreshold)
+func fixBlackcatConfig(t *BlackcatThreshold) {
+	if t.DiskAvailThresholdSize == 0 {
+		t.DiskAvailThresholdSize, _ = humanize.ParseBytes(t.DiskAvailThreshold)
 	}
-	if threshold.DiskAvailThreshold == "" {
-		threshold.DiskAvailThreshold = humanize.IBytes(threshold.DiskAvailThresholdSize)
+	if t.DiskAvailThreshold == "" {
+		t.DiskAvailThreshold = humanize.IBytes(t.DiskAvailThresholdSize)
 	}
-	if threshold.MemAvailThresholdSize == 0 {
-		threshold.MemAvailThresholdSize, _ = humanize.ParseBytes(threshold.MemAvailThreshold)
+	if t.MemAvailThresholdSize == 0 {
+		t.MemAvailThresholdSize, _ = humanize.ParseBytes(t.MemAvailThreshold)
 	}
-	if threshold.MemAvailThreshold == "" {
-		threshold.MemAvailThreshold = humanize.IBytes(threshold.MemAvailThresholdSize)
+	if t.MemAvailThreshold == "" {
+		t.MemAvailThreshold = humanize.IBytes(t.MemAvailThresholdSize)
 	}
-	if threshold.PatrolCron == "" {
-		threshold.PatrolCron = "@hourly"
+	if t.PatrolCron == "" {
+		t.PatrolCron = "@hourly"
 	}
-	if threshold.Topn == 0 {
-		threshold.Topn = 30
+	if t.Topn == 0 {
+		t.Topn = 30
 	}
 }
 
@@ -140,9 +140,9 @@ func createExLogTailerConf(logger string, conf BlackcatExLogConf) ExLogTailerCon
 	}
 }
 
-func cronAgent(threshold *BlackcatThreshold) {
+func cronAgent(t *BlackcatThreshold) {
 	resultChan := make(chan RpcResult)
-	for _, machineName := range threshold.Machines {
+	for _, machineName := range t.Machines {
 		processes := make(map[string][]string)
 
 		for processName, processConfig := range devopsConf.BlackcatProcesses {
@@ -151,30 +151,31 @@ func cronAgent(threshold *BlackcatThreshold) {
 			}
 		}
 
-		localMachineName := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
-		blackcatCron.AddFunc(threshold.ThresholdCron, func() {
-			go RpcExecuteTimeout(localMachineName, &AgentCommandArg{Processes: processes, Topn: threshold.Topn},
-				&AgentCommandExeucte{}, 3*time.Second, resultChan)
+		local := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
+		blackcatCron.AddFunc(t.ThresholdCron, func() {
+			go RpcExecuteTimeout(local, &AgentCommandArg{Processes: processes, Topn: t.Topn}, &AgentCommandExeucte{}, 3*time.Second, resultChan)
 		})
 	}
 
 	for x := range resultChan {
-		agentResult := x.(*AgentCommandResult)
-		if agentResult.Error != "" || beyondThreshold(agentResult, threshold) {
-			blackcatAlertAgent(agentResult)
+		r := x.(*AgentCommandResult)
+		machineInfoMap[r.MachineName] = r
+
+		if r.Error != "" || beyondThreshold(r, t) {
+			blackcatAlertAgent(r)
 		}
 	}
 }
 
-func beyondThreshold(result *AgentCommandResult, threshold *BlackcatThreshold) bool {
-	return result.Load5 > threshold.Load5Threshold*float64(result.Cores) ||
-		result.MemAvailable < threshold.MemAvailThresholdSize || 1-result.MemUsedPercent/100 < threshold.MemAvailRatioThreshold ||
-		diskBeyondThreshold(result, threshold)
+func beyondThreshold(r *AgentCommandResult, t *BlackcatThreshold) bool {
+	return r.Load5 > t.Load5Threshold*float64(r.Cores) ||
+		r.MemAvailable < t.MemAvailThresholdSize || 1-r.MemUsedPercent/100 < t.MemAvailRatioThreshold ||
+		diskBeyondThreshold(r, t)
 }
 
-func diskBeyondThreshold(result *AgentCommandResult, threshold *BlackcatThreshold) bool {
-	for _, du := range result.DiskUsages {
-		if du.Free < threshold.DiskAvailThresholdSize || (1-du.UsedPercent/100) < threshold.DiskAvailRatioThreshold {
+func diskBeyondThreshold(r *AgentCommandResult, t *BlackcatThreshold) bool {
+	for _, du := range r.DiskUsages {
+		if du.Free < t.DiskAvailThresholdSize || (1-du.UsedPercent/100) < t.DiskAvailRatioThreshold {
 			return true
 		}
 	}

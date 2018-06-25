@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/host"
+	"time"
 )
 
 type AgentCommandArg struct {
@@ -40,6 +41,7 @@ type AgentCommandResult struct {
 
 	MachineName string
 	Error       string
+	Timestamp   string
 }
 
 var Cores int32 // number of cores
@@ -129,6 +131,8 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 	for _, i := range top {
 		r.Top = append(r.Top, *i)
 	}
+
+	r.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
 	return nil
 }
