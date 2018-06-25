@@ -106,3 +106,7 @@ div.tabs button.active {
 #ConfigBtn span {
     font-size: 12px;
 }
+
+.CodeMirror {
+    height: auto;
+}

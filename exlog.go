@@ -137,9 +137,19 @@ func (t *ExLogTailer) resetTailer() {
 	t.Following = make([]string, 0)
 }
 
+// 弹出异常信息
 func (t *ExLogTailer) evictEx() {
 	pop := t.Previous.Pop().(string)
 	exceptionNames := t.createExceptionNames(pop)
+	if exceptionNames == "" { // 没有匹配到异常模式
+		return
+	}
+
+	// 忽略业务异常（约定）
+	if strings.Index(exceptionNames, "BizException") >= 0 {
+		return
+	}
+
 	if t.isIgnored(exceptionNames) {
 		return
 	}

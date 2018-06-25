@@ -147,8 +147,9 @@ func cronAgent(threshold *BlackcatThreshold) {
 			}
 		}
 
+		localMachineName := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
 		blackcatCron.AddFunc(threshold.ThresholdCron, func() {
-			go RpcExecuteTimeout(machineName, &AgentCommandArg{Processes: processes},
+			go RpcExecuteTimeout(localMachineName, &AgentCommandArg{Processes: processes},
 				&AgentCommandExeucte{}, 3*time.Second, resultChan)
 		})
 	}
