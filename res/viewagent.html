@@ -7,6 +7,8 @@
     <style>
         .keySpan {
             color: blue;
+            margin-right: 10px;
+            margin-left: 10px;
         }
 
         table {
@@ -30,23 +32,16 @@
 <div style="margin-top:20px;margin-left: 20px;">
     <span style="color:red"><Error/></span>
     <div id="summary">
-        <div><span class="keySpan">LogId:</span><LogId/></div>
-        <div><span class="keySpan">Timestamp:</span><Timestamp/></div>
-        <div><span class="keySpan">Hostname:</span><Hostname/></div>
-        <div><span class="keySpan">Load1:</span><Load1/></div>
-        <div><span class="keySpan">Load5:</span><Load5/></div>
-        <div><span class="keySpan">Load15:</span><Load15/></div>
-        <div><span class="keySpan">MemTotal:</span><MemTotal/></div>
-        <div><span class="keySpan">MemAvailable:</span><MemAvailable/></div>
-        <div><span class="keySpan">MemUsed:</span><MemUsed/></div>
-        <div><span class="keySpan">MemUsedPercent:</span><MemUsedPercent/></div>
+        <div><span class="keySpan">LogId:</span><LogId/><span class="keySpan">Timestamp:</span><Timestamp/><span class="keySpan">Hostname:</span><Hostname/></div>
+        <div><span class="keySpan">Load1:</span><Load1/><span class="keySpan">Load5:</span><Load5/><span class="keySpan">Load15:</span><Load15/></div>
+        <div><span class="keySpan">MemTotal:</span><MemTotal/><span class="keySpan">MemAvailable:</span><MemAvailable/><span class="keySpan">MemUsed:</span><MemUsed/><span class="keySpan">MemUsedPercent:</span><MemUsedPercent/></div>
 
         <p/>
         <div>Disk Usages:</div>
         <div><DiskUsages/></div>
 
         <p/>
-        <div>Tops 10:</div>
+        <div>Tops N:</div>
         <div><Top/></div>
     </div>
 

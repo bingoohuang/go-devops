@@ -126,9 +126,15 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 	}
 
 	r.Processes = processes
-	top := PsAuxTop(a.Topn)
+
+	var topn []*PsAuxItem
+	if a.Topn <= 0 {
+		topn = PsAuxAll()
+	} else {
+		topn = PsAuxTop(a.Topn)
+	}
 	r.Top = make([]PsAuxItem, 0)
-	for _, i := range top {
+	for _, i := range topn {
 		r.Top = append(r.Top, *i)
 	}
 

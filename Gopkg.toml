@@ -50,6 +50,10 @@
   version = "1.6.2"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/hako/durafmt"
+
+[[constraint]]
   name = "github.com/metakeule/fmtdate"
   version = "1.1.1"
 

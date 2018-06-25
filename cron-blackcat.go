@@ -159,7 +159,6 @@ func cronAgent(t *BlackcatThreshold) {
 
 	for x := range resultChan {
 		r := x.(*AgentCommandResult)
-		machineInfoMap[r.MachineName] = r
 
 		if r.Error != "" || beyondThreshold(r, t) {
 			blackcatAlertAgent(r)

@@ -85,6 +85,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/hako/durafmt"
+  packages = ["."]
+  revision = "7b7ae1e72eade09dbc9c2cfba3e6c4bae7b8bcac"
+
+[[projects]]
+  branch = "master"
   name = "github.com/lunny/log"
   packages = ["."]
   revision = "7887c61bf0de75586961948b286be6f7d05d9f58"
@@ -134,10 +140,17 @@
     "internal/common",
     "load",
     "mem",
+    "net",
     "process"
   ]
   revision = "eeb1d38d69593f121e060d24d17f7b1f0936b203"
   version = "v2.18.05"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shirou/w32"
+  packages = ["."]
+  revision = "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
 
 [[projects]]
   branch = "master"
@@ -209,6 +222,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "83a7b6e09e6c01302bb1aeecf01d152283ca501b87d3d38d5fe8ee410e30b5cd"
+  inputs-digest = "5fb0a5d19ff91fc725524a381527aadfcc0c40f78b7557cd08ca013f95158587"
   solver-name = "gps-cdcl"
   solver-version = 1

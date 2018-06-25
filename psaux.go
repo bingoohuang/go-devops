@@ -31,7 +31,9 @@ func PsAuxGrep(keywords ...string) []*PsAuxItem {
 	shellCmd := `ps aux|sed '1d'`
 
 	for _, keyword := range keywords {
-		shellCmd += `|grep ` + keyword
+		if keyword != "" {
+			shellCmd += `|grep ` + keyword
+		}
 	}
 
 	if len(keywords) > 0 {

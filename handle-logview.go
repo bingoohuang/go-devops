@@ -96,7 +96,7 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 		}
 
 		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-			t.User, t.Pid, t.Cpu, humanizeIBytes(t.Mem), humanizeIBytes(t.Vsz), humanizeIBytes(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
+			t.User, t.Pid, t.Cpu, t.Mem, humanizeIKib(t.Vsz), humanizeIKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
 	}
 
 	if top != "" {
@@ -106,12 +106,12 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 	return strings.Replace(index, `<Top/>`, top, -1)
 }
 
-func humanizeIBytes(bytes string) string {
+func humanizeIKib(bytes string) string {
 	u, e := strconv.ParseUint(bytes, 10, 64)
 	if e != nil {
-		return bytes
+		return bytes + "KiB"
 	}
-	return humanize.IBytes(u)
+	return humanize.IBytes(u * 1024)
 }
 
 func exLogView(log []byte, index string, exLogId string, err error) string {
