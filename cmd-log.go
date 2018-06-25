@@ -249,7 +249,7 @@ func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resu
 		Options: options,
 		LogSeq:  logSeq,
 	}
-	RpcCallTimeout(machineName, machineAddress, funcName, arg, &LogFileCommandExecute{}, 1*time.Second, resultChan)
+	RpcAddrCallTimeout(machineName, machineAddress, funcName, arg, &LogFileCommandExecute{}, 1*time.Second, resultChan)
 }
 
 func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {

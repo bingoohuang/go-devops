@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"reflect"
+		"reflect"
 	"sync"
 )
 
@@ -57,13 +56,27 @@ type ExLogTailerRuntime struct {
 
 var exLogChanMap sync.Map
 
+func (t *ExLogCommand) ClearAll(a *ExLogCommandArg, r *ExLogCommandResult) error {
+	//fmt.Println("ExLogCommand Clear")
+
+	exLogChanMap.Range(func(k, v interface{}) bool {
+		rt := v.(*ExLogTailerRuntime)
+		rt.Stop <- true
+		exLogChanMap.Delete(k)
+		return true
+	})
+
+	return nil
+}
+
 func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error {
-	fmt.Println("Execute ExLogCommand:", a)
+	//fmt.Println("ExLogCommand Execute:", a)
+
 	for k, v := range a.LogFiles {
 		m, ok := exLogChanMap.Load(k)
 		if !ok {
 			err := StartNewTailer(k, &v)
-			fmt.Println("Start New Tailer")
+			//fmt.Println("New Tailer")
 			if err != nil {
 				r.Error = err.Error()
 				return err
@@ -71,11 +84,11 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 		} else {
 			rt := m.(*ExLogTailerRuntime)
 			if !reflect.DeepEqual(rt.Conf, &v) {
-				fmt.Println("ReStart Tailer")
+				//fmt.Println("Restart Tailer")
 				rt.Stop <- true
 				StartNewTailer(k, &v)
 			} else {
-				fmt.Println("Reuse old Tailer")
+				//fmt.Println("Reuse Tailer")
 			}
 		}
 	}

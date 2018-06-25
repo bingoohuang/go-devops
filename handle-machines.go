@@ -12,8 +12,8 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 
 	size := len(devopsConf.Machines)
 	resultChan := make(chan RpcResult, size)
-	for machineName, _ := range devopsConf.Machines {
-		go RpcCallTimeout(machineName, "", "Execute", &MachineCommandArg{}, &MachineCommandExecute{}, 1*time.Second, resultChan)
+	for machineName := range devopsConf.Machines {
+		go RpcExecuteTimeout(machineName, &MachineCommandArg{}, &MachineCommandExecute{}, 1*time.Second, resultChan)
 	}
 
 	resultsMap := make(map[string]RpcResult)

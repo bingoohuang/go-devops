@@ -106,7 +106,7 @@ func executeCommand(log Log, command string, w http.ResponseWriter) {
 	resultChan := make(chan RpcResult, logMachinesNum)
 	for _, machine := range log.Machines {
 		args := &CommandsArg{command, 3 * time.Minute}
-		go RpcCallTimeout(machine, "", "Execute", args, &ShellCommandExecute{}, 3*time.Minute, resultChan)
+		go RpcExecuteTimeout(machine, args, &ShellCommandExecute{}, 3*time.Minute, resultChan)
 	}
 	resultsMap := make(map[string]RpcResult)
 	for i := 0; i < logMachinesNum; i++ {

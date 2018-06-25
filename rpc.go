@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/hako/durafmt"
 	"net"
 	"net/rpc"
 	"time"
@@ -19,17 +20,59 @@ type RpcCallable interface {
 	CommandName() string
 }
 
-func RpcCall(machineName, addr string, arg interface{}, callable RpcCallable) {
-	resultChan := make(chan RpcResult)
-	RpcCallTimeout(machineName, addr, "Execute", arg, callable, 3*time.Second, resultChan)
+func RpcExecute(machineName string, arg interface{}, callable RpcCallable) {
+	machine := devopsConf.Machines[machineName]
+	addr := machine.IP + ":" + rpcPort
+	RpcAddrExecute(machineName, addr, arg, callable)
 }
 
-func RpcCallTimeout(machineName, addr, funcName string, arg interface{}, callable RpcCallable, executionTimeout time.Duration, resultChan chan RpcResult) {
+func RpcAddrExecute(machineName, addr string, arg interface{}, callable RpcCallable) {
+	RpcAddrCall(machineName, addr, "Execute", arg, callable)
+}
+
+func RpcCall(machineName, funcName string, arg interface{}, callable RpcCallable) {
+	machine := devopsConf.Machines[machineName]
+	addr := machine.IP + ":" + rpcPort
+	RpcAddrCall(machineName, addr, funcName, arg, callable)
+}
+
+func RpcAddrCall(machineName, addr, funcName string, arg interface{}, callable RpcCallable) {
 	machine := devopsConf.Machines[machineName]
 	if addr == "" {
 		addr = machine.IP + ":" + rpcPort
 	}
 
+	go func() {
+		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
+		if err != nil {
+			return
+		}
+
+		client := rpc.NewClient(conn)
+		defer client.Close()
+
+		reply := callable.CreateResult(nil)
+		client.Call(callable.CommandName()+"."+funcName, arg, reply)
+	}()
+}
+
+func RpcExecuteTimeout(machineName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
+	machine := devopsConf.Machines[machineName]
+	addr := machine.IP + ":" + rpcPort
+	RpcAddrExecuteTimeout(machineName, addr, arg, callable, timeout, resultChan)
+}
+
+func RpcAddrExecuteTimeout(machineName, addr string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
+	RpcAddrCallTimeout(machineName, addr, "Execute", arg, callable, timeout, resultChan)
+}
+
+func RpcCallTimeout(machineName, funcName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
+	machine := devopsConf.Machines[machineName]
+	addr := machine.IP + ":" + rpcPort
+	RpcAddrCallTimeout(machineName, addr, funcName, arg, callable, timeout, resultChan)
+}
+
+func RpcAddrCallTimeout(machineName, addr, funcName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
 	c := make(chan RpcResult)
 	go func() {
 		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
@@ -54,8 +97,9 @@ func RpcCallTimeout(machineName, addr, funcName string, arg interface{}, callabl
 	case result := <-c:
 		result.SetMachineName(machineName)
 		resultChan <- result
-	case <-time.After(executionTimeout):
-		result := callable.CreateResult(errors.New("timeout in 3 seconds"))
+	case <-time.After(timeout):
+		fmt := durafmt.ParseShort(timeout)
+		result := callable.CreateResult(errors.New("timeout in " + fmt.String() + " to call " + callable.CommandName() + "." + funcName + "@" + addr))
 		result.SetMachineName(machineName)
 		resultChan <- result
 	}

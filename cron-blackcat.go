@@ -40,6 +40,8 @@ type BlackcatExLogConf struct {
 var blackcatCron *cron.Cron = nil
 
 func loadBlackcatCrons() {
+	ExLogClearAll()
+
 	threshold := &devopsConf.BlackcatThreshold
 	fixBlackcatConfig(threshold)
 
@@ -57,6 +59,12 @@ func loadBlackcatCrons() {
 	hourlyTip()
 
 	blackcatCron.Start()
+}
+
+func ExLogClearAll() {
+	for k := range devopsConf.Machines {
+		go RpcCall(k, "ClearAll", &ExLogCommandArg{}, &ExLogCommandExecute{})
+	}
 }
 
 func fixBlackcatConfig(threshold *BlackcatThreshold) {
@@ -104,9 +112,7 @@ func cronExLog(threshold *BlackcatThreshold) {
 				logFiles[conf.Logger] = conf
 			}
 
-			go RpcCallTimeout(machineName, "", "Execute",
-				&ExLogCommandArg{LogFiles: logFiles},
-				&ExLogCommandExecute{}, 3*time.Second, exLogChan)
+			go RpcExecuteTimeout(machineName, &ExLogCommandArg{LogFiles: logFiles}, &ExLogCommandExecute{}, 3*time.Second, exLogChan)
 		}
 	})
 
@@ -142,8 +148,7 @@ func cronAgent(threshold *BlackcatThreshold) {
 		}
 
 		blackcatCron.AddFunc(threshold.ThresholdCron, func() {
-			go RpcCallTimeout(machineName, "", "Execute",
-				&AgentCommandArg{Processes: processes},
+			go RpcExecuteTimeout(machineName, &AgentCommandArg{Processes: processes},
 				&AgentCommandExeucte{}, 3*time.Second, resultChan)
 		})
 	}

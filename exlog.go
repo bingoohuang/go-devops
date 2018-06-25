@@ -113,6 +113,11 @@ func (t *ExLogTailer) Loop() {
 	}
 }
 func (t *ExLogTailer) Line(line string) {
+	blank := strings.TrimSpace(line) == ""
+	if blank {
+		return
+	}
+
 	if t.Normal.MatchString(line) {
 		t.Loop()
 		t.Previous.Append(line)

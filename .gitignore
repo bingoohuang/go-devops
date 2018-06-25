@@ -27,3 +27,5 @@ go-devops.linux.bin
 a.log
 data
 exlogdb
+b.log
+go-devops.linux.upx
