@@ -8,6 +8,7 @@ import (
 
 type AgentCommandArg struct {
 	Processes map[string][]string
+	Topn      int
 }
 
 type DiskUsage struct {
@@ -123,7 +124,7 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 	}
 
 	r.Processes = processes
-	top := PsAuxTop(10)
+	top := PsAuxTop(a.Topn)
 	r.Top = make([]PsAuxItem, 0)
 	for _, i := range top {
 		r.Top = append(r.Top, *i)

@@ -31,6 +31,7 @@
     exLogsCron  = "@every 10s"
     patrolCron = "0 0 8-20 * * ?"
     machines = ["LOCAL"]
+    topn = 30
 
 [blackcatExLogs]
     [blackcatExLogs.et]

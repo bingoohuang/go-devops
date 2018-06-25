@@ -20,6 +20,7 @@ type BlackcatThreshold struct {
 	ExLogsCron              string
 	PatrolCron              string
 	Machines                []string
+	Topn                    int
 }
 
 type BlackcatProcessConf struct {
@@ -82,6 +83,9 @@ func fixBlackcatConfig(threshold *BlackcatThreshold) {
 	}
 	if threshold.PatrolCron == "" {
 		threshold.PatrolCron = "@hourly"
+	}
+	if threshold.Topn == 0 {
+		threshold.Topn = 30
 	}
 }
 
@@ -149,7 +153,7 @@ func cronAgent(threshold *BlackcatThreshold) {
 
 		localMachineName := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
 		blackcatCron.AddFunc(threshold.ThresholdCron, func() {
-			go RpcExecuteTimeout(localMachineName, &AgentCommandArg{Processes: processes},
+			go RpcExecuteTimeout(localMachineName, &AgentCommandArg{Processes: processes, Topn: threshold.Topn},
 				&AgentCommandExeucte{}, 3*time.Second, resultChan)
 		})
 	}
