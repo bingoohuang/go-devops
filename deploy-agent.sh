@@ -4,7 +4,7 @@ deployName=$1
 targetHost=$2
 targetPath=$3
 rpcPort=${4:-6979}
-startHttp=${5:-true}
+startHttp=${5:-false}
 scp ./$deployName.linux.bin $targetHost:.
 ssh -tt $targetHost "bash -s" << eeooff
 mkdir -p $targetPath/
