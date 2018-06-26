@@ -42,9 +42,15 @@ func blackcatAlertAgent(result *AgentCommandResult) {
 	}
 
 	content = append(content, "Host: "+result.Hostname)
-	content = append(content, "LogId: "+key)
 
 	threshold := &devopsConf.BlackcatThreshold
+
+	if threshold.ExLogViewUrlPrefix == "" {
+		content = append(content, `LogId: `+key)
+	} else {
+		content = append(content, `<a href="` + threshold.ExLogViewUrlPrefix + `/exlog/` + key + `">LogId</a>: `+key)
+	}
+
 	Load5Threshold := threshold.Load5Threshold * float64(result.Cores)
 	if result.Load5 > Load5Threshold {
 		content = append(content, "负载告警。Load5 "+fmt.Sprintf("%.2f", result.Load5)+"高于"+fmt.Sprintf("%.2f", Load5Threshold))

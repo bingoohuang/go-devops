@@ -21,6 +21,7 @@ type BlackcatThreshold struct {
 	PatrolCron              string
 	Machines                []string
 	Topn                    int
+	ExLogViewUrlPrefix      string
 }
 
 type BlackcatProcessConf struct {
