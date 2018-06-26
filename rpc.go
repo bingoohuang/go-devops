@@ -67,7 +67,8 @@ func RpcAddrExecuteTimeout(machineName, addr string, arg interface{}, callable R
 }
 
 func RpcCallTimeout(machineName, funcName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
-	addr := Machines[machineName].IP + ":" + rpcPort
+	machine := devopsConf.Machines[machineName]
+	addr := machine.IP + ":" + rpcPort
 	RpcAddrCallTimeout(machineName, addr, funcName, arg, callable, timeout, resultChan)
 }
 

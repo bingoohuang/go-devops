@@ -168,12 +168,20 @@ func cronAgent(t *BlackcatThreshold) {
 }
 
 func beyondThreshold(r *AgentCommandResult, t *BlackcatThreshold) bool {
+	if r.MemTotal == 0 { // not server response
+		return false
+	}
+
 	return r.Load5 > t.Load5Threshold*float64(r.Cores) ||
 		r.MemAvailable < t.MemAvailThresholdSize || 1-r.MemUsedPercent/100 < t.MemAvailRatioThreshold ||
 		diskBeyondThreshold(r, t)
 }
 
 func diskBeyondThreshold(r *AgentCommandResult, t *BlackcatThreshold) bool {
+	if r.MemTotal == 0 { // not server response
+		return false
+	}
+
 	for _, du := range r.DiskUsages {
 		if du.Free < t.DiskAvailThresholdSize || (1-du.UsedPercent/100) < t.DiskAvailRatioThreshold {
 			return true
