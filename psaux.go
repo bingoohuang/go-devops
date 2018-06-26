@@ -12,6 +12,7 @@ import (
 type PsAuxItem struct {
 	User    string
 	Pid     string
+	Ppid    string
 	Cpu     string
 	Mem     string
 	Vsz     string
@@ -27,8 +28,10 @@ func PsAuxAll() []*PsAuxItem {
 	return PsAuxGrep("")
 }
 
+var psaux = `ps axo user,pid,ppid,pcpu,pmem,vsz,rss,tname,stat,start,time,args`
+
 func PsAuxGrep(keywords ...string) []*PsAuxItem {
-	shellCmd := `ps aux|sed '1d'`
+	shellCmd := psaux + `|sed '1d'`
 
 	for _, keyword := range keywords {
 		if keyword != "" {
@@ -44,7 +47,7 @@ func PsAuxGrep(keywords ...string) []*PsAuxItem {
 }
 
 func PsAuxTop(n int) []*PsAuxItem {
-	return PsAux(`ps aux|sed '1d'|sort -nrk 3,3 | head -n ` + strconv.Itoa(n))
+	return PsAux(psaux + `|sed '1d'|sort -nrk 3,3 | head -n ` + strconv.Itoa(n))
 }
 
 var BlankRegex = regexp.MustCompile(`\s+`)
@@ -52,10 +55,10 @@ var BlankRegex = regexp.MustCompile(`\s+`)
 func PsAux(shellCmd string) []*PsAuxItem {
 	items := ExecuteBash(shellCmd, func(line string) interface{} {
 		// USER  PID  %CPU %MEM  VSZ RSS TT  STAT STARTED TIME COMMAND
-		f := BlankRegex.Split(line, 11)
+		f := BlankRegex.Split(line, 12)
 		return &PsAuxItem{
-			User: f[0], Pid: f[1], Cpu: f[2], Mem: f[3], Vsz: f[4], Rss: f[5],
-			Tty: f[6], Stat: f[7], Start: f[8], Time: f[9], Command: f[10]}
+			User: f[0], Pid: f[1], Ppid: f[2], Cpu: f[3], Mem: f[4], Vsz: f[5], Rss: f[6],
+			Tty: f[7], Stat: f[8], Start: f[9], Time: f[10], Command: f[11]}
 	})
 
 	var auxItems []*PsAuxItem

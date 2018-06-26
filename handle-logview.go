@@ -89,11 +89,11 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 	top := ""
 	for _, t := range exLog.Top {
 		if top == "" {
-			top = "<table><thead><tr><td>User</td><td>Pid</td><td>%Cpu</td><td>%Mem</td><td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>"
+			top = "<table><thead><tr><td>User</td><td>Pid</td><td>Ppid</td><td>%Cpu</td><td>%Mem</td><td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>"
 		}
 
-		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-			t.User, t.Pid, t.Cpu, t.Mem, HumanizedKib(t.Vsz), HumanizedKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
+		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+			t.User, t.Pid, t.Ppid, t.Cpu, t.Mem, HumanizedKib(t.Vsz), HumanizedKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
 	}
 
 	if top != "" {

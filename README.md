@@ -22,6 +22,15 @@ root     29505  0.0  0.0 38196 2728 ?        Ss   Mar07   0:00 sshd: can [priv]
 can      29529  0.0  0.0 38332 1904 ?        S    Mar07   0:00 sshd: can@notty  
 ```
 
+```
+ps aux|head -1 
+# Returns: USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+
+#ps aux with ppid
+ps axo user,pid,ppid,pcpu,pmem,vsz,rss,tname,stat,start,time,args|head -1 
+# Returns: USER       PID  PPID %CPU %MEM    VSZ   RSS TTY      STAT  STARTED     TIME COMMAND
+```
+
     USER = user owning the process
     PID = process ID of the process
     %CPU = It is the CPU time used divided by the time the process has been running.
