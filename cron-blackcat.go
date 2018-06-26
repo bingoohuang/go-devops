@@ -92,7 +92,7 @@ func fixBlackcatConfig(t *BlackcatThreshold) {
 
 func hourlyTip() {
 	blackcatCron.AddFunc("@hourly", func() {
-		SendAlertMsg("黑猫正在巡逻中~", "敬请及时关注信息~")
+		SendAlertMsg("驻"+hostname+"黑猫正在巡逻中~", "敬请及时关注信息~")
 	})
 }
 
