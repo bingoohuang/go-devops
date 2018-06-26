@@ -69,11 +69,12 @@ LOOP:
 			}
 			bufStderr.WriteString(s)
 		case <-quit:
-			cmd.Process.Kill()
 			fmt.Println("Process Killed")
+			break LOOP
 		}
 	}
 
+	cmd.Process.Kill()
 	cmd.Wait()
 	fmt.Println("Process Waited")
 	return bufStdout.String(), bufStderr.String()
