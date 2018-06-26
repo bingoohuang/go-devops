@@ -17,7 +17,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		WriteDb(exLogDb, key, json, 7*24*time.Hour)
 
 		content := "Host: " + log.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
-			"\nProperties: " + MapToString(log.Properties) + "\nLogId: " + key +
+			"\nProperties: " + MapToString(log.Properties) + "\n" + linkLogId(key) +
 			"\nEx: " + log.ExceptionNames
 
 		SendAlertMsg("黑猫发现异常啦~", content)
@@ -26,7 +26,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 	if result.Error != "" {
 		key := "er" + NextID()
 		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
-		content := "\nLogId: " + key + "\nEx: " + result.Error
+		content := "\n" + linkLogId(key) + "\nEx: " + result.Error
 		SendAlertMsg("黑猫发现错误啦~", content)
 	}
 }
@@ -45,11 +45,7 @@ func blackcatAlertAgent(result *AgentCommandResult) {
 
 	threshold := &devopsConf.BlackcatThreshold
 
-	if threshold.ExLogViewUrlPrefix == "" {
-		content = append(content, `LogId: `+key)
-	} else {
-		content = append(content, `<a href="`+threshold.ExLogViewUrlPrefix+`/exlog/`+key+`">LogId</a>: `+key)
-	}
+	content = append(content, linkLogId(key))
 
 	Load5Threshold := threshold.Load5Threshold * float64(result.Cores)
 	if result.Load5 > Load5Threshold {
@@ -75,6 +71,15 @@ func blackcatAlertAgent(result *AgentCommandResult) {
 	}
 
 	SendAlertMsg("黑猫发来警报啦~", strings.Join(content, "\n"))
+}
+
+func linkLogId(key string) string {
+	threshold := &devopsConf.BlackcatThreshold
+	if threshold.ExLogViewUrlPrefix == "" {
+		return `LogId: ` + key
+	} else {
+		return `<a href="` + threshold.ExLogViewUrlPrefix + `/exlog/` + key + `">LogId</a>: ` + key
+	}
 }
 
 var exLogDb = OpenDb("./exlogdb")
