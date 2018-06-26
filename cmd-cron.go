@@ -136,7 +136,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 }
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
-	ExecuteCommands("tail -c "+o.maxSizeStr+" "+file+" > "+file+".tmp; cat "+file+".tmp > "+file, 5*time.Minute)
+	RunShellTimeout("tail -c "+o.maxSizeStr+" "+file+" > "+file+".tmp; cat "+file+".tmp > "+file, 5*time.Minute)
 	fmt.Println("CopyTruncate ", file)
 }
 
@@ -154,7 +154,7 @@ func (o *DeleteCronExecutable) Execute(files []string) {
 		cmds += file + " "
 	}
 
-	ExecCommands(cmds)
+	RunShell(cmds)
 	fmt.Println("delete files by ", cmds)
 }
 

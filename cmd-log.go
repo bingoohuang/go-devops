@@ -7,7 +7,6 @@ import (
 	"github.com/valyala/fasttemplate"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -81,13 +80,13 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 
 	killTemplate := fasttemplate.New(args.Kill, "${", "}")
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
-	ExecuteCommands(killCommand, 500*time.Millisecond)
+	RunShellTimeout(killCommand, 500*time.Millisecond)
 
 	argsHome, _ := homedir.Expand(args.Home)
-	ExecuteCommands("cd "+argsHome+";"+args.Start, 500*time.Millisecond)
+	RunShellTimeout("cd "+argsHome+";"+args.Start, 500*time.Millisecond)
 
 	err := ""
-	result.ProcessInfo, err = ExecuteCommands(args.Ps, 500*time.Millisecond)
+	result.ProcessInfo, err = RunShellTimeout(args.Ps, 500*time.Millisecond)
 	if err != "" {
 		result.Error = err
 	}
@@ -102,7 +101,7 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		stdout, stderr := ExecuteCommands("tail "+args.Options+" "+logPath, 500*time.Millisecond)
+		stdout, stderr := RunShellTimeout("tail "+args.Options+" "+logPath, 500*time.Millisecond)
 		result.TailContent = stdout
 		if stderr != "" {
 			result.Error = stderr
@@ -125,7 +124,7 @@ func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoRe
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		ExecuteCommands("tail -100000 "+logPath+" > "+logPath+".tmp;"+
+		RunShellTimeout("tail -100000 "+logPath+" > "+logPath+".tmp;"+
 			"cat "+logPath+".tmp > "+logPath, 500*time.Millisecond)
 		info, _ := os.Stat(logPath)
 
@@ -147,7 +146,7 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	start := time.Now()
 
 	if args.Ps != "" {
-		result.ProcessInfo, _ = ExecuteCommands(args.Ps, 500*time.Millisecond)
+		result.ProcessInfo, _ = RunShellTimeout(args.Ps, 500*time.Millisecond)
 		humanizedPsOutput(result)
 	}
 
@@ -193,15 +192,10 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 		return
 	}
 
-	vszKib, _ := strconv.ParseUint(fields[4], 10, 64)
-	vsz := humanize.IBytes(1024 * vszKib) // virtual memory usage of entire process (in KiB)
-	vsz = strings.Replace(vsz, " ", "", 1)
-	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[4], vsz, 1)
+	fields[4] = HumanizedKib(fields[4]) // virtual memory usage of entire process (in KiB)
+	fields[5] = HumanizedKib(fields[5]) // resident set size, the non-swapped physical memory that a task has used (in KiB)
 
-	rssKib, _ := strconv.ParseUint(fields[5], 10, 64)
-	rss := humanize.IBytes(1024 * rssKib) // resident set size, the non-swapped physical memory that a task has used (in KiB)
-	rss = strings.Replace(rss, " ", "", 1)
-	result.ProcessInfo = strings.Replace(result.ProcessInfo, fields[5], rss, 1)
+	result.ProcessInfo = strings.Join(fields, " ")
 }
 
 func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,

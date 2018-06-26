@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/bingoohuang/go-utils"
@@ -9,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	"html"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -53,7 +51,6 @@ func agentView(log []byte, index string, exLogId string, err error) string {
 	if log != nil {
 		json.Unmarshal(log, exLog)
 		return buildAgentView(index, exLogId, exLog)
-
 	} else if err != nil {
 		return strings.Replace(index, `<Error/>`, html.EscapeString(err.Error()), -1)
 	} else {
@@ -96,7 +93,7 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 		}
 
 		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-			t.User, t.Pid, t.Cpu, t.Mem, humanizeIKib(t.Vsz), humanizeIKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
+			t.User, t.Pid, t.Cpu, t.Mem, HumanizedKib(t.Vsz), HumanizedKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
 	}
 
 	if top != "" {
@@ -104,14 +101,6 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 	}
 
 	return strings.Replace(index, `<Top/>`, top, -1)
-}
-
-func humanizeIKib(bytes string) string {
-	u, e := strconv.ParseUint(bytes, 10, 64)
-	if e != nil {
-		return bytes + "KiB"
-	}
-	return humanize.IBytes(u * 1024)
 }
 
 func exLogView(log []byte, index string, exLogId string, err error) string {
@@ -133,15 +122,9 @@ func replaceIndex(index, exLogId string, log *ExLog) string {
 	index = strings.Replace(index, `<LogId/>`, exLogId, -1)
 	index = strings.Replace(index, `<Hostname/>`, log.MachineName, -1)
 	index = strings.Replace(index, `<Logger/>`, log.Logger, -1)
-	index = strings.Replace(index, `<Properties/>`, CreateKeyValuePairs(log.Properties), -1)
+	index = strings.Replace(index, `<Properties/>`, MapToString(log.Properties), -1)
 	index = strings.Replace(index, `<ExceptionNames/>`, html.EscapeString(log.ExceptionNames), -1)
 	index = strings.Replace(index, `<Timestamp/>`, log.Normal, -1)
 	index = strings.Replace(index, `<ContextLogs/>`, html.EscapeString(log.Context), -1)
 	return index
-}
-
-func CreateKeyValuePairs(m map[string]string) string {
-	b := new(bytes.Buffer)
-	fmt.Fprintf(b, "%v", m)
-	return b.String()
 }
