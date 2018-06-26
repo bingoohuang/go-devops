@@ -15,6 +15,7 @@ type ExLog struct {
 	Context        string
 	Err            string
 	MachineName    string
+	Hostname       string
 }
 
 type ExLogTailer struct {
@@ -164,6 +165,7 @@ func (t *ExLogTailer) evictEx() {
 		Context:        context,
 		Normal:         normal,
 		Logger:         t.Logger,
+		Hostname:       Hostname,
 	}
 }
 func (t *ExLogTailer) isIgnored(exceptionNames string) bool {
