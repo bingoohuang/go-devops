@@ -3,6 +3,7 @@ package main
 import (
 	"reflect"
 	"sync"
+	"time"
 )
 
 type ExLogCommandArg struct {
@@ -13,6 +14,8 @@ type ExLogCommandResult struct {
 	ExLogs      []ExLog
 	MachineName string
 	Error       string
+	Hostname    string
+	Timestamp   string
 }
 
 type ExLogCommand int
@@ -110,6 +113,8 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 			}
 		}
 	})
+	r.Hostname = hostname
+	r.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
 	return nil
 }

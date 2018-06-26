@@ -16,7 +16,8 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		json, _ := json.Marshal(log)
 		WriteDb(exLogDb, key, json, 7*24*time.Hour)
 
-		content := "Host: " + log.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
+		content := "Host: " + result.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
+			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp +
 			"\nProperties: " + MapToString(log.Properties) + "\n" + linkLogId(key) +
 			"\nEx: " + log.ExceptionNames
 

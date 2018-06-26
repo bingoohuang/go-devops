@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/pkg/errors"
 	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/host"
 	"time"
 )
 
@@ -45,7 +44,6 @@ type AgentCommandResult struct {
 }
 
 var Cores int32 // number of cores
-var Hostname string
 
 func init() {
 	// cpu - get CPU number of cores and speed
@@ -56,9 +54,6 @@ func init() {
 	}
 
 	Cores = cores
-
-	hostStat, _ := host.Info()
-	Hostname = hostStat.Hostname
 }
 
 type AgentCommand int
@@ -107,7 +102,7 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 	r.MemUsedPercent = memory.UsedPercent
 
 	r.Cores = Cores
-	r.Hostname = Hostname
+	r.Hostname = hostname
 
 	disks := Disk()
 	r.DiskUsages = make([]DiskUsage, len(disks))
