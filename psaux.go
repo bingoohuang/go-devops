@@ -25,7 +25,7 @@ type PsAuxItem struct {
 }
 
 func PsAuxAll() []*PsAuxItem {
-	return PsAuxGrep("")
+	return PsAux(psaux + `|sed '1d'|sort -nrk 2,2`)
 }
 
 var psaux = `ps axo user,pid,ppid,pcpu,pmem,vsz,rss,tname,stat,start,time,args`
@@ -47,7 +47,7 @@ func PsAuxGrep(keywords ...string) []*PsAuxItem {
 }
 
 func PsAuxTop(n int) []*PsAuxItem {
-	return PsAux(psaux + `|sed '1d'|sort -nrk 3,3 | head -n ` + strconv.Itoa(n))
+	return PsAux(psaux + `|sed '1d'|sort -nrk 4,4|head -n ` + strconv.Itoa(n))
 }
 
 var BlankRegex = regexp.MustCompile(`\s+`)
