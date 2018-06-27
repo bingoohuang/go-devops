@@ -79,11 +79,12 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 			rt := m.(*ExLogTailerRuntime)
 			if !reflect.DeepEqual(rt.Conf, &v) {
 				rt.Stop <- true
+
 				exLogChanMap.Delete(k)
-				StartNewTailer(k, &v)
+				StartNewTailer(k, v)
 			}
 		} else {
-			err := StartNewTailer(k, &v)
+			err := StartNewTailer(k, v)
 			if err != nil {
 				r.Error = err.Error()
 				return err
@@ -113,9 +114,9 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 	return nil
 }
 
-func StartNewTailer(k string, v *ExLogTailerConf) error {
+func StartNewTailer(k string, v ExLogTailerConf) error {
 	rt := ExLogTailerRuntime{
-		Conf:      v,
+		Conf:      &v,
 		ExLogChan: make(chan ExLog, 10),
 		Stop:      make(chan bool, 2),
 	}

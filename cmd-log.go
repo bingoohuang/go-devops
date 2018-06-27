@@ -198,6 +198,11 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 	result.ProcessInfo = strings.Join(fields, " ")
 }
 
+func GoCallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
+	funcName string, processConfigRequired bool, options string, logSeq int) {
+	go CallLogFileCommand(wg, logMachineName, log, resultChan, funcName, processConfigRequired, options, logSeq)
+}
+
 func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
 	if wg != nil {

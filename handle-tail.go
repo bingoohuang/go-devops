@@ -21,7 +21,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
-		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
+		GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"TailLogFile", false, "-"+lines, 0)
 	}
 
@@ -62,7 +62,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 		wg.Add(1)
 		machineName, seq := findSeq(machineLogSeqMap, logMachineName)
 		newSeqMap[machineName] = seq
-		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
+		GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"TailFLog", false, "", seq)
 	}
 	wg.Wait()

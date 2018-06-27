@@ -26,8 +26,16 @@ func RpcExecute(machineName string, arg interface{}, callable RpcCallable) {
 	RpcAddrExecute(machineName, addr, arg, callable)
 }
 
+func GoRpcAddrExecute(machineName, addr string, arg interface{}, callable RpcCallable) {
+	go RpcAddrExecute(machineName, addr, arg, callable)
+}
+
 func RpcAddrExecute(machineName, addr string, arg interface{}, callable RpcCallable) {
 	RpcAddrCall(machineName, addr, "Execute", arg, callable)
+}
+
+func GoRpcCall(machineName, funcName string, arg interface{}, callable RpcCallable) {
+	go RpcCall(machineName, funcName, arg, callable)
 }
 
 func RpcCall(machineName, funcName string, arg interface{}, callable RpcCallable) {
@@ -56,10 +64,10 @@ func RpcAddrCall(machineName, addr, funcName string, arg interface{}, callable R
 	}()
 }
 
-func RpcExecuteTimeout(machineName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
+func GoRpcExecuteTimeout(machineName string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {
 	machine := devopsConf.Machines[machineName]
 	addr := machine.IP + ":" + rpcPort
-	RpcAddrExecuteTimeout(machineName, addr, arg, callable, timeout, resultChan)
+	go RpcAddrExecuteTimeout(machineName, addr, arg, callable, timeout, resultChan)
 }
 
 func RpcAddrExecuteTimeout(machineName, addr string, arg interface{}, callable RpcCallable, timeout time.Duration, resultChan chan RpcResult) {

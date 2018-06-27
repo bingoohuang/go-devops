@@ -65,7 +65,7 @@ func loadBlackcatCrons() {
 
 func ExLogClearAll() {
 	for k := range devopsConf.Machines {
-		go RpcCall(k, "ClearAll", &ExLogCommandArg{}, &ExLogCommandExecute{})
+		GoRpcCall(k, "ClearAll", &ExLogCommandArg{}, &ExLogCommandExecute{})
 	}
 }
 
@@ -117,7 +117,7 @@ func cronExLog(threshold *BlackcatThreshold) {
 				logFiles[conf.Logger] = conf
 			}
 
-			go RpcExecuteTimeout(machineName, &ExLogCommandArg{LogFiles: logFiles}, &ExLogCommandExecute{}, 3*time.Second, exLogChan)
+			GoRpcExecuteTimeout(machineName, &ExLogCommandArg{LogFiles: logFiles}, &ExLogCommandExecute{}, 3*time.Second, exLogChan)
 		}
 	})
 
@@ -154,7 +154,7 @@ func cronAgent(t *BlackcatThreshold) {
 
 		local := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
 		blackcatCron.AddFunc(t.ThresholdCron, func() {
-			go RpcExecuteTimeout(local, &AgentCommandArg{Processes: processes, Topn: t.Topn}, &AgentCommandExeucte{}, 3*time.Second, resultChan)
+			GoRpcExecuteTimeout(local, &AgentCommandArg{Processes: processes, Topn: t.Topn}, &AgentCommandExecute{}, 3*time.Second, resultChan)
 		})
 	}
 

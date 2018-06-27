@@ -18,7 +18,7 @@ func HandleMachineInfo(w http.ResponseWriter, r *http.Request) {
 	index := string(MustAsset("res/viewagent.html"))
 	if ok {
 		resultChan := make(chan RpcResult)
-		go RpcExecuteTimeout(machineName, &AgentCommandArg{Processes: make(map[string][]string), Topn: 0}, &AgentCommandExeucte{}, 3*time.Second, resultChan)
+		GoRpcExecuteTimeout(machineName, &AgentCommandArg{Processes: make(map[string][]string), Topn: 0}, &AgentCommandExecute{}, 3*time.Second, resultChan)
 		result := <-resultChan
 		r := result.(*AgentCommandResult)
 		index = buildAgentView(index, "", r)

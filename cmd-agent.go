@@ -58,7 +58,7 @@ func init() {
 
 type AgentCommand int
 
-type AgentCommandExeucte struct {
+type AgentCommandExecute struct {
 }
 
 func (t *AgentCommandResult) GetMachineName() string {
@@ -80,13 +80,13 @@ func (t *AgentCommandResult) SetError(err error) {
 	}
 }
 
-func (t *AgentCommandExeucte) CreateResult(err error) RpcResult {
+func (t *AgentCommandExecute) CreateResult(err error) RpcResult {
 	result := &AgentCommandResult{}
 	result.SetError(err)
 	return result
 }
 
-func (t *AgentCommandExeucte) CommandName() string {
+func (t *AgentCommandExecute) CommandName() string {
 	return "AgentCommand"
 }
 

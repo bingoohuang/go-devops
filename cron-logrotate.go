@@ -47,7 +47,7 @@ func dealLogCron(rotate LogRotate) {
 			continue
 		}
 
-		go RpcAddrExecute(machineName, nameAndAddress, &CronCommandArg{
+		GoRpcAddrExecute(machineName, nameAndAddress, &CronCommandArg{
 			Files:      rotate.Files,
 			Type:       rotate.Type,
 			Parameters: rotate.Parameters,

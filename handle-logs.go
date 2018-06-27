@@ -25,7 +25,7 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	for logger, log := range devopsConf.Logs {
 		wg.Add(1)
-		go showLog(&wg, logger, log, resultChan)
+		GoShowLog(&wg, logger, log, resultChan)
 	}
 	wg.Wait()
 	close(resultChan)
@@ -43,6 +43,10 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 }
 
+func GoShowLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
+	go showLog(logsWg, logger, log, results)
+}
+
 func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
 	defer logsWg.Done()
 
@@ -51,7 +55,7 @@ func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogSh
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
-		go CallLogFileCommand(&wg, logMachineName, log, resultChan,
+		GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
 			"LogFileInfo", false, "", 0)
 	}
 	wg.Wait()
@@ -106,7 +110,7 @@ func executeCommand(log Log, command string, w http.ResponseWriter) {
 	resultChan := make(chan RpcResult, logMachinesNum)
 	for _, machine := range log.Machines {
 		args := &CommandsArg{command, 3 * time.Minute}
-		go RpcExecuteTimeout(machine, args, &ShellCommandExecute{}, 3*time.Minute, resultChan)
+		GoRpcExecuteTimeout(machine, args, &ShellCommandExecute{}, 3*time.Minute, resultChan)
 	}
 	resultsMap := make(map[string]RpcResult)
 	for i := 0; i < logMachinesNum; i++ {
