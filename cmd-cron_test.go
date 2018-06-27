@@ -31,7 +31,7 @@ func TestCopyTruncate(t *testing.T) {
 		Type:       "CopyTruncate",
 		Parameters: "maxSize=50",
 	}
-	cronCommand.ExecuteCron(arg, &result)
+	cronCommand.Execute(arg, &result)
 	bytes, _ := ioutil.ReadFile(file1)
 
 	assertEquals(t, "1234567890123456789012345678901234567890123456789b", string(bytes), "")
@@ -49,7 +49,7 @@ func TestDelete(t *testing.T) {
 		Files: []string{"log-2018-02-07.log", "logs-xxxyyy"},
 		Type:  "Delete",
 	}
-	cronCommand.ExecuteCron(arg, &result)
+	cronCommand.Execute(arg, &result)
 
 	_, e := os.Stat("log-2018-02-07.log")
 	assertEquals(t, os.IsNotExist(e), true, "")
@@ -72,7 +72,7 @@ func TestDeleleOlds(t *testing.T) {
 		Type:       "DeleteOlds",
 		Parameters: "days=3,pattern=log-YYYY-MM-DD.log",
 	}
-	cronCommand.ExecuteCron(arg, &result)
+	cronCommand.Execute(arg, &result)
 
 	_, e := os.Stat(file1)
 	assertEquals(t, os.IsNotExist(e), false, "")

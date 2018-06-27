@@ -29,6 +29,38 @@ ps aux|head -1
 #ps aux with ppid
 ps axo user,pid,ppid,pcpu,pmem,vsz,rss,tname,stat,start,time,args|head -1 
 # Returns: USER       PID  PPID %CPU %MEM    VSZ   RSS TTY      STAT  STARTED     TIME COMMAND
+
+
+# Getting rid of the headers
+ps aux --no-heading
+
+# Sorting by pid desc
+ps aux --sort=-pid 
+
+# Show with parent/child process tree
+ps auxf
+Sample Output
+root      3279  0.0  0.3  4544 1056 ?        Ss   Feb01   0:00  /usr/sbin/sshd
+root      4029  0.0  0.6  8596 2004 ?        Ss   Feb01   0:00  \_ sshd: svcsuprt [priv]
+svcsuprt  4032  0.1  0.5  8972 1900 ?        S    Feb01   7:14  |   \_ sshd: svcsuprt@pts/0
+svcsuprt  4033  0.0  0.4  6504 1472 pts/0    Ss   Feb01   0:00  |       \_ -bash
+svcsuprt 29013  0.0  0.2  2488  768 pts/0    R+   12:04   0:00  |           \_ ps auxf
+
+
+# ps -aef --forest
+root     114032   1170  0 Apr05 ?        00:00:00  \_ sshd: root@pts/4
+root     114039 114032  0 Apr05 pts/4    00:00:00  |   \_ -bash
+root      56225 114039  0 13:47 pts/4    00:00:16  |       \_ top
+root     114034   1170  0 Apr05 ?        00:00:00  \_ sshd: root@notty
+root     114036 114034  0 Apr05 ?        00:00:00  |   \_ /usr/libexec/openssh/sftp-server
+root     103102   1170  0 Apr06 ?        00:00:03  \_ sshd: root@pts/0
+root     103155 103102  0 Apr06 pts/0    00:00:00  |   \_ -bash
+root     106798 103155  0 Apr06 pts/0    00:00:00  |       \_ su - postgres
+postgres 106799 106798  0 Apr06 pts/0    00:00:00  |           \_ -bash
+postgres  60959 106799  0 14:39 pts/0    00:00:00  |               \_ ps -aef --forest
+postgres  60960 106799  0 14:39 pts/0    00:00:00  |               \_ more
+
+
 ```
 
     USER = user owning the process
