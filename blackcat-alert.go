@@ -12,7 +12,7 @@ import (
 func blackcatAlertExLog(result *ExLogCommandResult) {
 	for _, log := range result.ExLogs {
 		key := "ex" + NextID()
-		log.MachineName = result.GetMachineName()
+		log.MachineName = result.Hostname
 		json, _ := json.Marshal(log)
 		WriteDb(exLogDb, key, json, 7*24*time.Hour)
 

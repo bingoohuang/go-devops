@@ -70,29 +70,34 @@ func (t *ExLogCommand) ClearAll(a *ExLogCommandArg, r *ExLogCommandResult) error
 }
 
 func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error {
+	r.Hostname = hostname
+	r.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+
 	for k, v := range a.LogFiles {
 		m, ok := exLogChanMap.Load(k)
-		if !ok {
-			err := StartNewTailer(k, &v)
-			if err != nil {
-				r.Error = err.Error()
-				return err
-			}
-		} else {
+		if ok {
 			rt := m.(*ExLogTailerRuntime)
 			if !reflect.DeepEqual(rt.Conf, &v) {
 				rt.Stop <- true
 				exLogChanMap.Delete(k)
 				StartNewTailer(k, &v)
 			}
+		} else {
+			err := StartNewTailer(k, &v)
+			if err != nil {
+				r.Error = err.Error()
+				return err
+			}
 		}
 	}
 
 	r.ExLogs = make([]ExLog, 0)
 	exLogChanMap.Range(func(k, v interface{}) bool {
+		exLogChan := v.(*ExLogTailerRuntime).ExLogChan
+
 		for {
 			select {
-			case x, ok := <-v.(*ExLogTailerRuntime).ExLogChan:
+			case x, ok := <-exLogChan:
 				if ok {
 					r.ExLogs = append(r.ExLogs, x)
 				} else {
@@ -104,9 +109,6 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 			}
 		}
 	})
-
-	r.Hostname = hostname
-	r.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
 	return nil
 }

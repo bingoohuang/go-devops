@@ -63,5 +63,4 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 	}()
 
 	<-stop
-
 }

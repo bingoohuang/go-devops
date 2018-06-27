@@ -128,7 +128,8 @@ func (t *ExLogTailer) Line(line string) {
 
 func (t *ExLogTailer) Error(err error) {
 	t.ExLogChan <- ExLog{
-		Err: err.Error(),
+		Err:         err.Error(),
+		MachineName: hostname,
 	}
 }
 
@@ -164,6 +165,7 @@ func (t *ExLogTailer) evictEx() {
 		Context:        context,
 		Normal:         normal,
 		Logger:         t.Logger,
+		MachineName:    hostname,
 	}
 }
 func (t *ExLogTailer) isIgnored(exceptionNames string) bool {
