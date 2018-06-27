@@ -23,6 +23,7 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 		tailer.Error(err)
 		return
 	}
+	defer stdout.Close()
 
 	if err := cmd.Start(); err != nil {
 		tailer.Error(err)
@@ -62,5 +63,5 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 	}()
 
 	<-stop
-	stdout.Close()
+
 }

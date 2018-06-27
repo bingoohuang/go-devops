@@ -60,11 +60,8 @@ type ExLogTailerRuntime struct {
 var exLogChanMap sync.Map
 
 func (t *ExLogCommand) ClearAll(a *ExLogCommandArg, r *ExLogCommandResult) error {
-	//fmt.Println("ExLogCommand Clear")
-
 	exLogChanMap.Range(func(k, v interface{}) bool {
-		rt := v.(*ExLogTailerRuntime)
-		rt.Stop <- true
+		v.(*ExLogTailerRuntime).Stop <- true
 		exLogChanMap.Delete(k)
 		return true
 	})
@@ -73,13 +70,10 @@ func (t *ExLogCommand) ClearAll(a *ExLogCommandArg, r *ExLogCommandResult) error
 }
 
 func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error {
-	//fmt.Println("ExLogCommand Execute:", a)
-
 	for k, v := range a.LogFiles {
 		m, ok := exLogChanMap.Load(k)
 		if !ok {
 			err := StartNewTailer(k, &v)
-			//fmt.Println("New Tailer")
 			if err != nil {
 				r.Error = err.Error()
 				return err
@@ -87,21 +81,18 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 		} else {
 			rt := m.(*ExLogTailerRuntime)
 			if !reflect.DeepEqual(rt.Conf, &v) {
-				//fmt.Println("Restart Tailer")
 				rt.Stop <- true
+				exLogChanMap.Delete(k)
 				StartNewTailer(k, &v)
-			} else {
-				//fmt.Println("Reuse Tailer")
 			}
 		}
 	}
 
 	r.ExLogs = make([]ExLog, 0)
 	exLogChanMap.Range(func(k, v interface{}) bool {
-		rt := v.(*ExLogTailerRuntime)
 		for {
 			select {
-			case x, ok := <-rt.ExLogChan:
+			case x, ok := <-v.(*ExLogTailerRuntime).ExLogChan:
 				if ok {
 					r.ExLogs = append(r.ExLogs, x)
 				} else {
@@ -113,6 +104,7 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 			}
 		}
 	})
+
 	r.Hostname = hostname
 	r.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 
@@ -126,7 +118,10 @@ func StartNewTailer(k string, v *ExLogTailerConf) error {
 		Stop:      make(chan bool, 2),
 	}
 
-	exLogChanMap.Store(k, &rt)
+	_, existed := exLogChanMap.LoadOrStore(k, &rt)
+	if existed {
+		return nil
+	}
 
 	tailer, err := NewExLogTailer(rt.ExLogChan, rt.Conf)
 	if err != nil {
