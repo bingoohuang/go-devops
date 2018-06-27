@@ -77,7 +77,9 @@ func RpcAddrCallTimeout(machineName, addr, funcName string, arg interface{}, cal
 	go func() {
 		conn, err := net.DialTimeout("tcp", addr, 1*time.Second)
 		if err != nil {
-			c <- callable.CreateResult(err)
+			result := callable.CreateResult(err)
+			result.SetMachineName(machineName)
+			c <- result
 			return
 		}
 

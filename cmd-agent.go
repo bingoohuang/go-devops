@@ -67,6 +67,7 @@ func (t *AgentCommandResult) GetMachineName() string {
 
 func (t *AgentCommandResult) SetMachineName(machineName string) {
 	t.MachineName = machineName
+	t.Hostname = machineName
 }
 
 func (t *AgentCommandResult) GetError() string {
