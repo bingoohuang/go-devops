@@ -17,10 +17,13 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		WriteDb(exLogDb, key, json, 7*24*time.Hour)
 
 		content := "Host: " + result.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
-			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp +
-			"\nProperties: " + MapToString(log.Properties) + "\n" + linkLogId(key) +
-			"\nEx: " + log.ExceptionNames
+			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp
 
+		if len(log.Properties) > 0 {
+			content += "\nProperties: " + MapToString(log.Properties)
+		}
+
+		content += "\n" + linkLogId(key) + "\nEx: " + log.ExceptionNames
 		SendAlertMsg("黑猫发现异常啦~", content)
 	}
 
@@ -91,6 +94,6 @@ func SendAlertMsg(head, content string) {
 	}
 
 	token := strings.Split(qywxToken, "/")
-	msg := head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
+	msg := "驻" + hostname + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
 	go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
 }
