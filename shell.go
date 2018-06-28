@@ -2,99 +2,42 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"io"
+	"context"
 	"os/exec"
 	"time"
 )
-
-func RunShell(cmds string) (string, string) {
-	return RunCommandTimeout(500*time.Millisecond, "bash", "-c", cmds)
-}
 
 func RunShellTimeout(cmds string, timeout time.Duration) (string, string) {
 	return RunCommandTimeout(timeout, "bash", "-c", cmds)
 }
 
+// https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 func RunCommandTimeout(timeout time.Duration, name string, args ...string) (string, string) {
-	start := time.Now()
-	cmd := exec.Command(name, args...)
+	// Create a new context and add a timeout to it
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel() // The cancel should be deferred so resources are cleaned up
 
-	stderr, err := cmd.StderrPipe()
+	cmd := exec.CommandContext(ctx, name, args...)
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	var eout bytes.Buffer
+	cmd.Stderr = &eout
+
+	err := cmd.Run()
 	if err != nil {
-		fmt.Println("err:", err.Error())
 		return "", err.Error()
 	}
 
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Println("err:", err.Error())
-		return "", err.Error()
+	// We want to check the context error to see if the timeout was executed.
+	// The error returned by cmd.Output() will be OS specific based on what
+	// happens when a process is killed.
+	if ctx.Err() == context.DeadlineExceeded {
+		return out.String(), "timed out"
 	}
 
-	if err := cmd.Start(); err != nil {
-		fmt.Println("err:", err.Error())
-		return "", err.Error()
-	}
+	output := out.String()
+	eoutput := eout.String()
 
-	chStdout := CreateReaderChan(stdout)
-	chStderr := CreateReaderChan(stderr)
-
-	stdoutMsg, stderrMsg := waitCommandsOutput(chStdout, chStderr, cmd, timeout)
-
-	elapsed := time.Since(start)
-	fmt.Println(hostname, time.Now(), "cost:", elapsed, "name:", name,
-		"args:", args, "stdout:", stderrMsg, "stderr:", stderrMsg)
-
-	return stdoutMsg, stderrMsg
-}
-
-func waitCommandsOutput(chStdout, chStderr <-chan string, cmd *exec.Cmd, timeout time.Duration) (string, string) {
-	quit := make(chan bool)
-	time.AfterFunc(timeout, func() { quit <- true })
-
-	var bufStdout bytes.Buffer
-	var bufStderr bytes.Buffer
-LOOP:
-	for {
-		select {
-		case s, ok := <-chStdout:
-			if !ok {
-				break LOOP
-			}
-			bufStdout.WriteString(s)
-		case s, ok := <-chStderr:
-			if !ok {
-				break LOOP
-			}
-			bufStderr.WriteString(s)
-		case <-quit:
-			fmt.Println("Process Killed")
-			break LOOP
-		}
-	}
-
-	cmd.Process.Kill()
-	cmd.Wait()
-	fmt.Println("Process Waited")
-	return bufStdout.String(), bufStderr.String()
-}
-
-func CreateReaderChan(closer io.Reader) <-chan string {
-	ch := make(chan string)
-	go func() {
-		buf := make([]byte, 1024)
-		for {
-			n, err := closer.Read(buf)
-			if n != 0 {
-				ch <- string(buf[:n])
-			}
-			if err != nil {
-				break
-			}
-		}
-		close(ch)
-	}()
-
-	return ch
+	return output, eoutput
 }

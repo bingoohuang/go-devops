@@ -16,7 +16,7 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 
 	resultChan := make(chan RpcResult, 1)
-	CallLogFileCommand(nil, logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
+	CallLogFileCommand(logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
 
 	result := <-resultChan
 	json.NewEncoder(w).Encode(result)

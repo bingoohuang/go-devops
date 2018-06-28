@@ -33,11 +33,11 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 	defer cmd.Wait()
 
 	reader := bufio.NewReader(stdout)
-	timeoutCh := make(chan bool)
+	timeout := make(chan bool, 1)
 	go func() {
 		for {
 			line, err := reader.ReadString('\n')
-			timeoutCh <- true
+			timeout <- false
 			if err != nil {
 				tailer.Error(err)
 				stop <- true
@@ -45,22 +45,16 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 			}
 			tailer.Line(line)
 		}
-
-		close(timeoutCh)
 	}()
 
-	go func() {
-		for {
-			select {
-			case _, ok := <-timeoutCh:
-				if !ok {
-					return
-				}
-			case <-time.After(1 * time.Second):
-				tailer.Loop()
-			}
+	for {
+		select {
+		case <-stop:
+			return
+		case <-timeout:
+		case <-time.After(1 * time.Second):
+			tailer.Loop()
 		}
-	}()
+	}
 
-	<-stop
 }

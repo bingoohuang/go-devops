@@ -38,7 +38,7 @@
     directRegex = false
     normalRegex = "2017-11-19 23:54:53.026"
     exceptionRegex = "\\.(\\S+)?Exception\\b"
-    ignores = [""]
+    ignores = ["java.io.IOException: Broken pipe", "java.lang.IllegalStateException: getOutputStream"]
     logFileName = "./a.log"
     properties = ["tcode", "tenantCode\\[(\\d+)\\]"]
     machines = ["LOCAL"]

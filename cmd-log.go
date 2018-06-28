@@ -118,27 +118,27 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 	return nil
 }
 
-func (t *LogFileCommand) TruncateLogFile(args *LogFileArg, result *LogFileInfoResult) error {
+func (t *LogFileCommand) TruncateLogFile(a *LogFileArg, r *LogFileInfoResult) error {
 	start := time.Now()
 
-	logPath, _ := homedir.Expand(args.LogPath)
+	logPath, _ := homedir.Expand(a.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		RunShellTimeout("tail -100000 "+logPath+" > "+logPath+".tmp;"+
-			"cat "+logPath+".tmp > "+logPath, 500*time.Millisecond)
+		shell := `tail -10000 ` + logPath + ` > ` + logPath + `.tmp;` + `cat ` + logPath + `.tmp > ` + logPath + `&`
+		RunShellTimeout(shell, 10*time.Second)
 		info, _ := os.Stat(logPath)
 
-		result.FileSize = humanize.IBytes(uint64(info.Size()))
-		result.LastModified = humanize.Time(info.ModTime())
+		r.FileSize = humanize.IBytes(uint64(info.Size()))
+		r.LastModified = humanize.Time(info.ModTime())
 	} else {
 		if os.IsNotExist(err) {
-			result.Error = "Log file does not exist"
+			r.Error = "Log file does not exist"
 		} else {
-			result.Error = err.Error()
+			r.Error = err.Error()
 		}
 	}
 
-	result.CostTime = time.Since(start).String()
+	r.CostTime = time.Since(start).String()
 	return nil
 }
 
@@ -200,14 +200,18 @@ func humanizedPsOutput(result *LogFileInfoResult) {
 
 func GoCallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
-	go CallLogFileCommand(wg, logMachineName, log, resultChan, funcName, processConfigRequired, options, logSeq)
+	go CallLogFileCommandWait(wg, logMachineName, log, resultChan, funcName, processConfigRequired, options, logSeq)
 }
 
-func CallLogFileCommand(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
+func CallLogFileCommandWait(wg *sync.WaitGroup, logMachineName string, log Log, resultChan chan RpcResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
-	if wg != nil {
-		defer wg.Done()
-	}
+	defer wg.Done()
+
+	CallLogFileCommand(logMachineName, log, resultChan, funcName, processConfigRequired, options, logSeq)
+}
+
+func CallLogFileCommand(logMachineName string, log Log, resultChan chan RpcResult,
+	funcName string, processConfigRequired bool, options string, logSeq int) {
 
 	found := fullFindLogMachineName(log, logMachineName)
 	if !found {

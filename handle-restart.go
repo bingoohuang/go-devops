@@ -16,7 +16,7 @@ func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 	log := devopsConf.Logs[loggerName]
 
 	resultChan := make(chan RpcResult, 1)
-	CallLogFileCommand(nil, logMachine, log, resultChan, "RestartProcess", true, "", 0)
+	CallLogFileCommand(logMachine, log, resultChan, "RestartProcess", true, "", 0)
 
 	result := <-resultChan
 	json.NewEncoder(w).Encode(result)
