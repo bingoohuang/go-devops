@@ -35,8 +35,7 @@ type AgentCommandResult struct {
 	Cores    int32 // number of cores
 	Hostname string
 
-	Processes map[string]PsAuxItem
-	Top       []PsAuxItem
+	Top []PsAuxItem
 
 	MachineName string
 	Error       string
@@ -111,17 +110,12 @@ func (t *AgentCommand) Execute(a *AgentCommandArg, r *AgentCommandResult) error 
 		r.DiskUsages[i] = DiskUsage{d.Path, d.Fstype, d.Total, d.Free, d.Used, d.UsedPercent}
 	}
 
-	processes := make(map[string]PsAuxItem)
 	for k, v := range a.Processes {
-		grep := PsAuxGrep(v...)
-		if len(grep) > 0 {
-			processes[k] = *grep[0]
-		} else {
+		greped := PsAuxGrep(v...)
+		if !greped {
 			r.SetError(errors.New("Process " + k + " not found!"))
 		}
 	}
-
-	r.Processes = processes
 
 	var topn []*PsAuxItem
 	if a.Topn <= 0 {

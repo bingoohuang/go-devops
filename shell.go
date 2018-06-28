@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
+	"io"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -40,4 +43,34 @@ func RunCommandTimeout(timeout time.Duration, name string, args ...string) (stri
 	eoutput := eout.String()
 
 	return output, eoutput
+}
+
+// 执行Shell脚本，返回行解析对象数组
+func ExecuteBash(shellScripts string, liner func(line string) bool) error {
+	cmd := exec.Command("bash", "-c", shellScripts)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil
+	}
+
+	cmd.Start()
+	defer cmd.Process.Kill()
+	defer cmd.Wait()
+
+	reader := bufio.NewReader(stdout)
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil || err == io.EOF {
+			break
+		}
+
+		line = strings.TrimSpace(line)
+		if line != "" {
+			if !liner(line) {
+				return nil
+			}
+		}
+	}
+
+	return nil
 }
