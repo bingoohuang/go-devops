@@ -23,11 +23,11 @@ ssh -tt $targetHost "bash -s" << eeooff
 mkdir -p ./app/$deployName/
 cd ./app/$deployName/
 mv -f ~/$deployName.linux.bin .
-mv ~/deploy-agent.sh .
+mv -f ~/deploy-agent.sh .
 ps -ef|grep $deployName|grep -v grep|awk '{print \$2}'|xargs -r kill -9
 chmod +x ./deploy-agent.sh
 ./deploy-agent.sh $deployName app01 app/$deployName
-./deploy-agent.sh $deployName cpapp@app01 app/$deployName 6889 false
+./deploy-agent.sh $deployName app@app03 app/$deployName
 nohup ./$deployName.linux.bin 2>&1 >> nohup.out &
 exit
 eeooff
