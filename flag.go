@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/shirou/gopsutil/host"
+	"log"
 	"os"
 	"strconv"
 )
@@ -41,7 +41,7 @@ func init() {
 	flag.Parse()
 
 	if *versionArg {
-		fmt.Println("Version 0.1.0")
+		log.Println("Version 0.1.0")
 		os.Exit(0)
 	}
 

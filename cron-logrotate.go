@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/robfig/cron"
+	"log"
 )
 
 type LogRotate struct {
@@ -38,12 +38,12 @@ func addCron(logRotateName string, logRotate LogRotate) {
 }
 
 func dealLogCron(rotate LogRotate) {
-	fmt.Println("run", rotate)
+	log.Println("run", rotate)
 
 	for _, logMachineName := range rotate.Machines {
 		machineName, nameAndAddress, err := parseMachineNameAndAddress(logMachineName)
 		if err != "" {
-			fmt.Println("unknown machine", err)
+			log.Println("unknown machine", err)
 			continue
 		}
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -29,7 +29,7 @@ func StartHttpSever() {
 
 	http.Handle(contextPath+"/", r)
 
-	fmt.Println("start to listen at ", httpPort)
+	log.Println("start to listen at ", httpPort)
 	http.ListenAndServe(":"+httpPort, nil)
 }
 

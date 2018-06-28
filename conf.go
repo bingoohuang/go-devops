@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/BurntSushi/toml"
+	"log"
 )
 
 type DevopsConf struct {
@@ -37,7 +37,7 @@ var devopsConf DevopsConf
 func loadConfig() {
 	meta, err := toml.DecodeFile(configFile, &devopsConf)
 	if err != nil {
-		fmt.Println("DecodeFile error:", err)
+		log.Println("DecodeFile error:", err)
 		return
 	}
 

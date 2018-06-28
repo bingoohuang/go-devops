@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/dustin/go-humanize"
 	"github.com/mitchellh/go-homedir"
 	"github.com/valyala/fasttemplate"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -124,8 +124,8 @@ func (t *LogFileCommand) TruncateLogFile(a *LogFileArg, r *LogFileInfoResult) er
 	logPath, _ := homedir.Expand(a.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		shell := `tail -10000 ` + logPath + ` > ` + logPath + `.tmp;` + `cat ` + logPath + `.tmp > ` + logPath + `&`
-		RunShellTimeout(shell, 10*time.Second)
+		shell := `tail -100000 ` + logPath + ` > ` + logPath + `.tmp;` + `cat ` + logPath + `.tmp > ` + logPath
+		AutoShellChan <- shell
 		info, _ := os.Stat(logPath)
 
 		r.FileSize = humanize.IBytes(uint64(info.Size()))
@@ -210,15 +210,15 @@ func CallLogFileCommandWait(wg *sync.WaitGroup, logMachineName string, log Log, 
 	CallLogFileCommand(logMachineName, log, resultChan, funcName, processConfigRequired, options, logSeq)
 }
 
-func CallLogFileCommand(logMachineName string, log Log, resultChan chan RpcResult,
+func CallLogFileCommand(logMachineName string, logf Log, resultChan chan RpcResult,
 	funcName string, processConfigRequired bool, options string, logSeq int) {
 
-	found := fullFindLogMachineName(log, logMachineName)
+	found := fullFindLogMachineName(logf, logMachineName)
 	if !found {
-		logMachineName, found = prefixFindLogMachineName(log, logMachineName)
+		logMachineName, found = prefixFindLogMachineName(logf, logMachineName)
 	}
 	if !found {
-		fmt.Println(logMachineName, "is unknown")
+		log.Println(logMachineName, "is unknown")
 		return
 	}
 
@@ -232,19 +232,19 @@ func CallLogFileCommand(logMachineName string, log Log, resultChan chan RpcResul
 		return
 	}
 
-	process, ok := devopsConf.Processes[log.Process]
+	process, ok := devopsConf.Processes[logf.Process]
 	if !ok {
-		process = Process{Ps: log.Process}
+		process = Process{Ps: logf.Process}
 	}
 
 	if processConfigRequired && (process.Home == "" || process.Kill == "" || process.Start == "") {
-		reply.Error = log.Path + " is not well configured"
+		reply.Error = logf.Path + " is not well configured"
 		resultChan <- &reply
 		return
 	}
 
 	arg := &LogFileArg{
-		LogPath: log.Path,
+		LogPath: logf.Path,
 		Ps:      process.Ps,
 		Home:    process.Home,
 		Kill:    process.Kill,

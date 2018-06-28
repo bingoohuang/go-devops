@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/docker/go-units"
 	"github.com/mitchellh/go-homedir"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -57,7 +57,7 @@ func (t *CronCommandExecute) CommandName() string {
 }
 
 func (t *CronCommand) Execute(arg *CronCommandArg, result *CronCommandResult) error {
-	fmt.Println("ExecuteCron with arg ", *arg)
+	log.Println("ExecuteCron with arg ", *arg)
 
 	start := time.Now()
 	elapsed := time.Since(start)
@@ -71,7 +71,7 @@ func (t *CronCommand) Execute(arg *CronCommandArg, result *CronCommandResult) er
 		executable = &DeleteOldsExecutable{}
 	} else {
 		result.Error = "unknown CronCommand Type " + arg.Type
-		fmt.Println("unknown CronCommand Type", arg.Type)
+		log.Println("unknown CronCommand Type", arg.Type)
 		executable = nil
 	}
 
@@ -104,13 +104,13 @@ func (o *CopyTruncateCronExecutable) LoadParameters(parameters string) {
 
 	maxSize, err := units.FromHumanSize(humanMaxSize)
 	if err != nil {
-		fmt.Println("FromHumanSize " + humanMaxSize + "err" + err.Error())
+		log.Println("FromHumanSize " + humanMaxSize + "err" + err.Error())
 		maxSize = 100 * 1024 * 1024
 	}
 
 	o.maxSize = maxSize
 	o.maxSizeStr = strconv.FormatInt(maxSize, 10)
-	fmt.Println(*o)
+	log.Println(*o)
 }
 
 func (o *CopyTruncateCronExecutable) Execute(files []string) {
@@ -136,8 +136,9 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 }
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
-	RunShellTimeout(`tail -c `+o.maxSizeStr+` `+file+` > `+file+`.tmp; cat `+file+`.tmp>`+file+`&`, 5*time.Minute)
-	fmt.Println("CopyTruncate ", file)
+	shell := `tail -c ` + o.maxSizeStr + ` ` + file + ` > ` + file + `.tmp; cat ` + file + `.tmp>` + file
+	AutoShellChan <- shell
+	log.Println("CopyTruncate ", file)
 }
 
 type DeleteCronExecutable struct {
@@ -155,7 +156,7 @@ func (o *DeleteCronExecutable) Execute(files []string) {
 	}
 
 	RunShellTimeout(cmds, 100*time.Millisecond)
-	fmt.Println("delete files by ", cmds)
+	log.Println("delete files by ", cmds)
 }
 
 type DeleteOldsExecutable struct {
@@ -176,13 +177,13 @@ func (o *DeleteOldsExecutable) LoadParameters(parameters string) {
 
 	pattern, ok := m["pattern"]
 	if !ok {
-		fmt.Println("pattern required for DeleteOlds type")
+		log.Println("pattern required for DeleteOlds type")
 		return
 	}
 
 	o.patterns = strings.Split(pattern, "|")
 
-	fmt.Println("config:", *o)
+	log.Println("config:", *o)
 }
 
 func (o *DeleteOldsExecutable) Execute(files []string) {
@@ -214,7 +215,7 @@ func (o *DeleteOldsExecutable) deleteFile(file string) {
 
 	if !time.After(o.cutTime) {
 		os.Remove(file)
-		fmt.Println("removed file", file)
+		log.Println("removed file", file)
 	}
 }
 

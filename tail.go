@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/patrickmn/go-cache"
@@ -86,7 +85,7 @@ func startTail(logFile string, logQueue *go_utils.CycleQueue) {
 		log.Fatal("Buffer Error:", err)
 	}
 
-	fmt.Println("start to tail -F", fullPathLogFile)
+	log.Println("start to tail -F", fullPathLogFile)
 
 	tmp := make([]byte, 10240)
 Loop:

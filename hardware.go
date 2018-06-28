@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
+	"log"
 	"runtime"
 	"time"
 )
@@ -31,7 +31,7 @@ type HardwareInfo struct {
 
 func dealwithErr(err error) {
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		//os.Exit(-1)
 	}
 }
