@@ -24,14 +24,14 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		}
 
 		content += "\n" + linkLogId(key) + "\nEx: " + log.ExceptionNames
-		SendAlertMsg("黑猫发现异常啦~", content)
+		SendAlertMsg("发现异常啦~", content)
 	}
 
 	if result.Error != "" {
 		key := "er" + NextID()
 		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
 		content := "\n" + linkLogId(key) + "\nEx: " + result.Error
-		SendAlertMsg("黑猫发现错误啦~", content)
+		SendAlertMsg("发现错误啦~", content)
 	}
 }
 
@@ -74,7 +74,7 @@ func blackcatAlertAgent(result *AgentCommandResult) {
 		}
 	}
 
-	SendAlertMsg("黑猫发来警报啦~", strings.Join(content, "\n"))
+	SendAlertMsg("发来警报啦~", strings.Join(content, "\n"))
 }
 
 func linkLogId(key string) string {
@@ -94,6 +94,6 @@ func SendAlertMsg(head, content string) {
 	}
 
 	token := strings.Split(qywxToken, "/")
-	msg := "驻" + hostname + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
+	msg := "驻" + hostname + "黑猫" + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
 	go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
 }

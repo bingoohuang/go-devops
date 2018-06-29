@@ -56,3 +56,24 @@ func MapToString(m map[string]string) string {
 	fmt.Fprintf(b, "%v", m)
 	return b.String()
 }
+
+func SplitTrim(str, sep string) []string {
+	subs := strings.Split(str, sep)
+	ret := make([]string, 0)
+	for i, v := range subs {
+		v := strings.TrimSpace(v)
+		if len(subs[i]) > 0 {
+			ret = append(ret, v)
+		}
+	}
+
+	return ret
+}
+
+func EmptyThen(s, then string) string {
+	if s == "" {
+		return then
+	}
+
+	return s
+}

@@ -24,6 +24,8 @@ var (
 	loggers      []string
 
 	authParam go_utils.MustAuthParam
+
+	redisServer *RedisServer
 )
 
 func init() {
@@ -35,6 +37,7 @@ func init() {
 	flag.StringVar(&configFile, "config", "config.toml", "config file path")
 	versionArg := flag.Bool("v", false, "print version")
 	flag.StringVar(&qywxToken, "qywxToken", "", "CorpID/AgentId/Secret")
+	redisAddrArg := flag.String("redisServer", "", "redis server addr, eg: 127.0.0.1:6379, localhost:6388/0, password2/localhost:6388/0")
 
 	go_utils.PrepareMustAuthFlag(&authParam)
 
@@ -44,6 +47,8 @@ func init() {
 		log.Println("Version 0.1.0")
 		os.Exit(0)
 	}
+
+	redisServer = ParseServerItem(*redisAddrArg)
 
 	httpPort = strconv.Itoa(*httpPortArg)
 	rpcPort = strconv.Itoa(*rpcPortArg)
@@ -55,4 +60,5 @@ func init() {
 	}
 
 	loadConfig()
+	startBizCron()
 }

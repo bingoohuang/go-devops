@@ -55,8 +55,7 @@ func showLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogSh
 	var wg sync.WaitGroup
 	for _, logMachineName := range log.Machines {
 		wg.Add(1)
-		GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
-			"LogFileInfo", false, "", 0)
+		GoCallLogFileCommand(&wg, logMachineName, log, resultChan, "LogFileInfo", false, "", 0)
 	}
 	wg.Wait()
 	close(resultChan)
