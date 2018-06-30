@@ -4,6 +4,7 @@ import (
 	"github.com/bingoohuang/go-utils"
 	"regexp"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -156,6 +157,11 @@ func (t *ExLogTailer) evictEx() {
 	}
 
 	normal := t.Normal.FindString(pop)
+	ts, e := time.Parse("2006-01-02 15:04:05", normal)
+	if e == nil && time.Since(ts).Hours() > 1 {
+		return // ignore ex before 1 hour.(May be ex repeated by log rotating at midnight)
+	}
+
 	properties := t.createProperties(pop)
 	context := t.createContext(pop)
 
