@@ -16,7 +16,7 @@ func HandleFont(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleFavicon(w http.ResponseWriter, r *http.Request) {
-	HandleStaticResource("res/favicon.ico", w)
+	HandleStaticResource("res/favicon.png", w)
 }
 
 func HandleStaticResource(path string, w http.ResponseWriter) {

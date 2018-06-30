@@ -11,7 +11,7 @@ func StartHttpSever() {
 	r := mux.NewRouter()
 
 	handleFunc(r, "/iconfont.{extension}", HandleFont, false)
-	handleFunc(r, "/favicon.ico", HandleFavicon, false)
+	handleFunc(r, "/favicon.png", HandleFavicon, false)
 
 	handleFunc(r, "/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile, false)
 	handleFunc(r, "/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess, false)
