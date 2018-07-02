@@ -157,11 +157,8 @@ func (t *ExLogTailer) evictEx() {
 	}
 
 	normal := t.Normal.FindString(pop)
-	if len(normal) >= 19 {
-		ts, e := time.Parse("2006-01-02 15:04:05", normal[0:19])
-		if e == nil && time.Since(ts).Hours() > 1 {
-			return // ignore ex before 1 hour.(May be ex repeated by log rotating at midnight)
-		}
+	if IsDurationAgo(normal, 1*time.Hour) { // ignore ex before 1 hour.(May be ex repeated by log rotating at midnight)
+		return
 	}
 
 	properties := t.createProperties(pop)
@@ -176,6 +173,7 @@ func (t *ExLogTailer) evictEx() {
 		MachineName:    hostname,
 	}
 }
+
 func (t *ExLogTailer) isIgnored(exceptionNames string) bool {
 	for _, ignore := range t.Ignores {
 		if strings.Index(exceptionNames, ignore) >= 0 {

@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func FatalIfErr(err error) {
@@ -76,4 +77,15 @@ func EmptyThen(s, then string) string {
 	}
 
 	return s
+}
+
+func IsDurationAgo(maybeTs string, duration time.Duration) bool {
+	if len(maybeTs) < 19 {
+		return false
+	}
+
+	ts, e := time.ParseInLocation("2006-01-02 15:04:05", maybeTs[0:19], time.Local)
+
+	now := time.Now()
+	return e == nil && now.Sub(ts).Nanoseconds() > duration.Nanoseconds()
 }
