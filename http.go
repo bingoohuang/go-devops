@@ -15,7 +15,8 @@ func StartHttpSever() {
 
 	handleFunc(r, "/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile, false)
 	handleFunc(r, "/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess, false)
-	handleFunc(r, "/locateLog/{loggerName}/{logKey}/{preLines}/{lines}", HandleLocateLog, true)
+	handleFunc(r, "/locateLog/{loggerName}/{logKey}/{preLines}/{lines}", HandleLocateLog, false)
+	handleFunc(r, "/locateLogResult/", HandleLocateLogResult, true)
 	handleFunc(r, "/tailLogFile/{loggerName}/{lines}", HandleTailLogFile, true)
 	handleFunc(r, "/tailFLog/{loggerName}/{traceMobile}/{logSeq}", HandleTailFLog, true)
 	handleFunc(r, "/machines", HandleMachines, false)

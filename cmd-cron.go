@@ -137,7 +137,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 
 func (o *CopyTruncateCronExecutable) tailMaxSize(file string) {
 	shell := `tail -c ` + o.maxSizeStr + ` ` + file + ` > ` + file + `.tmp; cat ` + file + `.tmp>` + file
-	AutoShellChan <- shell
+	ImmediateShellChan <- shell
 	log.Println("CopyTruncate ", file)
 }
 

@@ -17,25 +17,40 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 	lines := vars["lines"]
 	log := devopsConf.Logs[loggerName]
 
-	resultChan := make(chan RpcResult, len(log.Machines))
-	var wg sync.WaitGroup
-	for _, logMachineName := range log.Machines {
-		wg.Add(1)
-		GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
-			"TailLogFile", false, "-"+lines, 0)
+	iLines, _ := strconv.Atoi(lines)
+
+	if iLines > 0 {
+		resultChan := make(chan RpcResult, len(log.Machines))
+		var wg sync.WaitGroup
+		for _, logMachineName := range log.Machines {
+			wg.Add(1)
+			GoCallLogFileCommand(&wg, logMachineName, log, resultChan,
+				"TailLogFile", false, "-"+lines, 0)
+		}
+
+		wg.Wait()
+		close(resultChan)
+
+		resultsMap := make(map[string]RpcResult)
+		for commandResult := range resultChan {
+			resultsMap[commandResult.GetMachineName()] = commandResult
+		}
+
+		logs := createLogsResult(log, resultsMap)
+
+		json.NewEncoder(w).Encode(logs)
+	} else {
+		logs := make([]RpcResult, 0)
+		for _, logMachineName := range log.Machines {
+			machineName := findMachineName(logMachineName)
+			result := &LogFileInfoResult{
+				MachineName: machineName,
+			}
+			logs = append(logs, result)
+		}
+
+		json.NewEncoder(w).Encode(logs)
 	}
-
-	wg.Wait()
-	close(resultChan)
-
-	resultsMap := make(map[string]RpcResult)
-	for commandResult := range resultChan {
-		resultsMap[commandResult.GetMachineName()] = commandResult
-	}
-
-	logs := createLogsResult(log, resultsMap)
-
-	json.NewEncoder(w).Encode(logs)
 }
 
 func HandleTailFLog(w http.ResponseWriter, r *http.Request) {

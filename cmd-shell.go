@@ -10,10 +10,9 @@ type CommandsArg struct {
 }
 
 type CommandsResult struct {
-	MachineName    string
-	Error          string
-	Stdout, Stderr string
-	CostMillis     string
+	MachineName string
+	Error       string
+	ShellKey    string
 }
 
 func (t *CommandsResult) GetMachineName() string {
@@ -50,12 +49,13 @@ type ShellCommandExecute struct {
 }
 
 func (t *ShellCommand) Execute(args *CommandsArg, result *CommandsResult) error {
-	start := time.Now()
+	result.ShellKey = "sh" + NextID()
 
-	stdout, stderr := RunShellTimeout(args.Command, args.Timeout)
-	elapsed := time.Since(start)
-	result.Stdout = stdout
-	result.Stderr = stderr
-	result.CostMillis = elapsed.String()
+	DelayShellChan <- &ResponseShell{
+		Shell:   args.Command,
+		Timeout: args.Timeout,
+		ShellId: result.ShellKey,
+	}
+
 	return nil
 }

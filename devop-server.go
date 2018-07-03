@@ -7,6 +7,7 @@ import (
 
 func StartDevOpServer() error {
 	rpc.Register(new(ShellCommand))
+	rpc.Register(new(ShellResultCommand))
 	rpc.Register(new(LogFileCommand))
 	rpc.Register(new(MachineCommand))
 	rpc.Register(new(CronCommand))

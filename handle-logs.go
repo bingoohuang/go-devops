@@ -84,6 +84,30 @@ func createLogsResult(log Log, resultsMap map[string]RpcResult) []RpcResult {
 	return logs
 }
 
+type LocateLogRsp struct {
+	Err     string
+	Results []*ShellResultCommandResult
+}
+
+func HandleLocateLogResult(w http.ResponseWriter, r *http.Request) {
+	go_utils.HeadContentTypeJson(w)
+	rsp := &LocateLogRsp{Results: make([]*ShellResultCommandResult, 0)}
+
+	qs := r.URL.Query()
+
+	resultChan := make(chan RpcResult)
+	for k, v := range qs {
+		GoRpcExecuteTimeout(k, &ShellResultCommandArg{ShellKey: v[0]}, &ShellResultCommandExecute{}, 1*time.Second, resultChan)
+	}
+
+	for range qs {
+		result := <-resultChan
+		rsp.Results = append(rsp.Results, result.(*ShellResultCommandResult))
+	}
+
+	json.NewEncoder(w).Encode(rsp)
+}
+
 func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	go_utils.HeadContentTypeJson(w)
 	vars := mux.Vars(r)
@@ -118,7 +142,9 @@ func executeCommand(log Log, command string, w http.ResponseWriter) {
 	}
 	results := make([]RpcResult, 0)
 	for _, machineName := range log.Machines {
-		results = append(results, resultsMap[machineName])
+		result := resultsMap[machineName]
+		result.SetMachineName(machineName)
+		results = append(results, result)
 	}
 	json.NewEncoder(w).Encode(results)
 }

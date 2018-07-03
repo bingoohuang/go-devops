@@ -15,6 +15,10 @@ type RedisServer struct {
 }
 
 func ParseServerItem(serverConfig string) *RedisServer {
+	if serverConfig == "" {
+		return nil
+	}
+
 	serverItems := SplitTrim(serverConfig, "/")
 	itemLen := len(serverItems)
 	if itemLen == 1 {

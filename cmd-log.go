@@ -125,7 +125,7 @@ func (t *LogFileCommand) TruncateLogFile(a *LogFileArg, r *LogFileInfoResult) er
 	_, err := os.Stat(logPath)
 	if err == nil {
 		shell := `tail -100000 ` + logPath + ` > ` + logPath + `.tmp;` + `cat ` + logPath + `.tmp > ` + logPath
-		AutoShellChan <- shell
+		ImmediateShellChan <- shell
 		info, _ := os.Stat(logPath)
 
 		r.FileSize = humanize.IBytes(uint64(info.Size()))

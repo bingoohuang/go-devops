@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
@@ -13,8 +12,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 	for _, log := range result.ExLogs {
 		key := "ex" + NextID()
 		log.MachineName = result.Hostname
-		json, _ := json.Marshal(log)
-		WriteDb(exLogDb, key, json, 7*24*time.Hour)
+		WriteDbJson(exLogDb, key, log, 7*24*time.Hour)
 
 		content := "Host: " + result.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
 			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp
@@ -37,8 +35,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 
 func blackcatAlertAgent(result *AgentCommandResult) {
 	key := "ag" + NextID()
-	json, _ := json.Marshal(result)
-	WriteDb(exLogDb, key, json, 7*24*time.Hour)
+	WriteDbJson(exLogDb, key, result, 7*24*time.Hour)
 
 	content := make([]string, 0)
 	if result.Error != "" {

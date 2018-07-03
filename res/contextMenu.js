@@ -80,6 +80,9 @@
                     $('#refresh').unbind('click').show().find('span').text('Refresh')
                     var lines = $.contextMenu.getInputValues(options).Lines
                     TailLogFile(loggerName, logPath, lines)
+                } else if (key === 'LocateLogFile') {
+                    $('#refresh').unbind('click').show().find('span').text('Refresh')
+                    TailLogFile(loggerName, logPath, 0)
                 } else if (key === 'TailFLog') {
                     var traceMobile = $.contextMenu.getInputValues(options).TraceMobile
                     if ($.trim(traceMobile) === "") {
@@ -92,6 +95,7 @@
             items: {
                 Lines: {name: "Tail Last Lines:", type: 'text', value: "300"},
                 TailLogFile: {name: "Tail Log", icon: "tail"},
+                LocateLogFile: {name: "Locate Log", icon: "tail"},
                 TraceMobile: {name: "Trace Mobile:", type: 'text', value: ""},
                 TailFLog: {name: "Tail -F Log", icon: "tail"},
             }

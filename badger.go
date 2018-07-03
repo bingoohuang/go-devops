@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/dgraph-io/badger"
 	"log"
 	"time"
@@ -18,6 +19,11 @@ func OpenDb(dataDir string) *badger.DB {
 	//defer db.Close()
 }
 
+func WriteDbJson(db *badger.DB, k string, v interface{}, dur time.Duration) {
+	json, _ := json.Marshal(v)
+	WriteDb(db, k, json, dur)
+}
+
 func WriteDb(db *badger.DB, k string, v []byte, dur time.Duration) {
 	err := db.Update(func(txn *badger.Txn) error {
 		err := txn.SetWithTTL([]byte(k), v, dur)
@@ -26,6 +32,20 @@ func WriteDb(db *badger.DB, k string, v []byte, dur time.Duration) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func ReadDbJson(db *badger.DB, k string, v interface{}) (bool, error) {
+	result, e := ReadDb(db, k)
+	if e != nil {
+		return false, e
+	}
+
+	if result == nil {
+		return false, nil
+	}
+
+	e = json.Unmarshal(result, v)
+	return true, e
 }
 
 func ReadDb(db *badger.DB, k string) (result []byte, err error) {
