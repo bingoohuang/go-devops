@@ -16,6 +16,11 @@ func HandleMachineInfo(w http.ResponseWriter, r *http.Request) {
 
 	_, ok := devopsConf.Machines[machineName]
 	index := string(MustAsset("res/viewagent.html"))
+	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
+	js := go_utils.MinifyJs(mergeScripts, devMode)
+	index = strings.Replace(index, "${contextPath}", contextPath, -1)
+	index = strings.Replace(index, "/*.SCRIPT*/", js, 1)
+
 	if ok {
 		resultChan := make(chan RpcResult)
 		GoRpcExecuteTimeout(machineName, &AgentCommandArg{Processes: make(map[string][]string), Topn: 0}, &AgentCommandExecute{}, 3*time.Second, resultChan)

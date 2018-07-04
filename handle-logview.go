@@ -48,6 +48,12 @@ func agentError(log []byte, index string, exLogId string, err error) string {
 
 func agentView(log []byte, index string, exLogId string, err error) string {
 	exLog := &AgentCommandResult{}
+
+	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
+	js := go_utils.MinifyJs(mergeScripts, devMode)
+	index = strings.Replace(index, "${contextPath}", contextPath, -1)
+	index = strings.Replace(index, "/*.SCRIPT*/", js, 1)
+
 	if log != nil {
 		json.Unmarshal(log, exLog)
 		return buildAgentView(index, exLogId, exLog)
@@ -73,7 +79,8 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 	diskUsages := ""
 	for _, du := range exLog.DiskUsages {
 		if diskUsages == "" {
-			diskUsages = "<table><thead><tr><td>Path</td><td>Fstype</td><td>Total</td><td>Free</td><td>Used</td><td>UsedPercent</td></tr></thead><tbody>"
+			diskUsages = `<table><thead><tr><td>Path</td><td>Fstype</td><td>Total</td>
+				<td>Free</td><td>Used</td><td>UsedPercent</td></tr></thead><tbody>`
 		}
 
 		diskUsages += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.2f</td></tr>",
@@ -89,11 +96,27 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 	top := ""
 	for _, t := range exLog.Top {
 		if top == "" {
-			top = "<table><thead><tr><td>User</td><td>Pid</td><td>Ppid</td><td>%Cpu</td><td>%Mem</td><td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>"
+			top = `<table class="sortable"><thead><tr><td>User</td><td>Pid</td><td>Ppid</td><td>%Cpu</td><td>%Mem</td>
+				<td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>`
 		}
 
-		top += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-			t.User, t.Pid, t.Ppid, t.Cpu, t.Mem, HumanizedKib(t.Vsz), HumanizedKib(t.Rss), t.Tty, t.Stat, t.Start, t.Time, t.Command)
+		tr := `<tr><td>{User}</td><td>%{Pid}</td><td>{Ppid}</td><td>{Cpu}</td><td>{Mem}</td>
+		<td sorttable_customkey="{Vsz}">{HumanizedVsz}</td><td sorttable_customkey="{Rss}">{HumanizedRss}</td>
+		<td>{Tty}</td><td>{Stat}</td><td>{Start}</td><td>{Time}</td><td>{Command}</td></tr>`
+		tr = strings.Replace(tr, "{User}", t.User, 1)
+		tr = strings.Replace(tr, "{Pid}", t.Pid, 1)
+		tr = strings.Replace(tr, "{Ppid}", t.Ppid, 1)
+		tr = strings.Replace(tr, "{Cpu}", t.Cpu, 1)
+		tr = strings.Replace(tr, "{Mem}", t.Mem, 1)
+		tr = strings.Replace(tr, "{Vsz}", t.Vsz, 1)
+		tr = strings.Replace(tr, "{HumanizedVsz}", HumanizedKib(t.Vsz), 1)
+		tr = strings.Replace(tr, "{Rss}", t.Rss, 1)
+		tr = strings.Replace(tr, "{HumanizedRss}", HumanizedKib(t.Rss), 1)
+		tr = strings.Replace(tr, "{Tty}", t.Tty, 1)
+		tr = strings.Replace(tr, "{Start}", t.Start, 1)
+		tr = strings.Replace(tr, "{Time}", t.Time, 1)
+		tr = strings.Replace(tr, "{Command}", t.Command, 1)
+		top += tr
 	}
 
 	if top != "" {
