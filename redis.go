@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bingoohuang/go-utils"
 	"github.com/go-redis/redis"
 	"github.com/lunny/log"
 	"strconv"
@@ -19,7 +20,7 @@ func ParseServerItem(serverConfig string) *RedisServer {
 		return nil
 	}
 
-	serverItems := SplitTrim(serverConfig, "/")
+	serverItems := go_utils.SplitTrim(serverConfig, "/")
 	itemLen := len(serverItems)
 	if itemLen == 1 {
 		return &RedisServer{

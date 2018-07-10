@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bingoohuang/go-utils"
 	"log"
 	"time"
 )
@@ -12,7 +13,7 @@ func init() {
 		for {
 			autoShell := <-ImmediateShellChan
 			log.Println("Run Auto Shell", autoShell)
-			RunShellTimeout(autoShell, 30*time.Second)
+			go_utils.BashTimeout(autoShell, 30*time.Second)
 		}
 	}()
 }
@@ -37,7 +38,7 @@ func init() {
 
 			go func() {
 				a.Start = time.Now()
-				a.Stdout, a.Stderr = RunShellTimeout(a.Shell, a.Timeout)
+				a.Stdout, a.Stderr = go_utils.BashTimeout(a.Shell, a.Timeout)
 				a.End = time.Now()
 				WriteDbJson(exLogDb, a.ShellId, a, 24*time.Hour)
 			}()

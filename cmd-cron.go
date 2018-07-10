@@ -155,7 +155,7 @@ func (o *DeleteCronExecutable) Execute(files []string) {
 		cmds += file + " "
 	}
 
-	RunShellTimeout(cmds, 100*time.Millisecond)
+	go_utils.BashTimeout(cmds, 100*time.Millisecond)
 	log.Println("delete files by ", cmds)
 }
 

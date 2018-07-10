@@ -1,5 +1,7 @@
 package main
 
+import "github.com/bingoohuang/go-utils"
+
 func PsAuxGrep(keywords ...string) bool {
 	shellCmd := `ps axo args`
 
@@ -16,7 +18,7 @@ func PsAuxGrep(keywords ...string) bool {
 	}
 
 	greped := false
-	ExecuteBash(shellCmd, func(line string) bool {
+	go_utils.ExecuteBashLiner(shellCmd, func(line string) bool {
 		greped = true
 		return false // break continue
 	})

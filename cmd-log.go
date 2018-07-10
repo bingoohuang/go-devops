@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
 	"github.com/mitchellh/go-homedir"
 	"github.com/valyala/fasttemplate"
@@ -80,13 +81,13 @@ func (t *LogFileCommand) RestartProcess(args *LogFileArg, result *LogFileInfoRes
 
 	killTemplate := fasttemplate.New(args.Kill, "${", "}")
 	killCommand := killTemplate.ExecuteString(map[string]interface{}{"ps": args.Ps})
-	RunShellTimeout(killCommand, 500*time.Millisecond)
+	go_utils.BashTimeout(killCommand, 500*time.Millisecond)
 
 	argsHome, _ := homedir.Expand(args.Home)
-	RunShellTimeout("cd "+argsHome+";"+args.Start, 500*time.Millisecond)
+	go_utils.BashTimeout("cd "+argsHome+";"+args.Start, 500*time.Millisecond)
 
 	err := ""
-	result.ProcessInfo, err = RunShellTimeout(args.Ps, 500*time.Millisecond)
+	result.ProcessInfo, err = go_utils.BashTimeout(args.Ps, 500*time.Millisecond)
 	if err != "" {
 		result.Error = err
 	}
@@ -101,7 +102,7 @@ func (t *LogFileCommand) TailLogFile(args *LogFileArg, result *LogFileInfoResult
 	logPath, _ := homedir.Expand(args.LogPath)
 	_, err := os.Stat(logPath)
 	if err == nil {
-		stdout, stderr := RunShellTimeout("tail "+args.Options+" "+logPath, 500*time.Millisecond)
+		stdout, stderr := go_utils.BashTimeout("tail "+args.Options+" "+logPath, 500*time.Millisecond)
 		result.TailContent = stdout
 		if stderr != "" {
 			result.Error = stderr
@@ -146,7 +147,7 @@ func (t *LogFileCommand) LogFileInfo(args *LogFileArg, result *LogFileInfoResult
 	start := time.Now()
 
 	if args.Ps != "" {
-		result.ProcessInfo, _ = RunShellTimeout(args.Ps, 500*time.Millisecond)
+		result.ProcessInfo, _ = go_utils.BashTimeout(args.Ps, 500*time.Millisecond)
 		humanizedPsOutput(result)
 	}
 

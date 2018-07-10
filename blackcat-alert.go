@@ -18,7 +18,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp
 
 		if len(log.Properties) > 0 {
-			content += "\nProperties: " + MapToString(log.Properties)
+			content += "\nProperties: " + go_utils.MapToString(log.Properties)
 		}
 
 		content += "\n" + linkLogId(key) + "\nEx: " + log.ExceptionNames

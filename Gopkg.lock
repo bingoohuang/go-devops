@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/bingoohuang/go-utils"
   packages = ["."]
-  revision = "bad1c19211f84bb48e7eb1b40fce8e6fade3c010"
+  revision = "c4b9f0ffb43d2871df03c98d811a9a6f4d0155ef"
 
 [[projects]]
   name = "github.com/dgraph-io/badger"
@@ -64,6 +64,21 @@
   ]
   revision = "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506"
   version = "v1.2.1"
+
+[[projects]]
+  name = "github.com/go-redis/redis"
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto",
+    "internal/singleflight",
+    "internal/util"
+  ]
+  revision = "83fb42932f6145ce52df09860384a4653d2d332a"
+  version = "v6.12.0"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -140,17 +155,10 @@
     "internal/common",
     "load",
     "mem",
-    "net",
     "process"
   ]
-  revision = "eeb1d38d69593f121e060d24d17f7b1f0936b203"
-  version = "v2.18.05"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/shirou/w32"
-  packages = ["."]
-  revision = "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
+  revision = "4a180b209f5f494e5923cfce81ea30ba23915877"
+  version = "v2.18.06"
 
 [[projects]]
   branch = "master"
@@ -208,7 +216,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "afe8f62b1d6bbd81f31868121a50b06d8188e1f9"
+  revision = "6a8eb5e2b1816b30aa88d7e3ecf9eb7c4559d9e6"
 
 [[projects]]
   branch = "master"
@@ -217,11 +225,11 @@
     "unix",
     "windows"
   ]
-  revision = "63fc586f45fe72d95d5240a5d5eb95e6503907d3"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5fb0a5d19ff91fc725524a381527aadfcc0c40f78b7557cd08ca013f95158587"
+  inputs-digest = "297b53931184318b25c5487b602ca4badd73011c3ba6ac689f9bfa0d72ffc13e"
   solver-name = "gps-cdcl"
   solver-version = 1

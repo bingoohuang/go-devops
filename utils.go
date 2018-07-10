@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
 	"github.com/dustin/go-humanize"
 	"log"
 	"strconv"
@@ -50,33 +48,6 @@ func HumanizedKib(kib string) string {
 		return kib + "KiB"
 	}
 	return strings.Replace(humanize.IBytes(u*1024), " ", "", 1)
-}
-
-func MapToString(m map[string]string) string {
-	b := new(bytes.Buffer)
-	fmt.Fprintf(b, "%v", m)
-	return b.String()
-}
-
-func SplitTrim(str, sep string) []string {
-	subs := strings.Split(str, sep)
-	ret := make([]string, 0)
-	for i, v := range subs {
-		v := strings.TrimSpace(v)
-		if len(subs[i]) > 0 {
-			ret = append(ret, v)
-		}
-	}
-
-	return ret
-}
-
-func EmptyThen(s, then string) string {
-	if s == "" {
-		return then
-	}
-
-	return s
 }
 
 func IsDurationAgo(maybeTs string, duration time.Duration) bool {
