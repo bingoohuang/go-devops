@@ -48,4 +48,11 @@
     keywords=["go-devops"]
     machines = ["LOCAL"]
 
-
+[httpCheckers]
+    [httpCheckers.backupCenter]
+    title = "检查备份请求"
+    cron = "0 10 08 1/1 * ?"
+    url = "http://1.2.3.4:5000/backup/south/YYYYMMDD/err.log"
+    ok = "OK"
+    okMsg = "南方中心备份成功!"
+    failMsg = "备份中心备份异常,详情请查看备份目录err.log!"

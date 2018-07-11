@@ -60,6 +60,8 @@ func loadBlackcatCrons() {
 
 	hourlyTip(threshold)
 
+	loadHttpCheckerCrons(blackcatCron)
+
 	blackcatCron.Start()
 }
 

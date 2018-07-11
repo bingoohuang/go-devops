@@ -155,10 +155,17 @@
     "internal/common",
     "load",
     "mem",
+    "net",
     "process"
   ]
   revision = "4a180b209f5f494e5923cfce81ea30ba23915877"
   version = "v2.18.06"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shirou/w32"
+  packages = ["."]
+  revision = "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
 
 [[projects]]
   branch = "master"
@@ -216,7 +223,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "6a8eb5e2b1816b30aa88d7e3ecf9eb7c4559d9e6"
+  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
 
 [[projects]]
   branch = "master"

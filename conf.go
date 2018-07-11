@@ -6,13 +6,14 @@ import (
 )
 
 type DevopsConf struct {
-	Machines          map[string]Machine
-	Logs              map[string]Log
-	Processes         map[string]Process
-	Logrotates        map[string]LogRotate
-	BlackcatThreshold BlackcatThreshold
-	BlackcatExLogs    map[string]BlackcatExLogConf
-	BlackcatProcesses map[string]BlackcatProcessConf
+	Machines             map[string]Machine
+	Logs                 map[string]Log
+	Processes            map[string]Process
+	Logrotates           map[string]LogRotate
+	BlackcatThreshold    BlackcatThreshold
+	BlackcatExLogs       map[string]BlackcatExLogConf
+	BlackcatProcesses    map[string]BlackcatProcessConf
+	BlackcatHttpCheckers map[string]BlackcatHttpChecker
 }
 
 type Machine struct {
