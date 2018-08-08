@@ -253,7 +253,7 @@ func CallLogFileCommand(logMachineName string, logf Log, resultChan chan RpcResu
 		Options: options,
 		LogSeq:  logSeq,
 	}
-	RpcAddrCallTimeout(machineName, machineAddress, funcName, arg, &LogFileCommandExecute{}, 1*time.Second, resultChan)
+	RpcAddrCallTimeout(machineName, machineAddress, funcName, arg, &LogFileCommandExecute{}, 3*time.Second, resultChan)
 }
 
 func prefixFindLogMachineName(log Log, logMachineName string) (string, bool) {

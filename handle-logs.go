@@ -97,7 +97,7 @@ func HandleLocateLogResult(w http.ResponseWriter, r *http.Request) {
 
 	resultChan := make(chan RpcResult)
 	for k, v := range qs {
-		GoRpcExecuteTimeout(k, &ShellResultCommandArg{ShellKey: v[0]}, &ShellResultCommandExecute{}, 1*time.Second, resultChan)
+		GoRpcExecuteTimeout(k, &ShellResultCommandArg{ShellKey: v[0]}, &ShellResultCommandExecute{}, 3*time.Second, resultChan)
 	}
 
 	for range qs {

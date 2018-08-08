@@ -13,7 +13,7 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 	size := len(devopsConf.Machines)
 	resultChan := make(chan RpcResult, size)
 	for machineName := range devopsConf.Machines {
-		GoRpcExecuteTimeout(machineName, &MachineCommandArg{}, &MachineCommandExecute{}, 1*time.Second, resultChan)
+		GoRpcExecuteTimeout(machineName, &MachineCommandArg{}, &MachineCommandExecute{}, 3*time.Second, resultChan)
 	}
 
 	resultsMap := make(map[string]RpcResult)
