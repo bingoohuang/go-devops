@@ -100,7 +100,7 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 				<td>Vsz</td><td>Rss</td><td>Tty</td><td>Stat</td><td>Start</td><td>Time</td><td>Command</td></tr></thead><tbody>`
 		}
 
-		tr := `<tr><td>{User}</td><td>%{Pid}</td><td>{Ppid}</td><td>{Cpu}</td><td>{Mem}</td>
+		tr := `<tr><td>{User}</td><td>{Pid}</td><td>{Ppid}</td><td>{Cpu}</td><td>{Mem}</td>
 		<td sorttable_customkey="{Vsz}">{HumanizedVsz}</td><td sorttable_customkey="{Rss}">{HumanizedRss}</td>
 		<td>{Tty}</td><td>{Stat}</td><td>{Start}</td><td>{Time}</td><td>{Command}</td></tr>`
 		tr = strings.Replace(tr, "{User}", t.User, 1)

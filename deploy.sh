@@ -11,7 +11,9 @@ else
     echo "rebuilding"
     rm -fr $deployName.linux.bin $deployName.linux.bin.bz2
     ./gobin.sh
+    echo "go build..."
     env GOOS=linux GOARCH=amd64 go build -o $deployName.linux.bin
+    echo "upx..."
     upx $deployName.linux.bin
 fi
 
