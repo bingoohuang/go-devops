@@ -6,7 +6,7 @@
         $('#locateLogSpan').hide()
         $.ajax({
             type: 'POST',
-            url: contextPath + "/tailFLog/" + loggerName  + "/" + traceMobile + "/" + tailSeq,
+            url: contextPath + "/tailFLog/" + loggerName + "/" + traceMobile + "/" + tailSeq,
             success: function (content, textStatus, request) {
                 if (tailSeq == "init") {
                     $.createTailTabs(content.Results)
@@ -39,21 +39,22 @@
 
             var machinePreWrap = $('#machine-' + content[i].MachineName + " .preWrap")
             machinePreWrap.append(content[i].TailContent.escapeHtml())
-            var textLength  = machinePreWrap.text().length
+            var textLength = machinePreWrap.text().length
 
             if (ttlTailTimeout != null && textLength > maxSize) {
                 machinePreWrap.text(machinePreWrap.text().substring(textLength - maxSize))
             }
 
             if (ttlTailTimeout != null) {
-                $.scrollToBottom()
+                window.scrollTo(0, document.body.scrollHeight)
             }
         }
     }
 
     $.stopTailFLog = function () {
-        clearTimeout(ttlTailTimeout)
+        var temp = ttlTailTimeout
         ttlTailTimeout = null
+        clearTimeout(temp)
     }
 
     $.bindTailFLogEvent = function (loggerName, traceMobile) {
