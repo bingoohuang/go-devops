@@ -39,10 +39,13 @@ table td.ProcessInfo {
 }
 
 .preWrap {
-    white-space: pre-wrap;
-    word-wrap: break-word;
     margin-top: 50px;
     margin-bottom: 50px;
+}
+
+.wordWrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 #fileContent, #configDiv, #locateLogSpan {

@@ -10,6 +10,11 @@
         $('#preContent .preWrap').html('')
     })
 
+    $('#wordWrap').click(function () {
+        var checked = $(this).is(':checked')
+        $('pre.preWrap').toggleClass('wordWrap', checked)
+    })
+
     $.createTailTabs = function (content) {
         var tailTabsHtml = ''
         // var machinesChecked = ''
