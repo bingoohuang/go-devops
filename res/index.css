@@ -41,6 +41,7 @@ table td.ProcessInfo {
 .preWrap {
     margin-top: 50px;
     margin-bottom: 50px;
+    font-family: 'Ubuntu Mono', monospace;
 }
 
 .wordWrap {
