@@ -133,3 +133,7 @@ div.tabs button.active {
     width: 200px;
     color: yellow;
 }
+
+.jconfirm-box {
+    width: 50%;
+}

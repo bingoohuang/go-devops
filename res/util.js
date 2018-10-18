@@ -20,8 +20,40 @@
         })
     }
 
-    if (typeof(String.prototype.escapeHtml) !== 'function') {
+    if (typeof (String.prototype.escapeHtml) !== 'function') {
         String.prototype.escapeHtml = escapeHtml
     }
+
+    $('#TestQyMsg').click(function () {
+        $.confirm({
+            title: '测试黑猫消息推送',
+            content: '' +
+                '<div>' +
+                '<textarea class="input" rows="10" cols="50" >写点啥吧</textarea>' +
+                '</div>',
+            buttons: {
+                formSubmit: {
+                    text: 'Submit',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var input = this.$content.find('.input').val();
+                        $.ajax({
+                            type: 'POST',
+                            url: contextPath + "/testQywxMsg",
+                            data: {msg: input},
+                            success: function (content, textStatus, request) {
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                alert(jqXHR.responseText + "\nStatus: " + textStatus + "\nError: " + errorThrown)
+                            }
+                        })
+                    }
+                },
+                cancel: function () {
+                    //close
+                }
+            }
+        });
+    })
 })()
 

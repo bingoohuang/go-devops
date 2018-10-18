@@ -85,12 +85,13 @@ func linkLogId(key string) string {
 
 var exLogDb = OpenDb("./exlogdb")
 
-func SendAlertMsg(head, content string) {
+func SendAlertMsg(head, content string) error {
 	if qywxToken == "" {
-		return
+		return nil
 	}
 
 	token := strings.Split(qywxToken, "/")
 	msg := "驻" + hostname + "黑猫" + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
-	go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
+	_, err := go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
+	return err
 }

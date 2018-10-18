@@ -21,6 +21,7 @@ func StartHttpSever() {
 	handleFunc(r, "/tailFLog/{loggerName}/{traceMobile}/{logSeq}", HandleTailFLog, true)
 	handleFunc(r, "/machines", HandleMachines, false)
 	handleFunc(r, "/logs", HandleLogs, false)
+	handleFunc(r, "/testQywxMsg", HandQywxMsgs, false)
 	handleFunc(r, "/saveConfig", HandleSaveConf, false)
 	handleFunc(r, "/loadConfig", HandleLoadConf, false)
 	handleFunc(r, "/exlog/{exLogId}", HandleExLog, false)
@@ -43,4 +44,14 @@ func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Re
 	}
 
 	r.HandleFunc(contextPath+path, wrap)
+}
+
+func HandQywxMsgs(w http.ResponseWriter, r *http.Request) {
+	go_utils.HeadContentTypeHtml(w)
+	msg := r.FormValue("msg")
+
+	err := SendAlertMsg("测试消息", msg)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
 }

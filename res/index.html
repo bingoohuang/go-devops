@@ -6,6 +6,7 @@
     <title>Go DevOps</title>
     <link href="https://cdn.bootcss.com/codemirror/5.38.0/codemirror.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/jquery-confirm/3.3.2/jquery-confirm.min.css" rel="stylesheet">
     <style>
         /*.CSS*/
     </style>
@@ -14,6 +15,7 @@
 <div class="hiddable" id="tableArea">
     <div id="buttonsDiv">
         <button id="ConfigBtn"><span class="context-menu-icons context-menu-icon-config">Config</span></button>
+        <button id="TestQyMsg">Test QyMsg</button>
     </div>
 
     <div>Machines:</div>
@@ -67,6 +69,7 @@
 <script src="https://cdn.bootcss.com/codemirror/5.38.0/codemirror.min.js"></script>
 <script src="https://cdn.bootcss.com/codemirror/5.38.0/mode/toml/toml.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery-contextmenu/2.6.4/jquery.contextMenu.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 <script>
     var contextPath = '${contextPath}';
 
