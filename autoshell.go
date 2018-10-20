@@ -13,7 +13,7 @@ func init() {
 		for {
 			autoShell := <-ImmediateShellChan
 			log.Println("Run Auto Shell", autoShell)
-			go_utils.BashTimeout(autoShell, 30*time.Second)
+			go_utils.BashTimeout(autoShell, 10*time.Minute)
 		}
 	}()
 }
