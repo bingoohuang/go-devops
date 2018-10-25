@@ -10,15 +10,16 @@ import (
 )
 
 var (
-	contextPath  string
-	httpPort     string
-	startHttp    bool
-	rpcPort      string
-	devMode      bool
-	configFile   string
-	randomLogGen bool
-	qywxToken    string
-	hostname     string
+	contextPath     string
+	httpPort        string
+	startHttp       bool
+	rpcPort         string
+	devMode         bool
+	configFile      string
+	randomLogGen    bool
+	qywxToken       string
+	hostname        string
+	dingAccessToken string
 
 	machineNames []string
 	loggers      []string
@@ -38,6 +39,7 @@ func init() {
 	versionArg := flag.Bool("v", false, "print version")
 	flag.StringVar(&qywxToken, "qywxToken", "", "CorpID/AgentId/Secret")
 	redisAddrArg := flag.String("redisServer", "", "redis server addr, eg: 127.0.0.1:6379, localhost:6388/0, password2/localhost:6388/0")
+	flag.StringVar(&dingAccessToken, "dingAccessToken", "", "ding ding accessToken")
 
 	go_utils.PrepareMustAuthFlag(&authParam)
 

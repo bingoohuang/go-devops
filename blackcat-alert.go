@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
+	"github.com/pkg/errors"
 	"strings"
 	"time"
 )
@@ -86,6 +87,16 @@ func linkLogId(key string) string {
 var exLogDb = OpenDb("./exlogdb")
 
 func SendAlertMsg(head, content string) error {
+	wxErr := sendWxAlterMsg(head, content)
+	dingErr := sendDingAlterMsg(head, content)
+
+	if wxErr != nil || dingErr != nil {
+		return errors.New(fmt.Sprintf("wxError: %s, dingErr: %s", wxErr.Error(), dingErr.Error()))
+	}
+	return nil
+}
+
+func sendWxAlterMsg(head, content string) error {
 	if qywxToken == "" {
 		return nil
 	}
@@ -94,4 +105,21 @@ func SendAlertMsg(head, content string) error {
 	msg := "驻" + hostname + "黑猫" + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
 	_, err := go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
 	return err
+}
+
+type J map[string]interface{}
+
+func sendDingAlterMsg(head, content string) error {
+	if dingAccessToken == "" {
+		return nil
+	}
+	msg := J{
+		"msgtype": "markdown",
+		"markdown": J{
+			"title": head,
+			"text":  content,
+		},
+	}
+	go_utils.HttpPost("https://oapi.dingtalk.com/robot/send?access_token="+dingAccessToken, msg)
+	return nil
 }
