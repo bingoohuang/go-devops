@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var ImmediateShellChan = make(chan string)
+var ImmediateShellChan = make(chan string, 1000)
 
 func init() {
 	go func() {
@@ -28,7 +28,7 @@ type ResponseShell struct {
 	Stderr  string
 }
 
-var DelayShellChan = make(chan *ResponseShell)
+var DelayShellChan = make(chan *ResponseShell, 1000)
 
 func init() {
 	go func() {
