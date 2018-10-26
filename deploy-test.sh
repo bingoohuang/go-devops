@@ -29,6 +29,6 @@ chmod +x ./deploy-agent.sh
 ./deploy-agent.sh $deployName app01 app/$deployName
 ./deploy-agent.sh $deployName app@app03 app/$deployName
 ./deploy-agent.sh $deployName app@test.ceping app/$deployName
-nohup ./$deployName.linux.bin 2>&1 >> nohup.out &
+./start-go-devops.sh
 exit
 eeooff
