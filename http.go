@@ -32,6 +32,8 @@ func StartHttpSever() {
 	http.Handle(contextPath+"/", r)
 
 	log.Println("start to listen at ", httpPort)
+
+	RunAlterMsgSender()
 	http.ListenAndServe(":"+httpPort, nil)
 }
 
@@ -49,8 +51,11 @@ func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Re
 func HandQywxMsgs(w http.ResponseWriter, r *http.Request) {
 	go_utils.HeadContentTypeHtml(w)
 	msg := r.FormValue("msg")
+	if msg == "" {
+		msg = "empty message"
+	}
 
-	err := SendAlertMsg("测试消息", msg)
+	err := AddAlertMsg("测试消息", msg)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
