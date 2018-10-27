@@ -116,12 +116,12 @@ func (msgs Msgs) dingMarkdown() (ret string) {
 	return
 }
 
-type MsgMap struct {
+type MsgContext struct {
 	lock *sync.RWMutex
 	m    Msgs
 }
 
-func (m *MsgMap) PopOut() Msgs {
+func (m *MsgContext) PopOut() Msgs {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	msgs := m.m
@@ -129,14 +129,14 @@ func (m *MsgMap) PopOut() Msgs {
 	return msgs
 }
 
-func (m *MsgMap) Add(msg Msg) {
+func (m *MsgContext) Add(msg Msg) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	m.m = append(m.m, msg)
 }
 
-func newMsgContext() *MsgMap {
-	return &MsgMap{
+func newMsgContext() *MsgContext {
+	return &MsgContext{
 		lock: new(sync.RWMutex),
 		m:    make([]Msg, 0),
 	}
@@ -148,30 +148,25 @@ type Msg struct {
 	Time    time.Time
 }
 
-var dingMarkdownTemplate = `
+// 每一行后加两个空格，用于Markdown换行
+var msgTemplate = `
 ### 驻{hostname}黑猫{head}  
 {content}  
 at {time}
 `
 
 func (m Msg) dingMarkdown() (ret string) {
-	ret = strings.Replace(dingMarkdownTemplate, "{hostname}", hostname, -1)
+	ret = strings.Replace(msgTemplate, "{hostname}", hostname, -1)
 	ret = strings.Replace(ret, "{head}", m.Head, -1)
 	ret = strings.Replace(ret, "{content}", markdownNewlineSymbol(m.Content), -1)
 	ret = strings.Replace(ret, "{time}", m.Time.Format("01月02日15:04:05"), -1)
 	return
 }
 
-var wxMsgTemplate = `
-### 驻{hostname}黑猫{head}  
-{content}  
-at {time}
-`
-
 func (m Msg) wxContent() (ret string) {
-	ret = strings.Replace(wxMsgTemplate, "{hostname}", hostname, -1)
+	ret = strings.Replace(msgTemplate, "{hostname}", hostname, -1)
 	ret = strings.Replace(ret, "{head}", m.Head, -1)
-	ret = strings.Replace(ret, "{content}", markdownNewlineSymbol(m.Content), -1)
+	ret = strings.Replace(ret, "{content}", m.Content, -1)
 	ret = strings.Replace(ret, "{time}", m.Time.Format("01月02日15:04:05"), -1)
 	return
 }
@@ -186,12 +181,10 @@ func RunAlterMsgSender() {
 	go func() {
 		t := time.NewTicker(5 * time.Second)
 		for {
-			select {
-			case <-t.C:
-				msgs := msgContext.PopOut()
-				if len(msgs) > 0 {
-					SendAlterMsg(msgs)
-				}
+			<-t.C
+			msgs := msgContext.PopOut()
+			if len(msgs) > 0 {
+				sendAlterMsg(msgs)
 			}
 		}
 	}()
@@ -202,7 +195,7 @@ func AddAlertMsg(head, content string) error {
 	return nil
 }
 
-func SendAlterMsg(msgs Msgs) error {
+func sendAlterMsg(msgs Msgs) error {
 	wxErr := sendWxAlterMsg(msgs)
 	dingErr := sendDingAlterMsg(msgs)
 
@@ -230,15 +223,15 @@ func sendWxAlterMsg(msgs Msgs) error {
 	return err
 }
 
-type J map[string]interface{}
+type j map[string]interface{}
 
 func sendDingAlterMsg(msgs Msgs) error {
 	if dingAccessToken == "" {
 		return nil
 	}
-	msg := J{
+	msg := j{
 		"msgtype": "markdown",
-		"markdown": J{
+		"markdown": j{
 			"title": msgs.firstHead(),
 			"text":  msgs.dingMarkdown(),
 		},

@@ -33,7 +33,7 @@ func StartHttpSever() {
 
 	log.Println("start to listen at ", httpPort)
 
-	RunAlterMsgSender()
+	RunAlterMsgSender() // alter message sender
 	http.ListenAndServe(":"+httpPort, nil)
 }
 
