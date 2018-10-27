@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -158,7 +159,7 @@ at {time}
 func (m Msg) dingMarkdown() (ret string) {
 	ret = strings.Replace(msgTemplate, "{hostname}", hostname, -1)
 	ret = strings.Replace(ret, "{head}", m.Head, -1)
-	ret = strings.Replace(ret, "{content}", markdownNewlineSymbol(m.Content), -1)
+	ret = strings.Replace(ret, "{content}", markdownATag(markdownNewlineSymbol(m.Content)), -1)
 	ret = strings.Replace(ret, "{time}", m.Time.Format("01月02日15:04:05"), -1)
 	return
 }
@@ -171,8 +172,26 @@ func (m Msg) wxContent() (ret string) {
 	return
 }
 
+// 将文本中的换行符转换为markdown换行符，即将"\n"替换为"\n  "
 func markdownNewlineSymbol(origin string) string {
 	return strings.Replace(origin, "\n", "\n  ", -1)
+}
+
+var hrefReg = regexp.MustCompile(`<a.+href="(.*?)">(.*?)</a>`)
+var aTagReplaceReg = regexp.MustCompile(`<a.*</a>`)
+
+// 将文本中的<a href="www.example.com">Text</a>替换文markdown文法, [Text](www.example.com)
+func markdownATag(origin string) string {
+	submatch := hrefReg.FindStringSubmatch(origin)
+	href := ""
+	value := ""
+	markdown := origin
+	if len(submatch) >= 3 {
+		href = submatch[1]
+		value = submatch[2]
+		markdown = aTagReplaceReg.ReplaceAllString(origin, fmt.Sprintf("[%s](%s)", value, href))
+	}
+	return markdown
 }
 
 var msgContext = newMsgContext()
