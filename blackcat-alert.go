@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
-	"github.com/pkg/errors"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -23,14 +25,14 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		}
 
 		content += "\n" + linkLogId(key) + "\nEx: " + log.ExceptionNames
-		SendAlertMsg("发现异常啦~", content)
+		AddAlertMsg("发现异常啦~", content)
 	}
 
 	if result.Error != "" {
 		key := "er" + NextID()
 		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
 		content := "\n" + linkLogId(key) + "\nEx: " + result.Error
-		SendAlertMsg("发现错误啦~", content)
+		AddAlertMsg("发现错误啦~", content)
 	}
 }
 
@@ -72,7 +74,7 @@ func blackcatAlertAgent(result *AgentCommandResult) {
 		}
 	}
 
-	SendAlertMsg("发来警报啦~", strings.Join(content, "\n"))
+	AddAlertMsg("发来警报啦~", strings.Join(content, "\n"))
 }
 
 func linkLogId(key string) string {
@@ -86,40 +88,177 @@ func linkLogId(key string) string {
 
 var exLogDb = OpenDb("./exlogdb")
 
-func SendAlertMsg(head, content string) error {
-	wxErr := sendWxAlterMsg(head, content)
-	dingErr := sendDingAlterMsg(head, content)
+type Msgs []Msg
+
+func (msgs *Msgs) Clear() {
+	*msgs = append([]Msg{})
+}
+
+func (msgs Msgs) firstHead() string {
+	if len(msgs) > 0 {
+		return msgs[0].Head
+	}
+	return ""
+}
+
+// wx
+func (msgs Msgs) wxContent() (ret string) {
+	for _, m := range msgs {
+		ret += m.wxContent()
+	}
+	return
+}
+
+// dingding
+func (msgs Msgs) dingMarkdown() (ret string) {
+	for _, m := range msgs {
+		ret += m.dingMarkdown()
+	}
+	return
+}
+
+type MsgContext struct {
+	lock *sync.RWMutex
+	m    Msgs
+}
+
+func (m *MsgContext) PopOut() Msgs {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	msgs := m.m
+	m.m.Clear()
+	return msgs
+}
+
+func (m *MsgContext) Add(msg Msg) {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	m.m = append(m.m, msg)
+}
+
+func newMsgContext() *MsgContext {
+	return &MsgContext{
+		lock: new(sync.RWMutex),
+		m:    make([]Msg, 0),
+	}
+}
+
+type Msg struct {
+	Head    string
+	Content string
+	Time    time.Time
+}
+
+// 每一行后加两个空格，用于Markdown换行
+var msgTemplate = `
+### 驻{hostname}黑猫{head}  
+{content}  
+at {time}
+`
+
+func (m Msg) dingMarkdown() (ret string) {
+	ret = strings.Replace(msgTemplate, "{hostname}", hostname, -1)
+	ret = strings.Replace(ret, "{head}", m.Head, -1)
+	ret = strings.Replace(ret, "{content}", markdownATag(markdownNewlineSymbol(m.Content)), -1)
+	ret = strings.Replace(ret, "{time}", m.Time.Format("01月02日15:04:05"), -1)
+	return
+}
+
+func (m Msg) wxContent() (ret string) {
+	ret = strings.Replace(msgTemplate, "{hostname}", hostname, -1)
+	ret = strings.Replace(ret, "{head}", m.Head, -1)
+	ret = strings.Replace(ret, "{content}", m.Content, -1)
+	ret = strings.Replace(ret, "{time}", m.Time.Format("01月02日15:04:05"), -1)
+	return
+}
+
+// 将文本中的换行符转换为markdown换行符，即将"\n"替换为"\n  "
+func markdownNewlineSymbol(origin string) string {
+	return strings.Replace(origin, "\n", "\n  ", -1)
+}
+
+var hrefReg = regexp.MustCompile(`<a.+href="(.*?)">(.*?)</a>`)
+var aTagReplaceReg = regexp.MustCompile(`<a.*</a>`)
+
+// 将文本中的<a href="www.example.com">Text</a>替换文markdown文法, [Text](www.example.com)
+func markdownATag(origin string) string {
+	submatch := hrefReg.FindStringSubmatch(origin)
+	href := ""
+	value := ""
+	markdown := origin
+	if len(submatch) >= 3 {
+		href = submatch[1]
+		value = submatch[2]
+		markdown = aTagReplaceReg.ReplaceAllString(origin, fmt.Sprintf("[%s](%s)", value, href))
+	}
+	return markdown
+}
+
+var msgContext = newMsgContext()
+
+func RunAlterMsgSender() {
+	go func() {
+		t := time.NewTicker(5 * time.Second)
+		for {
+			<-t.C
+			msgs := msgContext.PopOut()
+			if len(msgs) > 0 {
+				sendAlterMsg(msgs)
+			}
+		}
+	}()
+}
+
+func AddAlertMsg(head, content string) error {
+	msgContext.Add(Msg{Head: head, Content: content, Time: time.Now()})
+	return nil
+}
+
+func sendAlterMsg(msgs Msgs) error {
+	wxErr := sendWxAlterMsg(msgs)
+	dingErr := sendDingAlterMsg(msgs)
 
 	if wxErr != nil || dingErr != nil {
-		return errors.New(fmt.Sprintf("wxError: %s, dingErr: %s", wxErr.Error(), dingErr.Error()))
+		wxErrStr := ""
+		if wxErr != nil {
+			wxErrStr = wxErr.Error()
+		}
+		dingErrStr := ""
+		if dingErr != nil {
+			dingErrStr = dingErr.Error()
+		}
+		return errors.New(fmt.Sprintf("wxError: %s, dingErr: %s", wxErrStr, dingErrStr))
 	}
 	return nil
 }
 
-func sendWxAlterMsg(head, content string) error {
+func sendWxAlterMsg(msgs Msgs) error {
 	if qywxToken == "" {
 		return nil
 	}
 
 	token := strings.Split(qywxToken, "/")
-	msg := "驻" + hostname + "黑猫" + head + "\n" + content + "\nat " + time.Now().Format("01月02日15:04:05")
-	_, err := go_utils.SendWxQyMsg(token[0], token[2], token[1], msg)
+	_, err := go_utils.SendWxQyMsg(token[0], token[2], token[1], msgs.wxContent())
 	return err
 }
 
-type J map[string]interface{}
+type j map[string]interface{}
 
-func sendDingAlterMsg(head, content string) error {
+func sendDingAlterMsg(msgs Msgs) error {
 	if dingAccessToken == "" {
 		return nil
 	}
-	msg := J{
+	msg := j{
 		"msgtype": "markdown",
-		"markdown": J{
-			"title": head,
-			"text":  content,
+		"markdown": j{
+			"title": msgs.firstHead(),
+			"text":  msgs.dingMarkdown(),
 		},
 	}
-	go_utils.HttpPost("https://oapi.dingtalk.com/robot/send?access_token="+dingAccessToken, msg)
+	bytes, err := go_utils.HttpPost("https://oapi.dingtalk.com/robot/send?access_token="+dingAccessToken, msg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(bytes))
 	return nil
 }

@@ -29,14 +29,14 @@ func HttpCheck(checker BlackcatHttpChecker) {
 	url := fmtdate.Format(checker.Url, time.Now())
 	bytes, err := go_utils.HttpGet(url)
 	if err != nil {
-		SendAlertMsg(checker.Title, "有错误啦~\n"+err.Error())
+		AddAlertMsg(checker.Title, "有错误啦~\n"+err.Error())
 		return
 	}
 
 	retMsg := string(bytes)
 	if retMsg == checker.OK {
-		SendAlertMsg(checker.Title, checker.OkMsg)
+		AddAlertMsg(checker.Title, checker.OkMsg)
 	} else {
-		SendAlertMsg(checker.Title, checker.FailMsg+"\n"+retMsg)
+		AddAlertMsg(checker.Title, checker.FailMsg+"\n"+retMsg)
 	}
 }

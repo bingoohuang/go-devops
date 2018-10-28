@@ -11,7 +11,7 @@ require (
 	github.com/dgraph-io/badger v1.5.4
 	github.com/dgryski/go-farm v0.0.0-20180109070241-2de33835d102 // indirect
 	github.com/docker/go-units v0.3.3
-	github.com/dustin/go-humanize v0.0.0-20180713052910-9f541cc9db5d
+	github.com/dustin/go-humanize v1.0.0
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-redis/redis v6.14.1+incompatible
 	github.com/gorilla/context v1.1.1 // indirect

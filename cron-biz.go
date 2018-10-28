@@ -17,7 +17,7 @@ func startBizCron() {
 	cron := "0 30 20 1/1 * ?" // "@every 10s"
 	bizCron.AddFunc(cron, func() {
 		msg := createRemindMsg()
-		SendAlertMsg("统计上课提醒啦~", msg)
+		AddAlertMsg("统计上课提醒啦~", msg)
 	})
 	bizCron.Start()
 }
