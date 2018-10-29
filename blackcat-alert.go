@@ -255,10 +255,6 @@ func sendDingAlterMsg(msgs Msgs) error {
 			"text":  msgs.dingMarkdown(),
 		},
 	}
-	bytes, err := go_utils.HttpPost("https://oapi.dingtalk.com/robot/send?access_token="+dingAccessToken, msg)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(bytes))
-	return nil
+	_, err := go_utils.HttpPost("https://oapi.dingtalk.com/robot/send?access_token="+dingAccessToken, msg)
+	return err
 }
