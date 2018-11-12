@@ -6,7 +6,7 @@
 [logs]
     [logs.DEMO]
     machines = ["LOCAL"]
-    path = "a.log"
+    path = "/Users/bingoo/gitlab/hanergy-ceping-server/ceping.log"
     process = "go-devops"
 
     #[logs.ET]
@@ -32,21 +32,32 @@
     patrolCron = "0 0 8-20 * * ?"
     machines = ["LOCAL"]
     topn = 30
+    messageTargets = ["hanergy-ceping"]
+    exLogViewUrlPrefix = "http://127.0.0.1:6879/"
+
+[messageTargets]
+    [messageTargets.hanergy-ceping]
+    messagingType = "dingtalk-robot"
+    properties = "7dbfda32839df27923aa2f6b1a4684bb777b114a45963687ba7cf8506d13dd3e"
+
 
 [blackcatExLogs]
     [blackcatExLogs.et]
     directRegex = false
     normalRegex = "2017-11-19 23:54:53.026"
     exceptionRegex = "\\.(\\S+)?Exception\\b"
-    ignores = ["java.io.IOException: Broken pipe", "java.lang.IllegalStateException: getOutputStream"]
-    logFileName = "./a.log"
-    properties = ["tcode", "tenantCode\\[(\\d+)\\]"]
+    ignores = [""]
+    logFileName = "/Users/bingoo/gitlab/hanergy-ceping-server/ceping.log"
+    properties = []
     machines = ["LOCAL"]
+    messageTargets = ["hanergy-ceping"]
+
 
 [blackcatProcesses]
     [blackcatProcesses.et]
     keywords=["go-devops"]
     machines = ["LOCAL"]
+    messageTargets = ["hanergy-ceping"]
 
 [httpCheckers]
     [httpCheckers.backupCenter]
@@ -56,3 +67,4 @@
     ok = "OK"
     okMsg = "南方中心备份成功!"
     failMsg = "备份中心备份异常,详情请查看备份目录err.log!"
+    messageTargets = ["hanergy-ceping"]

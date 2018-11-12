@@ -33,8 +33,7 @@ func StartHttpSever() {
 
 	log.Println("start to listen at ", httpPort)
 
-	RunAlterMsgSender() // alter message sender
-	http.ListenAndServe(":"+httpPort, nil)
+	_ = http.ListenAndServe(":"+httpPort, nil)
 }
 
 func handleFunc(r *mux.Router, path string, f func(http.ResponseWriter, *http.Request), requiredGzip bool) {
@@ -55,8 +54,5 @@ func HandQywxMsgs(w http.ResponseWriter, r *http.Request) {
 		msg = "empty message"
 	}
 
-	err := AddAlertMsg("测试消息", msg)
-	if err != nil {
-		w.Write([]byte(err.Error()))
-	}
+	AddAlertMsg(devopsConf.BlackcatThreshold.MessageTargets, "测试消息", msg)
 }

@@ -30,7 +30,7 @@ func loadCrons() {
 
 func addCron(logRotateName string, logRotate LogRotate) {
 	for _, cron := range logRotate.Crons {
-		c.AddFunc(cron, func() {
+		_ = c.AddFunc(cron, func() {
 			logRotate.Name = logRotateName
 			dealLogCron(logRotate)
 		})

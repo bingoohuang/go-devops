@@ -6,10 +6,12 @@ import (
 )
 
 type DevopsConf struct {
-	Machines             map[string]Machine
-	Logs                 map[string]Log
-	Processes            map[string]Process
-	Logrotates           map[string]LogRotate
+	Machines       map[string]Machine
+	Logs           map[string]Log
+	Processes      map[string]Process
+	Logrotates     map[string]LogRotate
+	MessageTargets map[string]MessageTargetConf
+
 	BlackcatThreshold    BlackcatThreshold
 	BlackcatExLogs       map[string]BlackcatExLogConf
 	BlackcatProcesses    map[string]BlackcatProcessConf

@@ -123,7 +123,7 @@ func (o *CopyTruncateCronExecutable) Execute(files []string) {
 		}
 
 		if stat.IsDir() {
-			filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
+			_ = filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
 				if !info.IsDir() && info.Size() > o.maxSize {
 					o.tailMaxSize(path)
 				}
@@ -195,7 +195,7 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 		}
 
 		if stat.IsDir() {
-			filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
+			_ = filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
 				if !info.IsDir() {
 					o.deleteFile(path)
 				}
@@ -210,20 +210,20 @@ func (o *DeleteOldsExecutable) Execute(files []string) {
 func (o *DeleteOldsExecutable) deleteFile(file string) {
 	base := filepath.Base(file)
 
-	time := o.fileTime(base)
-	// fmt.Println("file", file, "'s time is", time)
+	t := o.fileTime(base)
+	// fmt.Println("file", file, "'s t is", t)
 
-	if !time.After(o.cutTime) {
-		os.Remove(file)
+	if !t.After(o.cutTime) {
+		_ = os.Remove(file)
 		log.Println("removed file", file)
 	}
 }
 
 func (o *DeleteOldsExecutable) fileTime(base string) time.Time {
 	for _, pattern := range o.patterns {
-		time, err := go_utils.ParseFmtDate(pattern, base)
+		t, err := go_utils.ParseFmtDate(pattern, base)
 		if err == nil {
-			return time
+			return t
 		}
 	}
 

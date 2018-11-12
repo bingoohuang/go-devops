@@ -22,11 +22,13 @@ type BlackcatThreshold struct {
 	Machines                []string
 	Topn                    int
 	ExLogViewUrlPrefix      string
+	MessageTargets          []string // 消息发送目标
 }
 
 type BlackcatProcessConf struct {
-	Keywords []string
-	Machines []string
+	Keywords       []string
+	Machines       []string
+	MessageTargets []string // 消息发送目标
 }
 
 type BlackcatExLogConf struct {
@@ -37,11 +39,14 @@ type BlackcatExLogConf struct {
 	LogFileName    string
 	Properties     []string
 	Machines       []string
+	MessageTargets []string // 消息发送目标
 }
 
 var blackcatCron *cron.Cron = nil
 
 func loadBlackcatCrons() {
+	InitMessageTargets()
+
 	ExLogClearAll()
 
 	threshold := &devopsConf.BlackcatThreshold
@@ -93,8 +98,8 @@ func fixBlackcatConfig(t *BlackcatThreshold) {
 }
 
 func hourlyTip(t *BlackcatThreshold) {
-	blackcatCron.AddFunc(t.PatrolCron, func() {
-		AddAlertMsg("黑猫正在巡逻中~", "敬请及时关注信息~")
+	_ = blackcatCron.AddFunc(t.PatrolCron, func() {
+		AddAlertMsg(t.MessageTargets, "黑猫正在巡逻中~", "敬请及时关注信息~")
 	})
 }
 
@@ -112,14 +117,15 @@ func cronExLog(threshold *BlackcatThreshold) {
 		}
 	}
 
-	blackcatCron.AddFunc(threshold.ExLogsCron, func() {
+	_ = blackcatCron.AddFunc(threshold.ExLogsCron, func() {
 		for machineName, confs := range machineExLogConfs {
 			logFiles := make(map[string]ExLogTailerConf)
 			for _, conf := range confs {
 				logFiles[conf.Logger] = conf
 			}
 
-			GoRpcExecuteTimeout(machineName, &ExLogCommandArg{LogFiles: logFiles}, &ExLogCommandExecute{}, 3*time.Second, exLogChan)
+			GoRpcExecuteTimeout(machineName, &ExLogCommandArg{LogFiles: logFiles},
+				&ExLogCommandExecute{}, 3*time.Second, exLogChan)
 		}
 	})
 
@@ -140,6 +146,7 @@ func createExLogTailerConf(logger string, conf BlackcatExLogConf) ExLogTailerCon
 		Logger:         logger,
 		LogFileName:    conf.LogFileName,
 		Properties:     go_utils.MapOf(conf.Properties),
+		MessageTargets: conf.MessageTargets,
 	}
 }
 
@@ -155,8 +162,9 @@ func cronAgent(t *BlackcatThreshold) {
 		}
 
 		local := machineName // 本行是为了在每一次循环内新建变量，以方便下面的闭包引用
-		blackcatCron.AddFunc(t.ThresholdCron, func() {
-			GoRpcExecuteTimeout(local, &AgentCommandArg{Processes: processes, Topn: t.Topn}, &AgentCommandExecute{}, 3*time.Second, resultChan)
+		_ = blackcatCron.AddFunc(t.ThresholdCron, func() {
+			GoRpcExecuteTimeout(local, &AgentCommandArg{Processes: processes, Topn: t.Topn},
+				&AgentCommandExecute{}, 3*time.Second, resultChan)
 		})
 	}
 

@@ -16,6 +16,7 @@ type ExLog struct {
 	Context        string
 	Err            string
 	MachineName    string
+	MessageTargets []string // 消息发送目标
 }
 
 type ExLogTailer struct {
@@ -31,6 +32,8 @@ type ExLogTailer struct {
 	// temp data
 	Previous  *go_utils.FifoQueue
 	Following []string
+
+	MessageTargets []string // 消息发送目标
 }
 
 type ExLogTailerConf struct {
@@ -41,6 +44,7 @@ type ExLogTailerConf struct {
 	Logger         string
 	LogFileName    string
 	Properties     map[string]string
+	MessageTargets []string // 消息发送目标
 }
 
 func NewExLogTailer(exLogChan chan<- ExLog, conf *ExLogTailerConf) (*ExLogTailer, error) {
@@ -102,8 +106,9 @@ func NewExLogTailer(exLogChan chan<- ExLog, conf *ExLogTailerConf) (*ExLogTailer
 		Ignores:    ignoreArr,
 		Logger:     conf.Logger,
 
-		Previous:  go_utils.NewFifoQueue(80),
-		Following: make([]string, 0),
+		Previous:       go_utils.NewFifoQueue(80),
+		Following:      make([]string, 0),
+		MessageTargets: conf.MessageTargets,
 	}, nil
 }
 
@@ -171,6 +176,7 @@ func (t *ExLogTailer) evictEx() {
 		Normal:         normal,
 		Logger:         t.Logger,
 		MachineName:    hostname,
+		MessageTargets: t.MessageTargets,
 	}
 }
 

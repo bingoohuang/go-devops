@@ -38,7 +38,8 @@ func init() {
 	flag.StringVar(&configFile, "config", "config.toml", "config file path")
 	versionArg := flag.Bool("v", false, "print version")
 	flag.StringVar(&qywxToken, "qywxToken", "", "CorpID/AgentId/Secret")
-	redisAddrArg := flag.String("redisServer", "", "redis server addr, eg: 127.0.0.1:6379, localhost:6388/0, password2/localhost:6388/0")
+	redisAddrArg := flag.String("redisServer", "",
+		"redis server addr, eg: 127.0.0.1:6379, localhost:6388/0, password2/localhost:6388/0")
 	flag.StringVar(&dingAccessToken, "dingAccessToken", "", "ding ding accessToken")
 
 	go_utils.PrepareMustAuthFlag(&authParam)
@@ -54,8 +55,7 @@ func init() {
 
 	httpPort = strconv.Itoa(*httpPortArg)
 	rpcPort = strconv.Itoa(*rpcPortArg)
-	ostStat, _ := host.Info()
-	hostname = ostStat.Hostname
+	hostname = Hostname()
 
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		return
@@ -63,4 +63,9 @@ func init() {
 
 	loadConfig()
 	startBizCron()
+}
+
+func Hostname() string {
+	ostStat, _ := host.Info()
+	return ostStat.Hostname
 }

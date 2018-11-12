@@ -54,7 +54,7 @@ func RpcAddrCall(machineName, addr, funcName string, arg interface{}, callable R
 		defer client.Close()
 
 		reply := callable.CreateResult(nil)
-		client.Call(callable.CommandName()+"."+funcName, arg, reply)
+		_ = client.Call(callable.CommandName()+"."+funcName, arg, reply)
 	}()
 }
 
@@ -97,7 +97,8 @@ func RpcAddrCallTimeout(machineName, addr, funcName string, arg interface{}, cal
 		resultChan <- result
 	case <-time.After(timeout):
 		fmt := durafmt.ParseShort(timeout)
-		result := callable.CreateResult(errors.New("timeout in " + fmt.String() + " to call " + machineName + " " + callable.CommandName() + "." + funcName + "@" + addr))
+		result := callable.CreateResult(errors.New("timeout in " + fmt.String() +
+			" to call " + machineName + " " + callable.CommandName() + "." + funcName + "@" + addr))
 		result.SetMachineName(machineName)
 		resultChan <- result
 	}

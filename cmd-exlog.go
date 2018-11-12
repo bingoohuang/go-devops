@@ -11,11 +11,12 @@ type ExLogCommandArg struct {
 }
 
 type ExLogCommandResult struct {
-	ExLogs      []ExLog
-	MachineName string
-	Error       string
-	Hostname    string
-	Timestamp   string
+	ExLogs         []ExLog
+	MachineName    string
+	Error          string
+	Hostname       string
+	Timestamp      string
+	MessageTargets []string // 消息发送目标
 }
 
 type ExLogCommand int
@@ -81,7 +82,7 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 				rt.Stop <- true
 
 				exLogChanMap.Delete(k)
-				StartNewTailer(k, v)
+				_ = StartNewTailer(k, v)
 			}
 		} else {
 			err := StartNewTailer(k, v)
