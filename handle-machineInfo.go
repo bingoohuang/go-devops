@@ -31,5 +31,5 @@ func HandleMachineInfo(w http.ResponseWriter, r *http.Request) {
 		index = strings.Replace(index, `<Error/>`, machineName+`'s Agent Info Not Available!`, -1)
 	}
 
-	w.Write([]byte(index))
+	_, _ = w.Write([]byte(index))
 }

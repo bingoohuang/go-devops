@@ -5,7 +5,7 @@ targetHost=$1
 deployName=go-devops
 fast=$2
 
-if [ "$fast" == "fast" ]; then
+if [[ "$fast" == "fast" ]]; then
     echo "jump building in fast mode"
 else
     echo "rebuilding"

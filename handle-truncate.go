@@ -19,5 +19,5 @@ func HandleTruncateLogFile(w http.ResponseWriter, r *http.Request) {
 	CallLogFileCommand(logMachine, log, resultChan, "TruncateLogFile", false, "", 0)
 
 	result := <-resultChan
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }

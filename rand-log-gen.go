@@ -17,8 +17,8 @@ func createRandomLog() {
 	check(err)
 
 	for {
-		f.WriteString(time.Now().String() + " " + RandStringBytesMaskImpr(1000) + "\n")
-		f.Sync()
+		_, _ = f.WriteString(time.Now().String() + " " + RandStringBytesMaskImpr(1000) + "\n")
+		_ = f.Sync()
 		time.Sleep(1 * time.Second)
 	}
 

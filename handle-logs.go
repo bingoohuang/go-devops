@@ -40,7 +40,7 @@ func HandleLogs(w http.ResponseWriter, r *http.Request) {
 		results = append(results, resultsMap[logger])
 	}
 
-	json.NewEncoder(w).Encode(results)
+	_ = json.NewEncoder(w).Encode(results)
 }
 
 func GoShowLog(logsWg *sync.WaitGroup, logger string, log Log, results chan *LogShowResult) {
@@ -105,7 +105,7 @@ func HandleLocateLogResult(w http.ResponseWriter, r *http.Request) {
 		rsp.Results = append(rsp.Results, result.(*ShellResultCommandResult))
 	}
 
-	json.NewEncoder(w).Encode(rsp)
+	_ = json.NewEncoder(w).Encode(rsp)
 }
 
 func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
@@ -146,5 +146,5 @@ func executeCommand(log Log, command string, w http.ResponseWriter) {
 		result.SetMachineName(machineName)
 		results = append(results, result)
 	}
-	json.NewEncoder(w).Encode(results)
+	_ = json.NewEncoder(w).Encode(results)
 }

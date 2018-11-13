@@ -19,5 +19,5 @@ func HandleRestartProcess(w http.ResponseWriter, r *http.Request) {
 	CallLogFileCommand(logMachine, log, resultChan, "RestartProcess", true, "", 0)
 
 	result := <-resultChan
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }

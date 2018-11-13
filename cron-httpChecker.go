@@ -20,7 +20,7 @@ type BlackcatHttpChecker struct {
 func loadHttpCheckerCrons(blackcatCron *cron.Cron) {
 	for _, httpChecker := range devopsConf.BlackcatHttpCheckers {
 		checker := httpChecker
-		blackcatCron.AddFunc(httpChecker.Cron, func() {
+		_ = blackcatCron.AddFunc(httpChecker.Cron, func() {
 			HttpCheck(checker)
 		})
 	}

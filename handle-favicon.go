@@ -26,5 +26,5 @@ func HandleStaticResource(path string, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", go_utils.DetectContentType(fi.Name()))
 	w.Header().Set("Last-Modified", fi.ModTime().UTC().Format(http.TimeFormat))
 	w.WriteHeader(http.StatusOK)
-	io.Copy(w, buffer)
+	_, _ = io.Copy(w, buffer)
 }

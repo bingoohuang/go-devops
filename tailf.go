@@ -23,14 +23,16 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 		tailer.Error(err)
 		return
 	}
-	defer stdout.Close()
+	defer func() { _ = stdout.Close() }()
 
 	if err := cmd.Start(); err != nil {
 		tailer.Error(err)
 		return
 	}
-	defer cmd.Process.Kill()
-	defer cmd.Wait()
+	defer func() {
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+	}()
 
 	reader := bufio.NewReader(stdout)
 	timeout := make(chan bool, 1)

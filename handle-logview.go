@@ -32,7 +32,7 @@ func HandleExLog(w http.ResponseWriter, r *http.Request) {
 		index = string(MustAsset("res/viewerror.html"))
 		index = strings.Replace(index, `<Error/>`, `LogId=`+exLogId+`'s format is unknown!`, -1)
 	}
-	w.Write([]byte(index))
+	_, _ = w.Write([]byte(index))
 }
 
 func agentError(log []byte, index string, exLogId string, err error) string {
@@ -55,7 +55,7 @@ func agentView(log []byte, index string, exLogId string, err error) string {
 	index = strings.Replace(index, "/*.SCRIPT*/", js, 1)
 
 	if log != nil {
-		json.Unmarshal(log, exLog)
+		_ = json.Unmarshal(log, exLog)
 		return buildAgentView(index, exLogId, exLog)
 	} else if err != nil {
 		return strings.Replace(index, `<Error/>`, html.EscapeString(err.Error()), -1)
@@ -130,7 +130,7 @@ func buildAgentView(index, exLogId string, exLog *AgentCommandResult) string {
 func exLogView(log []byte, index string, exLogId string, err error) string {
 	exLog := &ExLog{}
 	if log != nil {
-		json.Unmarshal(log, exLog)
+		_ = json.Unmarshal(log, exLog)
 		index = replaceIndex(index, exLogId, exLog)
 		return strings.Replace(index, `<Error/>`, ``, -1)
 	} else if err != nil {

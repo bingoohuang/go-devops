@@ -38,7 +38,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 
 		logs := createLogsResult(log, resultsMap)
 
-		json.NewEncoder(w).Encode(logs)
+		_ = json.NewEncoder(w).Encode(logs)
 	} else {
 		logs := make([]RpcResult, 0)
 		for _, logMachineName := range log.Machines {
@@ -49,7 +49,7 @@ func HandleTailLogFile(w http.ResponseWriter, r *http.Request) {
 			logs = append(logs, result)
 		}
 
-		json.NewEncoder(w).Encode(logs)
+		_ = json.NewEncoder(w).Encode(logs)
 	}
 }
 
@@ -94,7 +94,7 @@ func HandleTailFLog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logs := createLogsResult(log, resultsMap)
-	json.NewEncoder(w).Encode(
+	_ = json.NewEncoder(w).Encode(
 		struct {
 			Results   []RpcResult
 			NewLogSeq string

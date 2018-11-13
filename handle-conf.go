@@ -20,20 +20,20 @@ func HandleLoadConf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go_utils.HeadContentTypeJson(w)
-	json.NewEncoder(w).Encode(struct{ OK, Conf string }{"OK", string(conf)})
+	_ = json.NewEncoder(w).Encode(struct{ OK, Conf string }{"OK", string(conf)})
 }
 
 func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
 	go_utils.HeadContentTypeJson(w)
 	config := r.FormValue("config")
 
-	ioutil.WriteFile(configFile, []byte(config), 0644)
+	_ = ioutil.WriteFile(configFile, []byte(config), 0644)
 	meta, err := toml.Decode(config, &devopsConf)
 	if err != nil {
-		json.NewEncoder(w).Encode(struct{ OK, Msg string }{"ERROR", err.Error()})
+		_ = json.NewEncoder(w).Encode(struct{ OK, Msg string }{"ERROR", err.Error()})
 		return
 	}
 
 	parseConfig(&meta)
-	json.NewEncoder(w).Encode(struct{ OK, Msg string }{"OK", "OK"})
+	_ = json.NewEncoder(w).Encode(struct{ OK, Msg string }{"OK", "OK"})
 }

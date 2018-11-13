@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"regexp"
 	"strings"
@@ -31,10 +30,9 @@ var hrefReg = regexp.MustCompile(`<a.+href="(.*?)">(.*?)</a>`)
 
 // 将文本中的<a href="www.example.com">Text</a>替换文markdown文法, [Text](www.example.com)
 func fixMarkdown(origin string) string {
-	fmt.Println(origin)
 	markdown := hrefReg.ReplaceAllString(origin, `[$2]($1)`)
 
-	// 将文本中的换行符转换为markdown换行符，即将"\n"替换为"\n  "
+	// 将文本中的换行符转换为markdown换行符，即将"\n"替换为"\n\n"
 	return strings.Replace(markdown, "\n", "\n\n", -1)
 }
 

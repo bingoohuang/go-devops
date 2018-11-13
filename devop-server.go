@@ -6,13 +6,13 @@ import (
 )
 
 func StartDevOpServer() error {
-	rpc.Register(new(ShellCommand))
-	rpc.Register(new(ShellResultCommand))
-	rpc.Register(new(LogFileCommand))
-	rpc.Register(new(MachineCommand))
-	rpc.Register(new(CronCommand))
-	rpc.Register(new(ExLogCommand))
-	rpc.Register(new(AgentCommand))
+	_ = rpc.Register(new(ShellCommand))
+	_ = rpc.Register(new(ShellResultCommand))
+	_ = rpc.Register(new(LogFileCommand))
+	_ = rpc.Register(new(MachineCommand))
+	_ = rpc.Register(new(CronCommand))
+	_ = rpc.Register(new(ExLogCommand))
+	_ = rpc.Register(new(AgentCommand))
 	tcpAddr, err := net.ResolveTCPAddr("tcp", ":"+rpcPort)
 	FatalIfErr(err)
 

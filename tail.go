@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-var tailMap sync.Map
-
 var tailCache *cache.Cache
 var cacheMux sync.Mutex
 
@@ -23,8 +21,8 @@ func OnEvicted(key string, val interface{}) {
 
 	attach := logQueue.Attach.(*CycleQueueAttach)
 	attach.Stop <- true
-	attach.Exec.Process.Kill()
-	attach.Exec.Process.Wait()
+	_ = attach.Exec.Process.Kill()
+	_, _ = attach.Exec.Process.Wait()
 }
 
 func init() {
@@ -113,5 +111,5 @@ Loop:
 	}
 	log.Println("Exit tail -F " + logFile)
 
-	stdout.Close()
+	_ = stdout.Close()
 }

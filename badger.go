@@ -20,8 +20,8 @@ func OpenDb(dataDir string) *badger.DB {
 }
 
 func WriteDbJson(db *badger.DB, k string, v interface{}, dur time.Duration) {
-	json, _ := json.Marshal(v)
-	WriteDb(db, k, json, dur)
+	j, _ := json.Marshal(v)
+	WriteDb(db, k, j, dur)
 }
 
 func WriteDb(db *badger.DB, k string, v []byte, dur time.Duration) {

@@ -43,7 +43,7 @@ var fixedLtime = `|awk '{c="date -d\""$1 FS $2 FS $3 FS $4 FS $5"\" +\047%Y-%m-%
 func PsAux(shellCmd string) []*PsAuxItem {
 	auxItems := make([]*PsAuxItem, 0)
 
-	go_utils.ExecuteBashLiner(shellCmd+fixedLtime, func(line string) bool {
+	_ = go_utils.ExecuteBashLiner(shellCmd+fixedLtime, func(line string) bool {
 		f := BlankRegex.Split(line, 13)
 		auxItems = append(auxItems, &PsAuxItem{
 			User: f[2], Pid: f[3], Ppid: f[4], Cpu: f[5], Mem: f[6], Vsz: f[7], Rss: f[8],

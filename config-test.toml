@@ -1,3 +1,6 @@
+[misc]
+    RedisServer = "127.0.0.1:6379"
+
 [machines]
     # You can indent as you please. Tabs or spaces. TOML don't care.
     [machines.LOCAL]

@@ -29,7 +29,7 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 		key := "er" + NextID()
 		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
 		content := "\n" + linkLogId(key) + "\nEx: " + result.Error
-		AddAlertMsg(result.MessageTargets, "发现错误啦~", content)
+		AddAlertMsg(devopsConf.BlackcatThreshold.MessageTargets, "发现错误啦~", content)
 	}
 }
 

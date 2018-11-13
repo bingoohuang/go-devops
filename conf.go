@@ -16,6 +16,11 @@ type DevopsConf struct {
 	BlackcatExLogs       map[string]BlackcatExLogConf
 	BlackcatProcesses    map[string]BlackcatProcessConf
 	BlackcatHttpCheckers map[string]BlackcatHttpChecker
+	Misc                 MiscConf
+}
+
+type MiscConf struct {
+	RedisServer string // redis server addr, eg: 127.0.0.1:6379, localhost:6388/0, password2/localhost:6388/0
 }
 
 type Machine struct {
@@ -43,6 +48,8 @@ func loadConfig() {
 		log.Println("DecodeFile error:", err)
 		return
 	}
+
+	redisServer = ParseServerItem(devopsConf.Misc.RedisServer)
 
 	parseConfig(&meta)
 }

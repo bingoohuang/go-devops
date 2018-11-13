@@ -27,5 +27,5 @@ func HandleMachines(w http.ResponseWriter, r *http.Request) {
 		results = append(results, resultsMap[machineName])
 	}
 
-	json.NewEncoder(w).Encode(results)
+	_ = json.NewEncoder(w).Encode(results)
 }

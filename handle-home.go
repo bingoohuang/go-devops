@@ -21,5 +21,5 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 	html = strings.Replace(html, "/*.SCRIPT*/", js, 1)
 	html = strings.Replace(html, "${contextPath}", contextPath, -1)
 
-	w.Write([]byte(html))
+	_, _ = w.Write([]byte(html))
 }
