@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"os/exec"
 	"time"
@@ -35,15 +36,14 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 	}()
 
 	reader := bufio.NewReader(stdout)
-	timeout := make(chan bool, 1)
 	go func() {
 		for {
 			line, err := reader.ReadString('\n')
-			timeout <- false
 			if err != nil {
+				fmt.Println(err)
 				tailer.Error(err)
 				stop <- true
-				return
+				break
 			}
 			tailer.Line(line)
 		}
@@ -53,8 +53,7 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 		select {
 		case <-stop:
 			return
-		case <-timeout:
-		case <-time.After(1 * time.Second):
+		case <-time.After(10 * time.Second):
 			tailer.Loop()
 		}
 	}

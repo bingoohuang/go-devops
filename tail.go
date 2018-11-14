@@ -6,7 +6,6 @@ import (
 	"github.com/bingoohuang/go-utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/patrickmn/go-cache"
-	"io"
 	"log"
 	"os/exec"
 	"sync"
@@ -48,7 +47,7 @@ func tail(logFile string, seq int) ([]byte, int) {
 			Stop: make(chan bool),
 		}
 		logQueue = cycleQueue
-		go startTail(logFile, cycleQueue)
+		go startTail(logFile, cycleQueue, func() { tailCache.Delete(logFile) })
 	}
 
 	// reset expiration
@@ -69,9 +68,11 @@ func tail(logFile string, seq int) ([]byte, int) {
 	return tailBytes.Bytes(), index
 }
 
-func startTail(logFile string, logQueue *go_utils.CycleQueue) {
-	fullPathLogFile, _ := homedir.Expand(logFile)
-	cmd := exec.Command("tail", "-F", fullPathLogFile)
+func startTail(logFile string, logQueue *go_utils.CycleQueue, exitFunc func()) {
+	defer exitFunc()
+	expanded, _ := homedir.Expand(logFile)
+
+	cmd := exec.Command("bash", "-c", "tail -F "+expanded)
 	logQueue.Attach.(*CycleQueueAttach).Exec = cmd
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -83,7 +84,12 @@ func startTail(logFile string, logQueue *go_utils.CycleQueue) {
 		log.Fatal("Buffer Error:", err)
 	}
 
-	log.Println("start to tail -F", fullPathLogFile)
+	log.Println("start to tail -F ", expanded)
+
+	defer func() {
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+	}()
 
 	tmp := make([]byte, 10240)
 Loop:
@@ -95,7 +101,7 @@ Loop:
 		}
 
 		length, err := reader.Read(tmp)
-		if err != nil && err != io.EOF {
+		if err != nil {
 			logQueue.Add([]byte(err.Error()))
 			break
 		}

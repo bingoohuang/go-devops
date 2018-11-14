@@ -132,8 +132,6 @@ func StartNewTailer(k string, v ExLogTailerConf) error {
 		return err
 	}
 
-	go Tailf(v.LogFileName, tailer, rt.Stop, func() {
-		exLogChanMap.Delete(k)
-	})
+	go Tailf(v.LogFileName, tailer, rt.Stop, func() { exLogChanMap.Delete(k) })
 	return nil
 }
