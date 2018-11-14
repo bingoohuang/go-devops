@@ -13,8 +13,13 @@ func startBizCron() {
 		return
 	}
 
+	if bizCron != nil {
+		bizCron.Stop()
+	}
+
 	bizCron = cron.New()
-	c := "0 30 20 1/1 * ?" // "@every 10s"
+	c := "0 30 20 1/1 * ?"
+	//c := "@every 10s"
 	_ = bizCron.AddFunc(c, func() {
 		msg := createRemindMsg()
 		AddAlertMsg(devopsConf.BlackcatThreshold.MessageTargets, "统计上课提醒啦~", msg)
