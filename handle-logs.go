@@ -122,7 +122,7 @@ func HandleLocateLog(w http.ResponseWriter, r *http.Request) {
 	preLines := vars["preLines"]
 	lines := vars["lines"]
 
-	const awkTmpl = `awk 'BEGIN{h=1;t=1;p=%s;f=0;m=%s}{if(f==0){if($0~/%s/){f=1;for(k in a)print a[k];print}else{a[t++]=$0;if(t-h>p)delete a[h++]}}else{print;if(++f==m)exit}}' %s`
+	const awkTmpl = `awk 'BEGIN{c=1;h=1;t=1;p=%s;f=0;m=%s}{if(f==0){if($0~/%s/){f=1;print "\n\n\n===找到关键字#",c++,"===\n\n\n";for(k in a)print a[k];print;delete a}else{a[t++]=$0;if(t-h>p)delete a[h++]}}else{print;if(++f==m){h=1;t=1;f=0}}}' %s`
 	command := fmt.Sprintf(awkTmpl, preLines, lines, regexp.QuoteMeta(logKey), log.Path)
 
 	executeCommand(log, command, w)
