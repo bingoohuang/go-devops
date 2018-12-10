@@ -12,9 +12,9 @@ import (
 func HandleLoadConf(w http.ResponseWriter, r *http.Request) {
 	var conf []byte
 
-	_, err := os.Stat(configFile)
+	_, err := os.Stat(appConfig.ConfigFile)
 	if err == nil {
-		conf, _ = ioutil.ReadFile(configFile)
+		conf, _ = ioutil.ReadFile(appConfig.ConfigFile)
 	} else {
 		conf = []byte("")
 	}
@@ -27,7 +27,7 @@ func HandleSaveConf(w http.ResponseWriter, r *http.Request) {
 	go_utils.HeadContentTypeJson(w)
 	config := r.FormValue("config")
 
-	_ = ioutil.WriteFile(configFile, []byte(config), 0644)
+	_ = ioutil.WriteFile(appConfig.ConfigFile, []byte(config), 0644)
 	meta, err := toml.Decode(config, &devopsConf)
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(struct{ OK, Msg string }{"ERROR", err.Error()})

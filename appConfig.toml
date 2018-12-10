@@ -1,0 +1,7 @@
+ContextPath = ""
+HttpPort  = 6879
+StartHttp = true
+RpcPort = 6979
+DevMode = false
+ConfigFile = "config-test.toml"
+

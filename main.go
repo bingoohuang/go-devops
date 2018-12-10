@@ -5,15 +5,10 @@ func main() {
 }
 
 func startMain() {
-	if randomLogGen {
-		createRandomLog()
-		return
-	}
-
 	err := StartDevOpServer()
 	FatalIfErr(err)
 
-	if startHttp {
+	if appConfig.StartHttp {
 		go StartHttpSever()
 	}
 

@@ -11,6 +11,6 @@ mkdir -p $targetPath/
 mv -f $deployName.linux.bin $targetPath/
 cd $targetPath/
 ps -ef|grep $deployName|grep -v grep|awk '{print \$2}'|xargs -r kill -9
-nohup ./$deployName.linux.bin -rpcPort=$rpcPort -startHttp=$startHttp 2>&1 >> nohup.out &
+nohup ./$deployName.linux.bin 2>&1 >> nohup.out &
 exit
 eeooff

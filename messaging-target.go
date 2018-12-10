@@ -49,19 +49,25 @@ func (t *DingtalkRobotMessaging) sendMessage(title, message string) {
 }
 
 type QywxAppMessaging struct {
-	CorpId     string
-	CorpSecret string
-	AgentId    string
+	CorpId  string
+	AgentId string
 }
 
 func NewQywxAppMessaging(parameters string) *QywxAppMessaging {
 	token := strings.Split(parameters, "/")
 
-	return &QywxAppMessaging{CorpId: token[0], CorpSecret: token[2], AgentId: token[1]}
+	return &QywxAppMessaging{CorpId: token[0], AgentId: token[1]}
+}
+
+type QxWxAccessToken struct {
+	CorpId string `json:"corpId"`
+	Token  string `json:"token"`
 }
 
 func (t *QywxAppMessaging) sendMessage(title, message string) {
-	_, _ = go_utils.SendWxQyMsg(t.CorpId, t.CorpSecret, t.AgentId, message)
+	var token QxWxAccessToken
+	_ = go_utils.HttpGetObject("https://test.go.easy-hi.com/varys/query-wechat-corp-token/"+t.AgentId, &token)
+	_, _ = go_utils.SendWxQyMsg(token.Token, t.AgentId, message)
 }
 
 type MessageItem struct {
