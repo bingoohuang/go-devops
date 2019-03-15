@@ -19,7 +19,9 @@ func OnEvicted(key string, val interface{}) {
 	logQueue := val.(*go_utils.CycleQueue)
 
 	attach := logQueue.Attach.(*CycleQueueAttach)
-	attach.Stop <- true
+	go func() {
+		attach.Stop <- true
+	}()
 	_ = attach.Exec.Process.Kill()
 	_, _ = attach.Exec.Process.Wait()
 }
