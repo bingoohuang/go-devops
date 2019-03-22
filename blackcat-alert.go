@@ -6,15 +6,11 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/patrickmn/go-cache"
 	"strings"
-	"sync"
 	"time"
 )
 
 var exLogCache *cache.Cache
-var exLogCacheMux sync.Mutex
-
 var erLogCache *cache.Cache
-var erLogCacheMux sync.Mutex
 
 func init() {
 	exLogCache = cache.New(10*time.Minute, 30*time.Second)
@@ -27,9 +23,6 @@ func blackcatAlertExLog(result *ExLogCommandResult) {
 }
 
 func blackcatAlertExLogMsg(result *ExLogCommandResult) {
-	exLogCacheMux.Lock()
-	defer exLogCacheMux.Unlock()
-
 	interval := devopsConf.BlackcatThreshold.ExLogsCollapseInterval
 	for _, log := range result.ExLogs {
 		key := "ex" + NextID()
@@ -49,16 +42,13 @@ func blackcatAlertExLogMsg(result *ExLogCommandResult) {
 		cacheKey := hostname + "+" + logger + "+" + exNames
 		_, found := exLogCache.Get(cacheKey)
 		if found { continue }
-		erLogCache.Set(cacheKey, "", time.Duration(interval)*time.Minute)
+		exLogCache.Set(cacheKey, "", time.Duration(interval)*time.Minute)
 		content += "\n" + linkLogId(key) + "\nEx: " + exNames
 		AddAlertMsg(log.MessageTargets, "发现异常啦~", content)
 	}
 }
 
 func blackcatAlertErLogMsg(result *ExLogCommandResult) {
-	erLogCacheMux.Lock()
-	defer erLogCacheMux.Unlock()
-
 	interval := devopsConf.BlackcatThreshold.ExLogsCollapseInterval
 	if result.Error != "" {
 		key := "er" + NextID()

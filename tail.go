@@ -8,12 +8,10 @@ import (
 	"github.com/patrickmn/go-cache"
 	"log"
 	"os/exec"
-	"sync"
 	"time"
 )
 
 var tailCache *cache.Cache
-var cacheMux sync.Mutex
 
 func OnEvicted(key string, val interface{}) {
 	logQueue := val.(*go_utils.CycleQueue)
@@ -39,9 +37,6 @@ type CycleQueueAttach struct {
 }
 
 func tail(logFile string, seq int) ([]byte, int) {
-	cacheMux.Lock()
-	defer cacheMux.Unlock()
-
 	logQueue, found := tailCache.Get(logFile)
 	if !found {
 		cycleQueue := go_utils.NewCycleQueue(100)
