@@ -23,6 +23,7 @@ type BlackcatThreshold struct {
 	Topn                    int
 	ExLogViewUrlPrefix      string
 	MessageTargets          []string // 消息发送目标
+	ExLogsCollapseInterval  int // 重复异常日志的消息再次提醒的时间间隔(单位:分钟)
 }
 
 type BlackcatProcessConf struct {
@@ -94,6 +95,9 @@ func fixBlackcatConfig(t *BlackcatThreshold) {
 	}
 	if t.Topn == 0 {
 		t.Topn = 30
+	}
+	if t.ExLogsCollapseInterval == 0 {
+		t.ExLogsCollapseInterval = 10
 	}
 }
 

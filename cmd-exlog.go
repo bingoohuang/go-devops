@@ -62,7 +62,9 @@ var exLogChanMap sync.Map
 
 func (t *ExLogCommand) ClearAll(a *ExLogCommandArg, r *ExLogCommandResult) error {
 	exLogChanMap.Range(func(k, v interface{}) bool {
-		v.(*ExLogTailerRuntime).Stop <- true
+		go func() {
+			v.(*ExLogTailerRuntime).Stop <- true
+		}()
 		exLogChanMap.Delete(k)
 		return true
 	})
@@ -79,7 +81,9 @@ func (t *ExLogCommand) Execute(a *ExLogCommandArg, r *ExLogCommandResult) error 
 		if ok {
 			rt := m.(*ExLogTailerRuntime)
 			if !reflect.DeepEqual(rt.Conf, &v) {
-				rt.Stop <- true
+				go func() {
+					rt.Stop <- true
+				}()
 
 				exLogChanMap.Delete(k)
 				_ = StartNewTailer(k, v)

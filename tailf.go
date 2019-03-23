@@ -42,7 +42,9 @@ func Tailf(logFile string, tailer Tailer, stop chan bool, exitFunc func()) {
 			if err != nil {
 				fmt.Println(err)
 				tailer.Error(err)
-				stop <- true
+				go func() {
+					stop <- true
+				}()
 				break
 			}
 			tailer.Line(line)

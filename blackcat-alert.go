@@ -4,31 +4,61 @@ import (
 	"fmt"
 	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
+	"github.com/patrickmn/go-cache"
 	"strings"
 	"time"
 )
 
+var exLogCache *cache.Cache
+var erLogCache *cache.Cache
+
+func init() {
+	exLogCache = cache.New(10*time.Minute, 30*time.Second)
+	erLogCache = cache.New(10*time.Minute, 30*time.Second)
+}
+
 func blackcatAlertExLog(result *ExLogCommandResult) {
+	blackcatAlertExLogMsg(result)
+	blackcatAlertErLogMsg(result)
+}
+
+func blackcatAlertExLogMsg(result *ExLogCommandResult) {
+	interval := devopsConf.BlackcatThreshold.ExLogsCollapseInterval
 	for _, log := range result.ExLogs {
 		key := "ex" + NextID()
-		log.MachineName = result.Hostname
+		hostname := result.Hostname
+		log.MachineName = hostname
 		WriteDbJson(exLogDb, key, log, 7*24*time.Hour)
 
-		content := "Host: " + result.Hostname + "\nTs: " + log.Normal + "\nLogger: " + log.Logger +
+		logger := log.Logger
+		content := "Host: " + hostname + "\nTs: " + log.Normal + "\nLogger: " + logger +
 			"\nLogTag: " + log.Normal + "\nFoundTs: " + result.Timestamp
 
 		if len(log.Properties) > 0 {
 			content += "\nProperties: " + go_utils.MapToString(log.Properties)
 		}
 
-		content += "\n" + linkLogId(key) + "\nEx: " + log.ExceptionNames
+		exNames := log.ExceptionNames
+		cacheKey := hostname + "+" + logger + "+" + exNames
+		_, found := exLogCache.Get(cacheKey)
+		if found { continue }
+		exLogCache.Set(cacheKey, "", time.Duration(interval)*time.Minute)
+		content += "\n" + linkLogId(key) + "\nEx: " + exNames
 		AddAlertMsg(log.MessageTargets, "发现异常啦~", content)
 	}
+}
 
+func blackcatAlertErLogMsg(result *ExLogCommandResult) {
+	interval := devopsConf.BlackcatThreshold.ExLogsCollapseInterval
 	if result.Error != "" {
 		key := "er" + NextID()
-		WriteDb(exLogDb, key, []byte(result.Error), 7*24*time.Hour)
-		content := "\n" + linkLogId(key) + "\nEx: " + result.Error
+		er := result.Error
+		WriteDb(exLogDb, key, []byte(er), 7*24*time.Hour)
+
+		_, found := erLogCache.Get(er)
+		if found { return }
+		erLogCache.Set(er, "", time.Duration(interval)*time.Minute)
+		content := "\n" + linkLogId(key) + "\nEx: " + er
 		AddAlertMsg(devopsConf.BlackcatThreshold.MessageTargets, "发现错误啦~", content)
 	}
 }
@@ -85,7 +115,7 @@ func linkLogId(key string) string {
 		return `LogId: ` + key
 	}
 
-	return `<a href="` + threshold.ExLogViewUrlPrefix + `/exlog/` + key + `">LogId</a>: ` + key
+	return `<a href="` + threshold.ExLogViewUrlPrefix + `/exlog/` + key + `">LogId: ` + key + `</a>`
 }
 
 var exLogDb = OpenDb("./exlogdb")
