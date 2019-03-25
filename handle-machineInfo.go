@@ -16,7 +16,8 @@ func HandleMachineInfo(w http.ResponseWriter, r *http.Request) {
 
 	_, ok := devopsConf.Machines[machineName]
 	index := string(MustAsset("res/viewagent.html"))
-	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
+	mergeScripts := go_utils.MergeJs(MustAsset, FilterAssetNamesExcluded(AssetNames(), ".js",
+		"res/jquery.min", "res/codemirror.min", "res/toml.min", "res/jquery.contextMenu.min"))
 	js := go_utils.MinifyJs(mergeScripts, appConfig.DevMode)
 	index = strings.Replace(index, "${contextPath}", appConfig.ContextPath, -1)
 	index = strings.Replace(index, "/*.SCRIPT*/", js, 1)

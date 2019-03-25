@@ -13,6 +13,10 @@ func StartHttpSever() {
 	handleFunc(r, "/iconfont.{extension}", HandleFont, false)
 	handleFunc(r, "/favicon.png", HandleFavicon, false)
 
+	http.HandleFunc("/res/", func(w http.ResponseWriter, r *http.Request) {
+		HandleStaticResource(r.URL.Path[1:], w)
+	})
+
 	handleFunc(r, "/truncateLogFile/{loggerName}/{logMachine}", HandleTruncateLogFile, false)
 	handleFunc(r, "/restartProcess/{loggerName}/{logMachine}", HandleRestartProcess, false)
 	handleFunc(r, "/locateLog/{loggerName}/{logKey}/{preLines}/{lines}", HandleLocateLog, false)
