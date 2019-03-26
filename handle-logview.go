@@ -49,8 +49,7 @@ func agentError(log []byte, index string, exLogId string, err error) string {
 func agentView(log []byte, index string, exLogId string, err error) string {
 	exLog := &AgentCommandResult{}
 
-	mergeScripts := go_utils.MergeJs(MustAsset, FilterAssetNamesExcluded(AssetNames(), ".js",
-		"res/jquery.min", "res/codemirror.min", "res/toml.min", "res/jquery.contextMenu.min"))
+	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
 	js := go_utils.MinifyJs(mergeScripts, appConfig.DevMode)
 	index = strings.Replace(index, "${contextPath}", appConfig.ContextPath, -1)
 	index = strings.Replace(index, "/*.SCRIPT*/", js, 1)

@@ -13,11 +13,9 @@ func HandleHome(w http.ResponseWriter, r *http.Request) {
 
 	html := go_utils.MinifyHtml(indexHtml, appConfig.DevMode)
 
-	mergeCss := go_utils.MergeCss(MustAsset, FilterAssetNamesExcluded(AssetNames(), ".css",
-		"res/codemirror.min", "res/jquery-confirm.min"))
+	mergeCss := go_utils.MergeCss(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".css"))
 	css := go_utils.MinifyCss(mergeCss, appConfig.DevMode)
-	mergeScripts := go_utils.MergeJs(MustAsset, FilterAssetNamesExcluded(AssetNames(), ".js",
-		"res/jquery.min", "res/codemirror.min", "res/toml.min", "res/jquery.contextMenu.min", "res/jquery-confirm.min"))
+	mergeScripts := go_utils.MergeJs(MustAsset, go_utils.FilterAssetNames(AssetNames(), ".js"))
 	js := go_utils.MinifyJs(mergeScripts, appConfig.DevMode)
 	html = strings.Replace(html, "/*.CSS*/", css, 1)
 	html = strings.Replace(html, "/*.SCRIPT*/", js, 1)

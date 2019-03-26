@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/bingoohuang/go-utils"
 	"github.com/dustin/go-humanize"
 	"log"
 	"strconv"
@@ -60,14 +59,4 @@ func IsDurationAgo(maybeTs string, duration time.Duration) bool {
 
 	now := time.Now()
 	return e == nil && now.Sub(ts).Nanoseconds() > duration.Nanoseconds()
-}
-
-func FilterAssetNamesExcluded(assetNames []string, suffix string, excludeNames ...string) []string {
-	filtered := make([]string, 0)
-	for _, assetName := range assetNames {
-		if strings.HasSuffix(assetName, suffix) && go_utils.IndexOf(strings.TrimSuffix(assetName, suffix), excludeNames) < 0 {
-			filtered = append(filtered, assetName)
-		}
-	}
-	return filtered
 }
